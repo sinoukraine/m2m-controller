@@ -13,7 +13,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.dashcam.app</string>
+	<string>com.quiktrak.m2mcontroller</string>
 	<key>PROJECT_ID</key>
 	<string>quiktrak-1a820</string>
 	<key>STORAGE_BUCKET</key>

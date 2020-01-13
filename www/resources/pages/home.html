@@ -1,0 +1,226 @@
+<!--suppress JSAnnotator -->
+<template>
+    <div class="page " data-name="home"> <!-- page-with-subnavbar -->
+        <!-- Top Navbar -->
+        <div class="navbar">
+            <div class="navbar-bg"></div>
+            <div class="navbar-inner">
+                <div class="left">
+                    <a href="/panel-left/" class="link icon-only " >
+                        <i class="icon material-icons">menu</i>
+                    </a>
+                </div>
+                <div class="title sliding">
+                    {{@global.LANGUAGE.HOME_MSG00}}
+                </div>
+                <div class="right">
+                    <a href="#" class="link icon-only ">
+                        <i class="f7-icons icon-other-barcode"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="toolbar tabbar toolbar-top">
+            <div class="toolbar-inner">
+                <!-- Links have "tab-link" class instead of just "link" to switch tabs -->
+                <a href="#tab1" class="tab-link tab-link-active">IMSI</a>
+                <a href="#tab2" class="tab-link">ICCID</a>
+            </div>
+        </div>
+
+        <form class="searchbar custom-searchbar">
+            <div class="searchbar-inner">
+                <div class="searchbar-input-wrap">
+                    <input type="search" placeholder="{{@global.LANGUAGE.COM_MSG002}}" title="{{@global.LANGUAGE.COM_MSG002}}">
+                    <!--<i class="searchbar-icon"></i>-->
+                    <span class="input-clear-button"></span>
+                    <button type="submit" class="button "><i class="material-icons">search</i></button>
+                </div>
+                <!--<span class="searchbar-disable-button">{{@global.LANGUAGE.COM_MSG001}}</span>-->
+            </div>
+        </form>
+
+        <div class="page-content">
+            <!--fake tabs for tabbar correct working working-->
+            <div class="tabs">
+                <div class="tab-active" id="tab1"></div>
+                <div id="tab2"></div>
+            </div>
+
+            <div class="searchbar-backdrop"></div>
+
+            <div class="block searchbar-not-found">
+                <div class="block-inner">{{@global.LANGUAGE.PROMPT_MSG000}}</div>
+            </div>
+
+            <div class="block searchbar-hide-on-search">
+                <p>This block will be hidden on search. Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+            </div>
+
+            <div class="list virtual-list media-list no-hairlines no-chevron no-margin-top searchbar-found assetList">
+                <!-- keep it empty -->
+            </div>
+
+        </div>
+
+		<p><a href="#" data-actions=".my-actions" class="actions-open">Open Actions</a></p>
+
+							<!--<div class="actions-modal my-actions">
+							  <div class="actions-modal-group"><div class="actions-modal-label color-red">IMEI: 0354188048666171</div><div class="actions-modal-button"><div class="action_button_wrapper"><div class="action_button_block action_button_media"><i class="f7-icons icon-other-service-details"></i></div><div class="action_button_block action_button_text">Asset Details</div></div></div><div class="actions-modal-button"><div class="action_button_wrapper"><div class="action_button_block action_button_media"><i class="f7-icons icon-other-commands "></i></div><div class="action_button_block action_button_text">Commands</div></div></div><div class="actions-modal-button"><div class="action_button_wrapper"><div class="action_button_block action_button_media"><i class="f7-icons icon-header-history-command-screen "></i></div><div class="action_button_block action_button_text">Commands History</div></div></div><div class="actions-modal-button"><div class="action_button_wrapper"><div class="action_button_block action_button_media"><i class="f7-icons icon-other-info "></i></div><div class="action_button_block action_button_text">Installation Notice</div></div></div><div class="actions-modal-button"><div class="action_button_wrapper"><div class="action_button_block action_button_media"><i class="f7-icons icon-header-notification "></i></div><div class="action_button_block action_button_text">Notifications</div><span class="label-switch actionButton-label"><input type="checkbox" name="checkbox-alarm"><div class="checkbox"></div></span></div></div></div>
+							</div>-->
+
+    </div>
+</template>
+
+<script>
+    // script must return component object
+    return {
+        data: function () {
+            let ret = {};
+
+            return ret;
+        },
+        methods: {
+            initSearchForm: function () {
+                let self = this;
+                let serchbarEl = self.$el.find('.searchbar');
+                let listEl = self.$el.find('.assetList');
+                self.Searchbar = self.$app.searchbar.create({
+                    el: serchbarEl,
+                    customSearch: true,
+                });
+                self.VirtualAssetList = app.virtualList.create({
+                    el: listEl,
+                    items : [],
+                    //height: '',
+                    renderItem: function (item, index) {
+
+                        return `
+                            <li>
+                                <a href="#" class="ac-5 item-link item-content">
+                                    <div class="item-inner">
+                                        <div class="item-title-row">
+                                            <div class="item-title color-custom">
+                                                <div class="display-flex">
+                                                    <div class="prop-name">IMSI:</div>
+                                                    <div >${ item.IMSI }</div>
+                                                </div>
+                                            </div>
+                                            <div class="item-after color-custom"><i class="f7-icons icon-other-menu3"></i></div>
+                                        </div>
+                                        <div class="item-text">
+                                            <div class="display-flex">
+                                                <div class="prop-name">ICCID:</div>
+                                                <div >${ item.ICCID }</div>
+                                            </div>
+                                            <div class="display-flex">
+                                                <div class="prop-name">State:</div>
+                                                <div >${ item.State }</div>
+                                            </div>
+                                            <div class="display-flex">
+                                                <div class="prop-name">Rag:</div>
+                                                <div >${ item.Rag }</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                        `;
+                    }
+                });
+				
+                serchbarEl.on('submit', function () {
+					
+					self.$app.preloader.show();
+					
+					$.ajax({
+						type: "GET",		        
+						url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v2/sims',
+						dataType: "json",	
+						async: true,
+						cache: false,
+						headers: { 
+							Authorization: "12345"
+						},
+						success: function (result) {
+							if(result){							
+								var arr = [];
+								$.each(result, function(index, value){	
+									var objTemp = {
+										IMSI: value.imsi,
+										ICCID: value.iccId,
+										State: value.status,
+										Rag: value.parentLockedByOrder,
+									};	
+									arr.push(objTemp);
+								});
+								
+								$('.searchbar-hide-on-search').addClass('display-none');
+											
+									self.VirtualAssetList.replaceAllItems(arr);
+									
+									self.$app.preloader.hide();
+									
+									var ac5 = self.$app.actions.create({
+									buttons: [
+										{
+											text: 'IMSI:',
+											label: true,
+											bold: true,
+											color: 'blue',							
+										},
+										{
+										  text: 'Commands',
+										  onClick: function () {
+											//self.$app.dialog.alert('Button1 clicked')
+											mainView.router.navigate('/commands/');
+										  }
+										},
+										{
+										  text: 'History',
+										  onClick: function () {
+											self.$app.dialog.alert('Button2 clicked')
+										  }
+										},
+										{
+										  text: 'Sim status',
+										  onClick: function () {
+											self.$app.dialog.alert('Cancel clicked')
+										  }
+										},
+									  ],
+										//el: actionsEl
+								});
+								
+								$$('.ac-5').on('click', function () {
+									ac5.open();
+								});
+							}else{
+								console.log('something wrong');
+							}
+						},
+						error: function(XMLHttpRequest, textStatus, errorThrown){
+							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
+						}
+					});
+				});
+            }
+        },
+
+        on: {
+            pageInit: function (e, page) {
+                let self = this;
+
+                self.initSearchForm();
+
+            },
+            pageAfterIn:function(){
+
+            },
+            pageAfterOut: function () {
+                // page has left the view
+            },
+
+        }
+    };
+</script>

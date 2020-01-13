@@ -1,0 +1,174 @@
+:root {
+    --f7-bars-bg-color: #27a6e1;
+    --f7-bars-bg-color-rgb: 39,166,225;
+
+    --f7-bars-link-color: #fff;
+    --f7-bars-text-color: #fff;
+    --f7-theme-color: #27a6e1;
+    --f7-bars-border-color:#27a6e1;
+
+    --f7-tabbar-link-active-color:#fff;
+    --f7-tabbar-link-active-border-color:#fff;
+    --f7-tabbar-link-inactive-color: rgba(255, 255, 255, 0.7);
+
+    --f7-navbar-bg-color: #27a6e1;
+    /*
+    --f7-toolbar-bg-image: var(--f7-bars-bg-image);
+    */
+
+    /*START SEARCHBAR*/
+    /*
+  --f7-searchbar-bg-image: var(--f7-bars-bg-image);
+
+  --f7-searchbar-bg-color-rgb: var(--f7-bars-bg-color-rgb);
+  --f7-searchbar-border-color: var(--f7-bars-border-color);
+  */
+
+    --f7-searchbar-bg-color: #F2F2F2;
+    --f7-searchbar-bg-color-rgb: 242,242,242;
+    --f7-searchbar-height: 44px;
+    --f7-searchbar-inner-padding-left: 8px;
+    --f7-searchbar-inner-padding-right: 8px;
+    /*
+    --f7-searchbar-link-color: var(--f7-bars-link-color, var(--f7-theme-color));
+    */
+    --f7-searchbar-input-font-size: 16px;
+    --f7-searchbar-input-border-radius: 4px;
+    --f7-searchbar-input-height: 32px;
+    --f7-searchbar-input-padding-horizontal: 28px;
+    /*
+    --f7-searchbar-inline-input-padding-horizontal: var(--f7-searchbar-input-padding-horizontal);
+    --f7-searchbar-input-clear-button-color: var(--f7-input-clear-button-color);
+    */
+    --f7-searchbar-backdrop-bg-color: rgba(0, 0, 0, 0.4);
+    --f7-searchbar-shadow-image: none;
+    --f7-searchbar-in-page-content-margin: 0px;
+    --f7-searchbar-in-page-content-box-shadow: none;
+    --f7-searchbar-in-page-content-border-radius: 0;
+    --f7-searchbar-in-page-content-input-border-radius: 0;
+    --f7-searchbar-search-icon-color: rgba(0, 0, 0, 0.4);
+    --f7-searchbar-input-bg-color: #fff;
+    /*END SEARCHBAR*/
+
+    /*START LIST ITEM*/
+    --f7-list-item-text-max-lines: 10;
+    /*END LIST ITEM*/
+}
+.ios{
+    --f7-page-bg-color: #fff;
+
+    --f7-searchbar-border-color: var(--f7-searchbar-bg-color);
+
+    --f7-searchbar-input-extra-padding-left: 15px;
+    --f7-searchbar-input-border-radius: 8px;
+    --f7-searchbar-bg-color: #F2F2F2;
+}
+.color-theme-custom {
+    --f7-theme-color: #27a6e1;
+    --f7-theme-color-rgb: 39,166,225;
+    --f7-theme-color-shade: #10aef8;
+    --f7-theme-color-tint: #10aef8;
+}
+.bg-custom{
+    background: #27a6e1;
+}
+.color-custom{
+    color: #27a6e1;
+}
+.color-theme-custom .navbar{
+    background: #27a6e1;
+}
+.custom-searchbar{
+    --f7-searchbar-input-padding-horizontal: 0px;
+    --f7-searchbar-input-extra-padding-right: 96px;
+}
+
+.md .searchbar.custom-searchbar .input-clear-button{
+    right: 48px;
+}
+.ios .searchbar.custom-searchbar .input-clear-button{
+    right: 56px;
+
+}
+
+
+.ios .navbars~.page .toolbar-top~.searchbar{
+    top: calc(var(--f7-navbar-height) + var(--f7-toolbar-height) + var(--f7-safe-area-top));
+}
+
+
+.searchbar.custom-searchbar button[type="submit"]{
+    width: 48px;
+    height: 48px;
+    margin-top: -24px;
+    right: 0;
+    position: absolute;
+    top: 50%;
+    z-index: 1;
+}
+.ios .searchbar.custom-searchbar button[type="submit"]{
+    width: 44px;
+    z-index: 40;
+}
+.searchbar.custom-searchbar button[type="submit"] i{
+    vertical-align: middle;
+}
+
+.notification .icon-notification{
+    height: 16px;
+    width: 16px;
+}
+
+
+.size-24{
+    font-size: 24px;
+}
+
+
+
+
+/*PANEL LEFT*/
+.user-img{
+    width: 60px;
+    height: 60px;
+    border-radius: 100%;
+}
+
+
+/*LOGIN SCREEN*/
+.login-screen-content{
+    --f7-list-bg-color: trasparent;
+    background: url('../images/bg.png') no-repeat center center;
+    background-size: cover;
+    height: 100%!important;
+}
+    .login-screen-content .logo{
+        margin-top: 48px;
+    }
+        .login-screen-content .logo img{
+            max-width: 180px;
+            width:100%;
+        }
+    .login-screen-content .list input{
+        background: rgba(255,255,255,.9)!important;
+    }
+    .login-screen-content .input-clear-button.password-clear-button{
+        margin-right: 48px;
+    }
+    .login-screen-content .password-toggle {
+        position: absolute;
+        right: 8px;
+        cursor: pointer;
+        transition: all .3s;
+
+        margin-top: calc(-1 * 25px / 2);
+        top: calc(var(--f7-input-height)/ 2);
+    }
+
+
+    /*HOME PAGE*/
+.prop-name{
+    width: 60px;
+}
+
+
