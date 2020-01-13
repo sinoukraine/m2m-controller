@@ -171,4 +171,12 @@
     width: 60px;
 }
 
+/*TEMP*/
 
+.searchbar-backdrop{
+	background: none;
+}
+
+.item-text{
+	display: block !important;
+}
