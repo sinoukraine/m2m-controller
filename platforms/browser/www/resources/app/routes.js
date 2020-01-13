@@ -11,6 +11,16 @@ var routes = [
         },
         name: 'panel-left'
     },
+    {
+        path: '/commands/',
+        componentUrl: './resources/pages/commands.html?v=1.1',
+        name: 'commands'
+    },
+    {
+        path: '/commands-list/',
+        componentUrl: './resources/pages/commands-list.html?v=1.1',
+        name: 'commands-list'
+    },
 
 
 

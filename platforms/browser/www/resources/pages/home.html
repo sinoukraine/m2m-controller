@@ -63,10 +63,14 @@
 
         </div>
 
+		<p><a href="#" data-actions=".my-actions" class="actions-open">Open Actions</a></p>
+
+							<!--<div class="actions-modal my-actions">
+							  <div class="actions-modal-group"><div class="actions-modal-label color-red">IMEI: 0354188048666171</div><div class="actions-modal-button"><div class="action_button_wrapper"><div class="action_button_block action_button_media"><i class="f7-icons icon-other-service-details"></i></div><div class="action_button_block action_button_text">Asset Details</div></div></div><div class="actions-modal-button"><div class="action_button_wrapper"><div class="action_button_block action_button_media"><i class="f7-icons icon-other-commands "></i></div><div class="action_button_block action_button_text">Commands</div></div></div><div class="actions-modal-button"><div class="action_button_wrapper"><div class="action_button_block action_button_media"><i class="f7-icons icon-header-history-command-screen "></i></div><div class="action_button_block action_button_text">Commands History</div></div></div><div class="actions-modal-button"><div class="action_button_wrapper"><div class="action_button_block action_button_media"><i class="f7-icons icon-other-info "></i></div><div class="action_button_block action_button_text">Installation Notice</div></div></div><div class="actions-modal-button"><div class="action_button_wrapper"><div class="action_button_block action_button_media"><i class="f7-icons icon-header-notification "></i></div><div class="action_button_block action_button_text">Notifications</div><span class="label-switch actionButton-label"><input type="checkbox" name="checkbox-alarm"><div class="checkbox"></div></span></div></div></div>
+							</div>-->
 
     </div>
 </template>
-
 
 <script>
     // script must return component object
@@ -93,7 +97,7 @@
 
                         return `
                             <li>
-                                <a href="#" class="item-link item-content">
+                                <a href="#" class="ac-5 item-link item-content">
                                     <div class="item-inner">
                                         <div class="item-title-row">
                                             <div class="item-title color-custom">
@@ -124,30 +128,82 @@
                         `;
                     }
                 });
-
+				
                 serchbarEl.on('submit', function () {
-                    self.VirtualAssetList.replaceAllItems([
-                        {
-                            IMSI: 123123123123123,
-                            ICCID: 3434343434,
-                            State: 'Productive',
-                            Rag: 1,
-                        },
-                        {
-                            IMSI: 8798797634232345,
-                            ICCID: 346657978098,
-                            State: 'Active',
-                            Rag: 2,
-                        },
-                        {
-                            IMSI: 43534512312323534,
-                            ICCID: 243234234,
-                            State: 'Terminated',
-                            Rag: 3,
-                        }
-                    ]);
-                    console.log('submit');
-                });
+					
+					self.$app.preloader.show();
+					
+					$.ajax({
+						type: "GET",		        
+						url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v2/sims',
+						dataType: "json",	
+						async: true,
+						cache: false,
+						headers: { 
+							Authorization: "12345"
+						},
+						success: function (result) {
+							if(result){							
+								var arr = [];
+								$.each(result, function(index, value){	
+									var objTemp = {
+										IMSI: value.imsi,
+										ICCID: value.iccId,
+										State: value.status,
+										Rag: value.parentLockedByOrder,
+									};	
+									arr.push(objTemp);
+								});
+								
+								$('.searchbar-hide-on-search').addClass('display-none');
+											
+									self.VirtualAssetList.replaceAllItems(arr);
+									
+									self.$app.preloader.hide();
+									
+									var ac5 = self.$app.actions.create({
+									buttons: [
+										{
+											text: 'IMSI:',
+											label: true,
+											bold: true,
+											color: 'blue',							
+										},
+										{
+										  text: 'Commands',
+										  onClick: function () {
+											//self.$app.dialog.alert('Button1 clicked')
+											mainView.router.navigate('/commands/');
+										  }
+										},
+										{
+										  text: 'History',
+										  onClick: function () {
+											self.$app.dialog.alert('Button2 clicked')
+										  }
+										},
+										{
+										  text: 'Sim status',
+										  onClick: function () {
+											self.$app.dialog.alert('Cancel clicked')
+										  }
+										},
+									  ],
+										//el: actionsEl
+								});
+								
+								$$('.ac-5').on('click', function () {
+									ac5.open();
+								});
+							}else{
+								console.log('something wrong');
+							}
+						},
+						error: function(XMLHttpRequest, textStatus, errorThrown){
+							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
+						}
+					});
+				});
             }
         },
 
