@@ -173,6 +173,10 @@
 
 /*TEMP*/
 
+.uppercase{
+	text-transform: uppercase;
+}
+
 .searchbar-backdrop{
 	background: none;
 }
