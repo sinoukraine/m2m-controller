@@ -21,6 +21,11 @@ var routes = [
         componentUrl: './resources/pages/commands-list.html?v=1.1',
         name: 'commands-list'
     },
+    {
+        path: '/imsi-statistics/',
+        componentUrl: './resources/pages/imsi-statistics.html?v=1.1',
+        name: 'imsi-statistics'
+    },
 
 
 

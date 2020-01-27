@@ -11,6 +11,12 @@ var htmlTemplate = $$('script#loginScreenTemplate').html();
 var compiledTemplate = Template7.compile(htmlTemplate);
 $$('#app').append(compiledTemplate());
 
+var API_URL = {};
+var API_DOMIAN1 = "https://m2mdata03.sinopacific.com.ua/m2mdata/v2/";
+API_URL.URL_GET_COMMAND_HISTORY = API_DOMIAN1 + "cdrs";
+
+
+var virtualCommandsHistoryList = null;
 // Init App
 var app = new Framework7({
     id: 'io.framework7.testapp',
@@ -191,6 +197,26 @@ var mainView = app.views.create('.view-main', {
     url: '/',
     name: 'view-main'
 });
+
+
+$$('body').on('click', '#mainMenu li', menuList)
+
+function menuList() {
+		let listId = $$(this).attr('id');
+		
+		if (listId) {
+			switch (listId) {
+				case 'imsi-statistics':
+					loadIMSIStatisticsPage();
+					app.panel.close($$('.panel-left'), true);
+				break;
+			}
+		}
+}
+
+function loadIMSIStatisticsPage() {	
+	mainView.router.navigate('/imsi-statistics/');
+}
 
 $$('body').on('submit', '[name="login-form"]', function (e) {
     e.preventDefault();

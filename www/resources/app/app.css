@@ -173,8 +173,19 @@
 
 /*TEMP*/
 
+.display-block{
+	display: block;
+}
+
 .uppercase{
 	text-transform: uppercase;
+}
+
+.custom_chart_icon{
+	font-size: 29px !important;
+    width: 29px !important;
+    height: 29px !important;
+    margin-left: -2px;
 }
 
 .searchbar-backdrop{

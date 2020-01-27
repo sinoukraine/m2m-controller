@@ -133,17 +133,17 @@
 					
 					$.ajax({
 						type: "GET",		        
-						url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v2/sims',
+						url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v2/sims?page=1&pageSize=10',
 						dataType: "json",	
 						async: true,
 						cache: false,
 						headers: { 
 							Authorization: "12345"
 						},
-						success: function (result) {
+						success: function (result) {console.log(result.rows);
 							if(result){							
 								var arr = [];
-								$.each(result, function(index, value){	
+								$.each(result.rows, function(index, value){	
 									var objTemp = {
 										IMSI: value.imsi,
 										ICCID: value.iccId,
