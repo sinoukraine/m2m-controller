@@ -68,7 +68,9 @@
     return { 
         data: function () {
             var self = this;
-            var ret = {};            
+            var ret = {
+				virtualCommandsHistoryList: false
+			};            
             
 			if (self.$route.query.imsi) {
 				ret.IMSI = self.$route.query.imsi;
@@ -78,10 +80,10 @@
         },
 		methods: {
 			requestCommandHistory: function(params){	
-					console.log(params);
+				var self = this;
 				if (params && params.IMSI && params.LastDay) {
 					var data = {
-						IMSI: params.IMSI,
+						IMSI: self.IMSI,
 						LastDay: params.LastDay,
 					};
 
@@ -91,7 +93,7 @@
 					
 					$.ajax({
 						type: "GET",
-						url: API_URL.URL_GET_COMMAND_HISTORY + '?' + params,        
+						url: API_URL.URL_GET_COMMAND_HISTORY + data.IMSI + '/sms',        
 						dataType: "json",	
 						headers: { 
 							Authorization: "12345"
@@ -99,10 +101,75 @@
 						async: true,
 						cache: false,
 						success: function (result) {
-							//App.hideProgressbar(container);
-							//hidePreloader(fromClass);	  
 							if(result){				
-								//updateTable(result, table); 
+								/*if (result.MajorCode == '000') {.Data && result.Data.length > 0 && virtualCommandsHistoryList*/
+									if (result) {
+										
+										var listEl = self.$el.find('.commandsHistoryList');
+										
+										if (self.virtualCommandsHistoryList) {
+											self.virtualCommandsHistoryList.destroy();
+										}
+										
+										//result.length = 5;
+										
+										self.virtualCommandsHistoryList = app.virtualList.create({
+											el: listEl, 
+											items: result,
+											height: function(item) {
+												var height = 99;
+												if (item.direction == 'Inbound') {
+													height = 79;
+												}
+												return height; //display the image with 50px height
+											},
+											renderItem: function(item, index) {
+												var ret = '';
+
+												var datetime = moment.utc(item.insertedDate).toDate();
+												datetime = moment(datetime).format(window.COM_TIMEFORMAT);
+
+
+												if (item.message) {
+													item.message = item.message.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+												}
+
+												if (item.direction == 1) {
+													ret += '<li class="item-content with-divider-bottom" >';
+												} else {
+													ret += '<li class="item-content" >';
+												}
+												ret += '<div class="item-inner item-inner-commands-history">';
+												ret += '<div class="item-title-row">';
+												ret += '<div class="item-title">';
+												if (item.direction == 'Inbound') {
+													ret += '<i class="material-icons md-36">email</i>';
+												} else {
+													ret += '<i class="material-icons md-36">send</i>';
+												}
+												ret += '</div>';
+												ret += '<div class="item-after">' + datetime + '</div>';
+												ret += '</div>';
+												ret += '<div class="item-text">' + item.message + '</div>';
+												ret += '</div>';
+												ret += '</li>';
+												return ret;
+											}
+										});
+										
+										//virtualCommandsHistoryList.replaceAllItems(result);
+									} else {
+										/*App.addNotification({
+											hold: 3000,
+											message: LANGUAGE.ASSET_COMMANDS_HISTORY_MSG01
+										});*/
+										if (self.virtualCommandsHistoryList) {
+											self.virtualCommandsHistoryList.deleteAllItems();
+										}
+									}
+								/*} else {
+									//App.alert(LANGUAGE.PROMPT_MSG013);
+								} */
 								console.log(result);
 							}else{
 								console.log('something wrong');
@@ -118,64 +185,16 @@
         on: {
             pageInit: function (e, page) {  
 				var self = this;        
-				
-
-				if (virtualCommandsHistoryList) {
-					virtualCommandsHistoryList.destroy();
-				}
-
-				var commandsHystoryList = $$(page.container).find('.commandsHistoryList');
+				var thisPage = page.$el.find('.page-content'); 
 
 				
-				virtualCommandsHistoryList = app.virtualList.create(commandsHystoryList, {
-					items: [],
-					height: function(item) {
-						var height = 99;
-						if (item.Direct == 1) {
-							height = 79;
-						}
-						return height; //display the image with 50px height
-					},
-					renderItem: function(index, item) {
-						var ret = '';
-
-						var datetime = moment.utc(item.Datetime).toDate();
-						datetime = moment(datetime).format(window.COM_TIMEFORMAT);
-
-
-						if (item.Text) {
-							item.Text = item.Text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-						}
-
-						if (item.Direct == 1) {
-							ret += '<li class="item-content with-divider-bottom" >';
-						} else {
-							ret += '<li class="item-content" >';
-						}
-						ret += '<div class="item-inner">';
-						ret += '<div class="item-title-row">';
-						ret += '<div class="item-title">';
-						if (item.Direct == 1) {
-							ret += '<i class="f7-icons icon-send"></i>';
-						} else {
-							ret += '<i class="f7-icons icon-other-email"></i>';
-						}
-						ret += '</div>';
-						ret += '<div class="item-after">' + datetime + '</div>';
-						ret += '</div>';
-						ret += '<div class="item-text">' + item.Text + '</div>';
-						ret += '</div>';
-						ret += '</li>';
-						return ret;
-					}
-				});
 
 				var selectLastDay = $$('select[name="LastDaySelect"]');
 				selectLastDay.val(selectLastDay.data("set"));
 
-				var IMSI = $$(page.container).find('[name="IMSI"]').val();
-				var LastDay = $$(page.container).find('[name="LastDay"]').val();
-
+				var IMSI = thisPage.find('[name="IMSI"]').val();
+				var LastDay = thisPage.find('[name="LastDay"]').val();
+				
 				if (IMSI && LastDay) {
 					self.requestCommandHistory({ IMSI: IMSI, LastDay: LastDay });
 				}

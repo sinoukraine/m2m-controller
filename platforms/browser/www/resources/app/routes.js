@@ -23,8 +23,23 @@ var routes = [
     },
     {
         path: '/imsi-statistics/',
-        componentUrl: './resources/pages/imsi-statistics.html?v=1.1',
+        componentUrl: './resources/pages/imsi-statistics.html?v=1.2',
         name: 'imsi-statistics'
+    },
+    {
+        path: '/commands-history/',
+        componentUrl: './resources/pages/commands-history.html?v=1.2',
+        name: 'commands-history'
+    },
+    {
+        path: '/sim-status/',
+        componentUrl: './resources/pages/sim-status.html?v=1.3',
+        name: 'sim-status'
+    },
+    {
+        path: '/set-status/',
+        componentUrl: './resources/pages/set-status.html?v=1.7',
+        name: 'set-status'
     },
 
 

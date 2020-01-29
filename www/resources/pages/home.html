@@ -108,7 +108,7 @@
                                         <div class="item-text">
                                             <div class="display-flex">
                                                 <div class="prop-name">ICCID:</div>
-                                                <div >${ item.ICCID }</div>
+                                                <div class="iccid-value">${ item.ICCID }</div>
                                             </div>
                                             <div class="display-flex">
                                                 <div class="prop-name">State:</div>
@@ -140,7 +140,7 @@
 						headers: { 
 							Authorization: "12345"
 						},
-						success: function (result) {console.log(result.rows);
+						success: function (result) {
 							if(result){							
 								var arr = [];
 								$.each(result.rows, function(index, value){	
@@ -162,6 +162,8 @@
 									
 									$$('.ac-5').on('click', function () {
 										var imsiValue = $(this).find('.imsi-value').html();
+										var iccidValue = $(this).find('.iccid-value').html();
+										
 										var ac5 = self.$app.actions.create({
 										buttons: [
 											{
@@ -180,13 +182,13 @@
 											{
 											  text: 'History',
 											  onClick: function () {
-												self.$app.dialog.alert('This is in developmental stage.')
+												mainView.router.navigate('/commands-history/?imsi='+imsiValue.toString());
 											  }
 											},
 											{
 											  text: 'Sim status',
 											  onClick: function () {
-												self.$app.dialog.alert('This is in developmental stage.')
+												mainView.router.navigate('/sim-status/?imsi='+imsiValue.toString()+'&iccid='+iccidValue.toString());
 											  }
 											},
 										  ],

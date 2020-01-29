@@ -13,7 +13,7 @@ $$('#app').append(compiledTemplate());
 
 var API_URL = {};
 var API_DOMIAN1 = "https://m2mdata03.sinopacific.com.ua/m2mdata/v2/";
-API_URL.URL_GET_COMMAND_HISTORY = API_DOMIAN1 + "cdrs";
+API_URL.URL_GET_COMMAND_HISTORY = API_DOMIAN1 + "sims/";
 
 
 var virtualCommandsHistoryList = null;
