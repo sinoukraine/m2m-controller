@@ -140,11 +140,16 @@
 							if(result){		
 								console.log(result);
 								//self.$app.dialog.alert('Button1 clicked')
+								self.$app.dialog.alert('Status changed');
 							}else{
 								console.log('something wrong');
+								
+								self.$app.dialog.alert('Something wrong');
 							}
 						},
 						error: function(XMLHttpRequest, textStatus, errorThrown){
+							
+							self.$app.dialog.alert('This SIM is activated already');
 							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
 						}
 					});

@@ -22,12 +22,11 @@
                 <p>{{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG03}}</p>				
             </div>
 			<div class="list">
-			  <ul>
 				<input type="hidden" name="IMSI" value="{{IMSI}}">
-				<input type="hidden" name="LastDay" value="{{LastDay}}">
+				<input type="hidden" name="LastDay" value="1">
+			  <!--<ul>
             
                 <li class="item-content border_bottom">
-                    <!--  <div class="item-media"><i class="f7-icons icon-other-unit"></i></div> -->
                     <div class="item-inner display-block">
                         <div class="item-title label">{{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG06}}</div>
                         <div class="item-input">
@@ -51,7 +50,7 @@
                         </div>
                     </div>
                 </li>
-            </ul>
+            </ul>-->
         </div>
 
         <div class="list commandsHistoryList">
@@ -203,9 +202,9 @@
 
 				});
 
-				selectLastDay.on('change', function() {
+				//selectLastDay.on('change', function() {
 					self.requestCommandHistory({ IMSI: IMSI, LastDay: this.value });
-				});
+				//});
 
 			}
 		}

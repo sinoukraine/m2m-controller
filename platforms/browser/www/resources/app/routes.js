@@ -38,7 +38,7 @@ var routes = [
     },
     {
         path: '/set-status/',
-        componentUrl: './resources/pages/set-status.html?v=1.7',
+        componentUrl: './resources/pages/set-status.html?v=2.2',
         name: 'set-status'
     },
 

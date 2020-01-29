@@ -19,6 +19,12 @@ API_URL.URL_GET_COMMAND_HISTORY = API_DOMIAN1 + "sims/";
 var virtualCommandsHistoryList = null;
 // Init App
 var app = new Framework7({
+	dialog: {
+		// set default title for all dialog shortcuts
+		title: 'M2M Data Controller',
+		// change default "OK" button text
+		buttonOk: 'Ok',
+	},
     id: 'io.framework7.testapp',
     root: '#app',
     theme: theme,
