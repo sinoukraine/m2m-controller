@@ -46,25 +46,30 @@
 				
 				
 				<div class="item-inner">
-				<ul class="additional-sim-info-ul"><!--
-					<li class="item-content additional-sim-info">
-						<div class="item-media"></div>
-                        <div class="item-title label additional-sim-label">Customer</div>
-                        <div class="item-input dflex item-input-field">
-                            <div class="item-title label">Ag Tracking</div>
-                            <i class="material-icons md-36 select_arrow">arrow_drop_down</i>
-                        </div>
-					</li>-->
-					<li class="item-content additional-sim-info">
-						<a href="#" class="currentState">
+					<ul class="additional-sim-info-ul"><!--
+						<li class="item-content additional-sim-info">
 							<div class="item-media"></div>
-							<div class="item-title label additional-sim-label">State</div>
+							<div class="item-title label additional-sim-label">Customer</div>
 							<div class="item-input dflex item-input-field">
-								<div class="item-title label">{{statusInfo}}</div>
+								<div class="item-title label">Ag Tracking</div>
 								<i class="material-icons md-36 select_arrow">arrow_drop_down</i>
 							</div>
-						</a>
-					</li>
+						</li>-->
+						<li class="item-content additional-sim-info">
+							<a href="#" class="currentState">
+								<div class="item-media"></div>
+								<div class="item-title label additional-sim-label">State</div>
+								<div class="item-input dflex item-input-field">
+									<div class="item-title label">{{statusInfo}}</div>
+									<i class="material-icons md-36 select_arrow">arrow_drop_down</i>
+								</div>
+							</a>
+						</li>
+							
+					</ul>
+					<div class="location-div">
+						<button class="col button button-outline currentLocation">Show location</button>
+					</div>
                 </div>
 			</div>
 		</div>
@@ -93,6 +98,55 @@
             return ret;
         },
 		methods: {
+			loadTrackPage: function () {
+			
+				var self = this;
+				
+				$.ajax({
+						type: "GET",		        
+						url: API_URL.URL_GET_COMMAND_HISTORY + self.IMSI + '/coordinates?formula=centerOfMass', 
+						dataType: "json",	
+						async: true,
+						cache: false,
+						headers: { 
+							Authorization: "12345"
+						},
+						success: function (result) {
+							if(result){
+							
+								console.log(result);
+								var lat = result.geometry.coordinates[0], lng = result.geometry.coordinates[1];
+								
+								
+								
+				
+								if (lat !== 0 && parseFloat(lng) !== 0) {            
+										
+									var boatMarker = L.icon({
+										iconUrl: 'resources/images/marker.svg',                       
+										iconSize:     [50, 50], // size of the icon                        
+										iconAnchor:   [50, 99], // point of the icon which will correspond to marker's location                        
+										popupAnchor:  [0, -50] // point from which the popup should open relative to the iconAnchor    
+									});
+
+									var marker = L.marker([lat, lng], {icon: boatMarker}); 
+									marker.setLatLng([lat, lng]);
+									MapTrack = Protocol.Helper.createMap({ target: 'map', latLng: [lat,lng], zoom: 14 });        
+									marker.addTo(MapTrack);
+									
+									self.$app.preloader.hide();
+								}
+								
+							}else{
+								console.log('something wrong');
+							}
+						},
+						error: function(XMLHttpRequest, textStatus, errorThrown){
+							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
+						}
+					});
+					
+			},
 			initSimInfo: function () {
                 let self = this;
 									
@@ -123,7 +177,7 @@
 								
 								self.$setState({
 									messagesInfo: result.length,
-								});							
+								});		
 							}else{
 								console.log('something wrong');
 							}
@@ -193,13 +247,50 @@
         on: {
             pageInit: function (e, page) {  
 				var self = this;        
+				self.$app.preloader.show();	
+
+				
+				
+				var dynamicPopup = self.$app.popup.create({
+								  content: '<div class="page popup-tablet-fullscreen popup">'+
+										'<div class="page-content">'+
+										'	<div class="position_map "> '+
+										'		<div class="map" id="map"></div>'+
+										'	</div>'+
+										'</div>'+
+									'</div>',
+								  on: {
+									open: function (popup) {									
+									  console.log('Popup open');
+										self.loadTrackPage();
+										
+									},
+									opened: function (popup) {
+									  console.log('Popup opened');
+									},
+								  }
+								});
+				
+					 
+				
 				var thisPage = page.$el.find('.page-content'); 			
 
                 self.initSimInfo();
+				self.$app.preloader.hide();
 				
 				$('.currentState').on('click', function(){						
 					mainView.router.navigate('/set-status/?imsi='+self.IMSI);
 				});
+				
+				$('.currentLocation').on('click', function(){		
+					
+					
+					self.$app.preloader.show();
+					dynamicPopup.open();
+							
+				});
+				
+				
 				
 			}
 		}

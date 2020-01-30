@@ -33,12 +33,12 @@ var routes = [
     },
     {
         path: '/sim-status/',
-        componentUrl: './resources/pages/sim-status.html?v=1.3',
+        componentUrl: './resources/pages/sim-status.html?v=1.4',
         name: 'sim-status'
     },
     {
         path: '/set-status/',
-        componentUrl: './resources/pages/set-status.html?v=2.2',
+        componentUrl: './resources/pages/set-status.html?v=2.3',
         name: 'set-status'
     },
 
