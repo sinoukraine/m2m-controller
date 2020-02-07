@@ -189,7 +189,7 @@
 					
 					$.ajax({
 						type: "GET",		        
-						url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v2/cdrs/'+ self.IMSI, 
+						url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/cdrs/'+ self.IMSI, 
 						dataType: "json",	
 						async: true,
 						cache: false,
@@ -284,9 +284,9 @@
 				
 				$('.currentLocation').on('click', function(){		
 					
-					
-					self.$app.preloader.show();
-					dynamicPopup.open();
+					self.$app.dialog.alert('Showing location in development')
+					//self.$app.preloader.show();
+					//dynamicPopup.open();
 							
 				});
 				

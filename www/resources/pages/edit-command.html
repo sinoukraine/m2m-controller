@@ -1,0 +1,90 @@
+<!--suppress JSAnnotator -->
+<template>
+	<div data-name="edit-command" class="page"> <!-- page-with-subnavbar -->
+		<!-- Top Navbar -->
+		<div class="navbar">
+            <div class="navbar-bg"></div>
+            <div class="navbar-inner">
+                <div class="left">
+                    <a href="#" class="back link icon-only " >
+                        <i class="icon material-icons">arrow_back</i>
+                    </a>
+                </div>
+                <div class="title sliding">
+                    {{Title}}
+                </div>
+            </div>
+        </div>
+		
+		<div class="page-content">			
+			
+			<div class="block-title">{{Info}}</div>
+			<div class="list inset">
+			  <ul>
+				<li class="item-content item-input">
+				  <div class="item-inner">
+					<div class="item-input-wrap">
+					  <input type="text" value="{{Name}}" placeholder="Name">
+					  <span class="input-clear-button"></span>
+					</div>
+				  </div>
+				</li>
+				<li class="item-content item-input">
+				  <div class="item-inner">
+					<div class="item-input-wrap">
+					  <input type="text" value="{{Command}}" placeholder="Command">
+					  <span class="input-clear-button"></span>
+					</div>
+				  </div>
+				</li>
+			  </ul>
+			</div>
+			
+		</div>
+</div>
+</template>
+
+<script>
+  // script must return component object
+    return { 
+        data: function () {
+            var self = this;
+            var ret = {};   
+			
+            if (self.$route.query.name) {
+				ret.Title = self.$route.query.name;
+				ret.Name = self.$route.query.name;
+				ret.Info = 'You can edit your command here';
+            }else{
+				ret.Name = '';
+				ret.Title = 'Add Command';
+				ret.Info = 'You can add a new command here';
+			}
+			
+			if (self.$route.query.command) {
+				ret.Command = self.$route.query.command;
+            }else{
+				ret.Command = '';
+			}
+
+            return ret;
+        },
+
+        on: {
+            pageInit: function (e, page) {
+                let self = this;
+				
+				
+				
+				
+				
+				}
+			}
+			//myApp.onPageBeforeAnimation('page1', function (page){
+		
+		
+												
+
+    };
+</script>
+    

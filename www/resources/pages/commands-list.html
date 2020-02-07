@@ -10,8 +10,10 @@
                         <i class="icon material-icons">arrow_back</i>
                     </a>
                 </div>
-                <div class="title sliding">
-                    Commands List
+                <div class="right">
+                    <a href="/edit-command/" class="link icon-only ">
+                        <i class="material-icons md-36">add</i>
+                    </a>
                 </div>
             </div>
         </div>
@@ -21,57 +23,299 @@
 				<h3>Commands List</h3>
                 <p>In this screen, you can send different commands to test this device</p>				
             </div>
+			
+			<!--<div class="block-title">Only Inputs Inset</div>
+<div class="list inset">
+  <ul>
+    <li class="item-content item-input">
+      <div class="item-inner">
+        <div class="item-input-wrap">
+          <input type="text" placeholder="Your name">
+          <span class="input-clear-button"></span>
+        </div>
+      </div>
+    </li>
+    <li class="item-content item-input">
+      <div class="item-inner">
+        <div class="item-input-wrap">
+          <input type="password" placeholder="Your password">
+          <span class="input-clear-button"></span>
+        </div>
+      </div>
+    </li>
+    <li class="item-content item-input">
+      <div class="item-inner">
+        <div class="item-input-wrap">
+          <input type="email" placeholder="Your e-mail">
+          <span class="input-clear-button"></span>
+        </div>
+      </div>
+    </li>
+    <li class="item-content item-input">
+      <div class="item-inner">
+        <div class="item-input-wrap">
+          <input type="url" placeholder="URL">
+          <span class="input-clear-button"></span>
+        </div>
+      </div>
+    </li>
+  </ul>
+</div>-->
+			
 			<div class="list">
 			  <ul>
 				<li class="accordion-item"><a href="#" class="item-content item-link">
 					<div class="item-inner">
-					  <div class="item-title">QT EE 500</div>
+					  <div class="item-title">QT EE500</div>
 					</div></a>
-				  <div class="accordion-item-content">
-					<div class="block">
-					  <p>Command 1</p>
-					</div>
+				  <div class="accordion-item-content accordion-item-opened">
+					<div class="list command-list-icons">
+					  <ul>
+						<li class="li-cmd">
+						  <div class="item-content">
+							<div class="item-inner">
+							  <div class="item-title cmd" cmd-name="WHERE#">Location</div>
+							  <a href="/edit-command/?command=WHERE#&name=Location"><div class="item-after"><i class="material-icons md-24">create</i></div></a>
+							</div>
+						  </div>
+						</li>
+						<li class="li-cmd">
+						  <div class="item-content">
+							<div class="item-inner">
+							  <div class="item-title cmd" cmd-name="RELAY,2#">Immobilise</div>
+							  <a href="/edit-command/?command=RELAY,2#&name=Immobilise"><div class="item-after"><i class="material-icons md-24">create</i></div></a>
+							</div>
+						  </div>
+						</li>
+						<li class="li-cmd">
+						  <div class="item-content">
+							<div class="item-inner">
+							  <div class="item-title cmd" cmd-name="RELAY,0#">Unimobilise</div>
+							  <a href="/edit-command/?command=RELAY,0#&name=Unimobilise"><div class="item-after"><i class="material-icons md-24">create</i></div></a>
+							</div>
+						  </div>
+						</li>
+						<li class="li-cmd">
+						  <div class="item-content">
+							<div class="item-inner">
+							  <div class="item-title cmd" cmd-name="RESET#">Restart</div>
+							  <a href="/edit-command/?command=RESET#&name=Restart"><div class="item-after"><i class="material-icons md-24">create</i></div></a>
+							</div>
+						  </div>
+						</li>
+						<li class="li-cmd">
+						  <div class="item-content">
+							<div class="item-inner">
+							  <div class="item-title cmd" cmd-name="GSM,0#">GSM Always ON</div>
+							  <a href="/edit-command/?command=GSM,0#&name=GSM Always ON"><div class="item-after"><i class="material-icons md-24">create</i></div></a>
+							</div>
+						  </div>
+						</li>
+						<li class="li-cmd">
+						  <div class="item-content">
+							<div class="item-inner">
+							  <div class="item-title cmd" cmd-name="UPGRADE,2019.exf,test.m2mdata.co,691#">Upgrade</div>
+							  <a href="/edit-command/?command=UPGRADE,2019.exf,test.m2mdata.co,691#&name=Upgrade"><div class="item-after"><i class="material-icons md-24">create</i></div></a>
+							</div>
+						  </div>
+						</li>
+						<li class="li-cmd">
+						  <div class="item-content">
+							<div class="item-inner">
+							  <div class="item-title cmd" cmd-name="GPIO,1100,0000,0100,30,30,0,0#">Mask 30sec</div>
+							  <a href="/edit-command/?command=GPIO,1100,0000,0100,30,30,0,0#&name=Mask 30sec"><div class="item-after"><i class="material-icons md-24">create</i></div></a>
+							</div>
+						  </div>
+						</li>
+						<li class="li-cmd">
+						  <div class="item-content">
+							<div class="item-inner">
+							  <div class="item-title cmd" cmd-name="GPIO,1100,0000,0100,60,60,0,0#">Mask 60sec</div>
+							  <a href="/edit-command/?command=GPIO,1100,0000,0100,60,60,0,0#&name=Mask 60sec"><div class="item-after"><i class="material-icons md-24">create</i></div></a>
+							</div>
+						  </div>
+						</li>
+						<li class="li-cmd">
+						  <div class="item-content">
+							<div class="item-inner">
+							  <div class="item-title cmd" cmd-name="GPIO,1100,0000,0100,90,90,0,0#">Mask 90sec</div>
+							  <a href="/edit-command/?command=GPIO,1100,0000,0100,90,90,0,0#&name=Mask 90sec"><div class="item-after"><i class="material-icons md-24">create</i></div></a>
+							</div>
+						  </div>
+						</li>
+						<li class="li-cmd">
+						  <div class="item-content">
+							<div class="item-inner">
+							  <div class="item-title cmd" cmd-name="POWER,500,800,1400#">LOW POWER 8V</div>
+							  <a href="/edit-command/?command=POWER,500,800,1400#&name=LOW POWER 8V"><div class="item-after"><i class="material-icons md-24">create</i></div></a>
+							</div>
+						  </div>
+						</li>
+						<li class="li-cmd">
+						  <div class="item-content">
+							<div class="item-inner">
+							  <div class="item-title cmd" cmd-name="RELAY,1,110#">Remote door</div>
+							  <a href="/edit-command/?command=RELAY,1,110#&name=Remote door"><div class="item-after"><i class="material-icons md-24">create</i></div></a>
+							</div>
+						  </div>
+						</li>
+						<li class="li-cmd">
+						  <div class="item-content">
+							<div class="item-inner">
+							  <div class="item-title cmd" cmd-name="qtee500 act protect">Activate Protect</div>
+							  <a href="/edit-command/?command=qtee500 act protect&name=Activate Protect"><div class="item-after"><i class="material-icons md-24">create</i></div></a>
+							</div>
+						  </div>
+						</li>
+						<li class="li-cmd">
+						  <div class="item-content">
+							<div class="item-inner">
+							  <div class="item-title cmd" cmd-name="qtee500 act loc8">Activate QuikLoc8</div>
+							  <a href="/edit-command/?command=qtee500 act loc8&name=Activate QuikLoc8"><div class="item-after"><i class="material-icons md-24">create</i></div></a>
+							</div>
+						  </div>
+						</li>
+						<li class="li-cmd">
+						  <div class="item-content">
+							<div class="item-inner">
+							  <div class="item-title cmd" cmd-name="COLLECT,600,0,20,60,1#">Upload Interval</div>
+							  <a href="/edit-command/?command=COLLECT,600,0,20,60,1#&name=Upload Interval"><div class="item-after"><i class="material-icons md-24">create</i></div></a>
+							</div>
+						  </div>
+						</li>
+						<li class="li-cmd">
+						  <div class="item-content">
+							<div class="item-inner">
+							  <div class="item-title cmd" cmd-name="qtee500 set center number">Set Center Nubmer</div>
+							  <a href="/edit-command/?command=qtee500 set center number&name=Set Center Nubmer"><div class="item-after"><i class="material-icons md-24">create</i></div></a>
+							</div>
+						  </div>
+						</li>
+						<li class="li-cmd">
+						  <div class="item-content">
+							<div class="item-inner">
+							  <div class="item-title cmd" cmd-name='SERVER,"udp://quiktrak.co:40500"#'>Set IP</div>
+							  <a href='/edit-command/?command=SERVER,"udp://quiktrak.co:40500"#&name=Set IP'><div class="item-after"><i class="material-icons md-24">create</i></div></a>
+							</div>
+						  </div>
+						</li>
+						<li class="li-cmd">
+						  <div class="item-content">
+							<div class="item-inner">
+							  <div class="item-title cmd" cmd-name="STATUS#">Status</div>
+							  <a href="/edit-command/?command=STATUS#&name=Status"><div class="item-after"><i class="material-icons md-24">create</i></div></a>
+							</div>
+						  </div>
+						</li>
+						<li class="li-cmd">
+						  <div class="item-content">
+							<div class="item-inner">
+							  <div class="item-title cmd" cmd-name="PARAM#">Config</div>
+							  <a href="/edit-command/?command=PARAM#&name=Config"><div class="item-after"><i class="material-icons md-24">create</i></div></a>
+							</div>
+						  </div>
+						</li>
+						<li class="li-cmd">
+						  <div class="item-content">
+							<div class="item-inner">
+							  <div class="item-title cmd" cmd-name="qtee500 act live">Activate Live</div>
+							  <a href="/edit-command/?command=qtee500 act live&name=Activate Live"><div class="item-after"><i class="material-icons md-24">create</i></div></a>
+							</div>
+						  </div>
+						</li>
+					  </ul>
 				  </div>
 				</li>
 				<li class="accordion-item"><a href="#" class="item-content item-link">
 					<div class="item-inner">
-					  <div class="item-title">4G QT LTE 500</div>
+					  <div class="item-title">QT BJ 01</div>
 					</div></a>
-				  <div class="accordion-item-content">
-					<div class="block">
-					  <p>Command 1</p>
-					</div>
-				  </div>
-				</li>
-				<li class="accordion-item"><a href="#" class="item-content item-link">
-					<div class="item-inner">
-					  <div class="item-title">QT 210</div>
-					</div></a>
-				  <div class="accordion-item-content">
-					<div class="block">
-					  <p>Command 1</p>
-					</div>
-				  </div>
-				</li>
-				<li class="accordion-item"><a href="#" class="item-content item-link">
-					<div class="item-inner">
-					  <div class="item-title">QT 735</div>
-					</div></a>
-				  <div class="accordion-item-content">
-					<div class="block">
-					  <p>Command 1</p>
-					</div>
-				  </div>
-				</li>
-				<li class="accordion-item"><a href="#" class="item-content item-link">
-					<div class="item-inner">
-					  <div class="item-title">QuikWatch</div>
-					</div></a>
-				  <div class="accordion-item-content">
-					<div class="block">
-					  <p>Command 1</p>
-					</div>
-				  </div>
+					  <div class="accordion-item-content accordion-item-opened">
+						<div class="list command-list-icons">
+						  <ul>
+							<li class="li-cmd">
+							  <div class="item-content">
+								<div class="item-inner">
+								  <div class="item-title cmd" cmd-name="stopoil">Immobilise</div>
+								  <a href="/edit-command/?command=stopoil&name=Immobilise"><div class="item-after"><i class="material-icons md-24">create</i></div></a>
+								</div>
+							  </div>
+							</li>
+							<li class="li-cmd">
+							  <div class="item-content">
+								<div class="item-inner">
+								  <div class="item-title cmd" cmd-name="supplyoil">Unimobilise</div>
+								  <a href="/edit-command/?command=supplyoil&name=Unimobilise"><div class="item-after"><i class="material-icons md-24">create</i></div></a>
+								</div>
+							  </div>
+							</li>
+							<li class="li-cmd">
+							  <div class="item-content">
+								<div class="item-inner">
+								  <div class="item-title cmd" cmd-name="qtbj01 act protect">Activate Protect</div>
+								  <a href="/edit-command/?command=qtbj01 act protect&name=Activate Protect"><div class="item-after"><i class="material-icons md-24">create</i></div></a>
+								</div>
+							  </div>
+							</li>
+							<li class="li-cmd">
+							  <div class="item-content">
+								<div class="item-inner">
+								  <div class="item-title cmd" cmd-name="qtbj01 act live">Activate Live</div>
+								  <a href="/edit-command/?command=qtbj01 act live&name=Activate Live"><div class="item-after"><i class="material-icons md-24">create</i></div></a>
+								</div>
+							  </div>
+							</li>
+							<li class="li-cmd">
+							  <div class="item-content">
+								<div class="item-inner">
+								  <div class="item-title cmd" cmd-name="where">Location</div>
+								  <a href="/edit-command/?command=where&name=Location"><div class="item-after"><i class="material-icons md-24">create</i></div></a>
+								</div>
+							  </div>
+							</li>
+							<li class="li-cmd">
+							  <div class="item-content">
+								<div class="item-inner">
+								  <div class="item-title cmd" cmd-name="<EXT87>">Upgrade</div>
+								  <a href="/edit-command/?command=<EXT87>&name=Upgrade"><div class="item-after"><i class="material-icons md-24">create</i></div></a>
+								</div>
+							  </div>
+							</li>
+							<li class="li-cmd">
+							  <div class="item-content">
+								<div class="item-inner">
+								  <div class="item-title cmd" cmd-name="<CKBSJ>">Status</div>
+								  <a href="/edit-command/?command=<CKBSJ>&name=Status"><div class="item-after"><i class="material-icons md-24">create</i></div></a>
+								</div>
+							  </div>
+							</li>
+							<li class="li-cmd">
+							  <div class="item-content">
+								<div class="item-inner">
+								  <div class="item-title cmd" cmd-name="<CKBSJ>">Config</div>
+								  <a href="/edit-command/?command=<CKBSJ>&name=Config"><div class="item-after"><i class="material-icons md-24">create</i></div></a>
+								</div>
+							  </div>
+							</li>
+							<li class="li-cmd">
+							  <div class="item-content">
+								<div class="item-inner">
+								  <div class="item-title cmd" cmd-name="empty">Empty</div>
+								  <a href="/edit-command/?command=empty&name=Empty"><div class="item-after"><i class="material-icons md-24">create</i></div></a>
+								</div>
+							  </div>
+							</li>
+							<li class="li-cmd">
+							  <div class="item-content">
+								<div class="item-inner">
+								  <div class="item-title cmd" cmd-name="<SPBSJ*P:BSJGPS*3P:10060*C:0>">1 hourly inteval</div>
+								  <a href="/edit-command/?command=<SPBSJ*P:BSJGPS*3P:10060*C:0>&name=1 hourly inteval"><div class="item-after"><i class="material-icons md-24">create</i></div></a>
+								</div>
+							  </div>
+							</li>
+						  </ul>
+						</div>
+				   </div>
 				</li>
 			  </ul>
 			</div>
@@ -93,6 +337,30 @@
 
             return ret;
         },
+
+        on: {
+            pageInit: function (e, page) {
+                let self = this;
+				
+				$$('.li-cmd').on('click', function () {
+					let cmd = $(this).find('.cmd').attr('cmd-name');
+					//self.$app.methods.setInStorage({cmd: cmd});
+					
+					// somewhere in the app send notification
+					//myEvents.emit('cmdReceived', {
+					  //cmd,
+					//});
+					mainView.router.navigate('/commands/?cmd='+cmd);					
+				});
+				
+				
+				
+				}
+			}
+			//myApp.onPageBeforeAnimation('page1', function (page){
+		
+		
+												
 
     };
 </script>

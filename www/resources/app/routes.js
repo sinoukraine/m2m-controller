@@ -18,7 +18,7 @@ var routes = [
     },
     {
         path: '/commands-list/',
-        componentUrl: './resources/pages/commands-list.html?v=1.1',
+        componentUrl: './resources/pages/commands-list.html?v=1.2',
         name: 'commands-list'
     },
     {
@@ -38,8 +38,13 @@ var routes = [
     },
     {
         path: '/set-status/',
-        componentUrl: './resources/pages/set-status.html?v=2.3',
+        componentUrl: './resources/pages/set-status.html?v=2.5',
         name: 'set-status'
+    },
+    {
+        path: '/edit-command/',
+        componentUrl: './resources/pages/edit-command.html?v=2.7',
+        name: 'edit-command'
     },
 
 

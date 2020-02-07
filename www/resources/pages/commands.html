@@ -6,17 +6,17 @@
             <div class="navbar-bg"></div>
             <div class="navbar-inner">
                 <div class="left">
-                    <a href="#" class="back link icon-only " >
+                    <a href="#" class="my-back-home link icon-only " >
                         <i class="icon material-icons">arrow_back</i>
                     </a>
                 </div>
                 <div class="title sliding imsi-title">
 					{{imsiTitle}}
-                    <!--234507098430582-->
+                    <!-- 234507098430582-->
                 </div>
                 <div class="right">
                     <a href="/commands-list/" class="link icon-only ">
-                        <i class="f7-icons color-red">menu</i>
+                        <i class="material-icons md-36">list</i>
                     </a>
                 </div>
             </div>
@@ -28,7 +28,7 @@
 			  <!-- messagebar attachments -->
 			  <div class="messagebar-attachments">...</div>
 			  <!-- messagebar resizable textarea -->
-			  <textarea class="resizable" placeholder="Command"></textarea>
+			  <textarea class="resizable" placeholder="Command">{{cmd}}</textarea>
 			</div>
 			<a href="#" class="link send-link"><i class="icon material-icons">send</i></a>
 		  </div>
@@ -54,12 +54,16 @@
             var ret = {
 				responseInProgress: false,
 				messages: {},
-				messagebar: {}
+				messagebar: {},
 			};     
 
 			if (self.$route.query.imsi) {
 				ret.imsiTitle = self.$route.query.imsi;
-            }  			
+            }  	
+
+			if (self.$route.query.cmd) {
+				ret.cmd = self.$route.query.cmd;
+            }  				
             
 			/*console.log(self.$route.query.code);
 			if (self.$route.query.code) {
@@ -92,7 +96,7 @@
 				$.ajax({
 					async: true,
 					crossDomain: true,
-					url: "http://m2mdata03.sinopacific.com.ua/m2mdata/v2/sims/" + self.imsiTitle + "/sms",
+					url: "http://m2mdata03.sinopacific.com.ua/m2mdata/v3/sims/" + self.imsiTitle + "/sms",
 					method: "POST",
 					headers: {
 						"authorization": "12345",
@@ -115,10 +119,10 @@
 				var self = this;  
 				
 				var orderId = id;
-						console.log('https://m2mdata03.sinopacific.com.ua/m2mdata/v2/sims/orders/'+orderId);
+						console.log('https://m2mdata03.sinopacific.com.ua/m2mdata/v3/sims/orders/'+orderId);
 				$.ajax({
 					type: "GET",
-					url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v2/sims/orders/'+orderId,
+					url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/sims/orders/'+orderId,
 					dataType: "json",	
 					async: true,
 					headers: { 
@@ -155,7 +159,10 @@
         on: {
             pageInit: function (e, page) {  
 				var self = this;              
-
+			
+				
+				
+				
 				
 				// Init Messages
 				self.messages = app.messages.create({
@@ -229,7 +236,31 @@
 					self.sendCommand(text);
 
 				});
-			}
+				
+				/*myEvents.on('cmdReceived', function (data) {
+					
+					self.messagebar.setValue('778');
+					self.$update();
+					
+					//
+					//page.$pageEl.find('textarea').val('777');
+					//console.log(self.messagebar);
+				});
+				*/
+				
+				$$('.my-back-home').on('click', function () {
+					page.view.router.back({
+						url: 'home',
+						force: true,
+						ignoreCache: true
+					});
+					//app.views.main.router.navigate('/home/', {reloadAll: true})
+				});
+	
+			},
+			pageBeforeRemove: function () {
+                myEvents.off('cmdReceived');
+            }
 		}
 
     };

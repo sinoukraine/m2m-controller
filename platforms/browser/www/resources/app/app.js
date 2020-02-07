@@ -12,12 +12,16 @@ var compiledTemplate = Template7.compile(htmlTemplate);
 $$('#app').append(compiledTemplate());
 
 var API_URL = {};
-var API_DOMIAN1 = "https://m2mdata03.sinopacific.com.ua/m2mdata/v2/";
+var API_DOMIAN1 = "https://m2mdata03.sinopacific.com.ua/m2mdata/v3/";
 API_URL.URL_GET_COMMAND_HISTORY = API_DOMIAN1 + "sims/";
 
 
 var virtualCommandsHistoryList = null;
 // Init App
+
+// Create custom events bus
+var myEvents = new Framework7.Events();
+				
 var app = new Framework7({
 	dialog: {
 		// set default title for all dialog shortcuts
@@ -180,6 +184,41 @@ var app = new Framework7({
                     });
                 },
                 'json');*/
+        },
+		
+        getFromStorage: function(name){
+            var ret = [];
+            var str = '';
+            if (name) {
+                switch (name){
+                    case 'cmd':
+                        str = localStorage.getItem("COM.M2MDATA.CMD");
+                        if(str) {
+                            ret = JSON.parse(str);
+                        }
+                    break;  
+					default:
+                        App.dialog.alert('There is no item saved with such name - '+name);
+                }
+            }else{
+                App.dialog.alert('Wrong query parameters!');
+            }
+            return ret;
+		},
+		
+        setInStorage: function(params){
+            let self = this;
+            if (typeof(params) == 'object' && params.name && params.data) {
+                switch (params.name){
+                    case 'cmd':
+                        localStorage.setItem("COM.M2MDATA.CMD", JSON.stringify(params.data));
+                    break;                     
+                    default:
+                        App.dialog.alert('There is no function associated with this name - '+params.name);
+                }   
+            }else{
+                App.dialog.alert('Wrong query parameters!');
+            }
         },
     },
     routes: routes,
