@@ -55,7 +55,7 @@
     </platform>
 	-->
     
-	
+	<plugin name="kaiquecruz-phonegap-plugin-barcodescanner-custom" source="npm" />                    <!--  working , portatrait orientation --> 
     <!--ios<plugin name="cordova-plugin-console" source="npm" spec="1.0.7" />--><!-- needed -->  
 	<plugin name="cordova-plugin-file" source="npm" />  
 	<plugin name="cordova-plugin-file-opener2" source="npm" />

@@ -68,7 +68,7 @@
 							
 					</ul>
 					<div class="location-div">
-						<button class="col button button-outline currentLocation">Show location</button>
+						<button class="col button button-outline currentLocation" >Show location</button>
 					</div>
                 </div>
 			</div>
@@ -82,6 +82,8 @@
         data: function () {
             var self = this;
             var ret = {
+				lat: '0',
+				lng: '0',
 				dataInfo: 0,
 				dateInfo: 0,
 				messagesInfo: 0,
@@ -117,25 +119,12 @@
 								console.log(result);
 								var lat = result.geometry.coordinates[0], lng = result.geometry.coordinates[1];
 								
+								self.$setState({
+									lat: result.geometry.coordinates[0],
+									lng: result.geometry.coordinates[1],
+								});		
 								
-								
-				
-								if (lat !== 0 && parseFloat(lng) !== 0) {            
-										
-									var boatMarker = L.icon({
-										iconUrl: 'resources/images/marker.svg',                       
-										iconSize:     [50, 50], // size of the icon                        
-										iconAnchor:   [50, 99], // point of the icon which will correspond to marker's location                        
-										popupAnchor:  [0, -50] // point from which the popup should open relative to the iconAnchor    
-									});
-
-									var marker = L.marker([lat, lng], {icon: boatMarker}); 
-									marker.setLatLng([lat, lng]);
-									MapTrack = Protocol.Helper.createMap({ target: 'map', latLng: [lat,lng], zoom: 14 });        
-									marker.addTo(MapTrack);
-									
-									self.$app.preloader.hide();
-								}
+								//$$('.location-div .currentLocation').removeAttr('disabled');								 
 								
 							}else{
 								console.log('something wrong');
@@ -247,9 +236,19 @@
         on: {
             pageInit: function (e, page) {  
 				var self = this;        
-				self.$app.preloader.show();	
+				self.$app.preloader.show();
+											
+				var boatMarker = L.icon({
+					iconUrl: 'resources/images/marker.svg',                       
+					//iconSize:     [50, 50], // size of the icon                        
+					//iconAnchor:   [50, 99], // point of the icon which will correspond to marker's location                        
+					//popupAnchor:  [0, -50] // point from which the popup should open relative to the iconAnchor    
+					iconSize:     [50, 50], // size of the icon                        
+					iconAnchor:   [50, 99], // point of the icon which will correspond to marker's location                        
+					popupAnchor:  [0, -50] // point from which the popup should open relative to the iconAnchor   
+				});				
 
-				
+				self.loadTrackPage();
 				
 				var dynamicPopup = self.$app.popup.create({
 								  content: '<div class="page popup-tablet-fullscreen popup">'+
@@ -262,7 +261,21 @@
 								  on: {
 									open: function (popup) {									
 									  console.log('Popup open');
-										self.loadTrackPage();
+										
+				//	
+										
+										if (self.lat !== 0 && parseFloat(self.lng) !== 0) {            
+										
+											var marker = L.marker([self.lat, self.lng], {icon: boatMarker}); 
+											marker.setLatLng([self.lat, self.lng]);
+											MapTrack = Protocol.Helper.createMap({ target: 'map', latLng: [self.lat,self.lng], zoom: 14 });        
+											marker.addTo(MapTrack);
+											
+											//self.$app.preloader.hide();
+										}else{
+											self.$app.dialog.alert('Currently there are no coordinates for this IMSI. Please try again later');
+											dynamicPopup.close();
+										}
 										
 									},
 									opened: function (popup) {
@@ -284,9 +297,9 @@
 				
 				$('.currentLocation').on('click', function(){		
 					
-					self.$app.dialog.alert('Showing location in development')
+					//self.$app.dialog.alert('Showing location in development')
 					//self.$app.preloader.show();
-					//dynamicPopup.open();
+					dynamicPopup.open();
 							
 				});
 				

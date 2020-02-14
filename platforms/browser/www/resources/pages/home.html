@@ -14,7 +14,7 @@
                     {{@global.LANGUAGE.HOME_MSG00}}
                 </div>
                 <div class="right">
-                    <a href="#" class="link icon-only ">
+                    <a href="#" class="link icon-only scanBarCode">
                         <i class="f7-icons icon-other-barcode"></i>
                     </a>
                 </div>
@@ -23,15 +23,15 @@
         <div class="toolbar tabbar toolbar-top">
             <div class="toolbar-inner">
                 <!-- Links have "tab-link" class instead of just "link" to switch tabs -->
-                <a href="#tab1" class="tab-link tab-link-active">IMSI</a>
-                <a href="#tab2" class="tab-link disabled" >ICCID</a>
+                <a @click="FilterSimList" data-type="imsi" href="#tab1" class="tab-link tab-link-active">IMSI</a>
+                <a @click="FilterSimList" data-type="iccid" href="#tab2" class="tab-link" >ICCID</a>
             </div>
         </div>
 
-        <form class="searchbar custom-searchbar">
+        <form class="searchbar custom-searchbar formSearchSim">
             <div class="searchbar-inner">
                 <div class="searchbar-input-wrap">
-                    <input type="search" class="search-sims" placeholder="{{@global.LANGUAGE.COM_MSG002}}" title="{{@global.LANGUAGE.COM_MSG002}}">
+                    <input type="search" name="searchInput" class="search-sims" placeholder="{{@global.LANGUAGE.COM_MSG002}}" title="{{@global.LANGUAGE.COM_MSG002}}">
                     <!--<i class="searchbar-icon"></i>-->
                     <span class="input-clear-button"></span>
                     <button type="submit" class="button search-sims-btn"><i class="material-icons">search</i></button>
@@ -55,13 +55,10 @@
             </div>
 
             <div class="block searchbar-hide-on-search">
-                <p>In this screen, you can find the device by IMSI
-or ICCID. You can use the "scan" icon to determine
-the ICCID number.</p>
+                <p>In this screen, you can find the device by IMSI or ICCID. You can use the "scan" icon to determine the ICCID number.</p>
             </div>
-
 			
-            <div class="list home-list virtual-list media-list no-hairlines no-chevron no-margin-top searchbar-found assetList">
+            <div class="list home-list virtual-list media-list no-hairlines no-chevron no-margin-top searchbar-found simList">
                 <!-- keep it empty -->
 				<ul>
 			  </ul>
@@ -72,7 +69,6 @@ the ICCID number.</p>
 
 		<p><a href="#" data-actions=".my-actions" class="actions-open">Open Actions</a></p>
 
-
     </div>
 </template>
 
@@ -81,24 +77,60 @@ the ICCID number.</p>
     return {
         data: function () {
             let ret = {
+				text: '',
+				type: 'imsi',
 				allowInfinite: true,
 				page: 1,
 				ac5: null,
 				lastItemIndex: 0,
-				maxItems: 0,
-				searchText: ''
+				maxItems: 0
 			};
 
             return ret;
         },
         methods: {
-			loadSimList: function (data) {
+			submitSearchForm: function (type) {
                 let self = this;
-				$.ajax({
+				
+				var input = $$('.formSearchSim input[name="searchInput"');
+
+				//if (input.val()) {
+					$$('.home-list ul').html('');
+					input.blur();
+
+					var searchby = input.data('searchby');
+
+					var data = input.val().trim();
+					
+					self.$setState({
+						text: data,
+						type: type,
+						page: 1
+					});
+					
+					self.getSimList();
+					self.$app.infiniteScroll.create('.infinite-scroll-content');	
+					
+				//} else {
+					/*App.addNotification({
+						hold: 3000,
+						message: LANGUAGE.PROMPT_MSG008
+					});*/
+				//}		
+			},						
+			getSimList: function () {
+                let self = this;
+					if (!self.allowInfinite) return;					
+					
+				  // Set loading flag
+					self.$setState({
+                        allowInfinite: false
+                    });
+					
+					//self.$app.preloader.show();
+					$.ajax({
 						type: "GET",		        
-						//url: 'https://m2mdata03.sinopacific.com.ua/em/v3/sims?page='+self.page+'&search=0582&fields%5B%5D=imsi&pageSize=10',
-						
-						url: 'https://m2mdata03.sinopacific.com.ua/em/v3/sims?page='+self.page+'&pageSize=10&query%5Binfo.imsi%5D%5B%24regex%5D='+data,
+						url: 'https://m2mdata03.sinopacific.com.ua/em/v3/sims?page=' + self.page + '&pageSize=10&query%5Binfo.' + self.type + '%5D%5B%24regex%5D=' + self.text,
 						dataType: "json",	
 						async: true,
 						cache: false,
@@ -106,15 +138,15 @@ the ICCID number.</p>
 							Authorization: "12345"
 						},
 						success: function (result) {console.log(result);
-							if(result){		
-
-
+							if (result.rows) {
+								//$$('.page-content').removeClass('first_login');
+																	
 								if(result.page == 1){
+									
 									self.$app.infiniteScroll.create('.infinite-scroll-content');
 									// Loading flag
 
 									self.$setState({
-										//AssetsCount: self.$app.methods.countItemsBySolution(items),
 										maxItems: result.total,
 										lastItemIndex: $$('.home-list li').length,										
 									});
@@ -122,394 +154,264 @@ the ICCID number.</p>
 							
 									// Reset loading flag
 									self.$setState({
-										//AssetsCount: self.$app.methods.countItemsBySolution(items),
 										allowInfinite: true
 									});
 								
-								if (self.lastItemIndex >= self.maxItems) {
-								  // Nothing more to load, detach infinite scroll events to prevent unnecessary loadings
+								self.setSimList(result.rows);
+								
+								//if (self.lastItemIndex >= self.maxItems) {
+								if (result.page === result.totalPages) {
 								  self.$app.infiniteScroll.destroy('.infinite-scroll-content');
+								  
 								  // Remove preloader
 								  $$('.infinite-scroll-preloader').remove();
 								  return;
 								}
-
-								// Generate new items HTML
-								var html = '';
-								$.each(result.rows, function(index, value){	
-									html += '<li>';
-                                html += '<a href="#" class="ac-5 item-link item-content">';
-                                  html += '  <div class="item-inner">';
-                                     html += '   <div class="item-title-row">';
-                                         html += '   <div class="item-title color-custom">';
-                                           html += '     <div class="display-flex">';
-                                             html += '       <div class="prop-name">IMSI:</div>';
-                                       html += '             <div class="imsi-value">'+value.info.imsi+'</div>';
-                                  html += '              </div>';
-                              html += '              </div>';
-                             html += '               <div class="item-after color-custom"><i class="f7-icons icon-other-menu3"></i></div>';
-                         html += '               </div>';
-                       html += '                 <div class="item-text">';
-                   html += '                         <div class="display-flex">';
-                html += '                                <div class="prop-name">ICCID:</div>';
-                     html += '                           <div class="iccid-value">'+value.info.iccid+'</div>';
-                        html += '                    </div>';
-                             html += '               <div class="display-flex">';
-                                  html += '              <div class="prop-name">MSISDN:</div>';
-                       html += '                         <div class="uppercase">'+value.info.msisdn+'</div>';
-                   html += '                         </div>';
-                       html += '                     <div class="display-flex">';
-                          html += '                      <div class="prop-name">Rag:</div>';
-								html += '				<div style="font-size: 17px;color: #CD3333;">&#11044;</div>											';	
-												
-                                  html += '          </div>';
-                            html += '            </div>';
-                       html += '             </div>';
-                 html += '               </a>';
-             html += '               </li>';
-								});
+										
 								
-								// Append new items
-								$$('.home-list ul').append(html);
-
+								
 								let incrList = self.lastItemIndex + 10;
 								
-									self.$setState({
-										lastItemIndex: incrList
-									});
-									
+								self.$setState({
+									lastItemIndex: incrList
+								});
+								
 								let incr = self.page + 1;
 								
 								self.$setState({
-									//AssetsCount: self.$app.methods.countItemsBySolution(items),
 									page: incr
 								});
-								
+									
 								$('.searchbar-hide-on-search').addClass('display-none');
+																
+								if(self.page == 2){
+									$$('.infinite-scroll-content').on('infinite', self.getSimList);
+								}
 										
-									
-											self.$app.actions.destroy();
-									$$('.ac-5').on('click', function () {
-										//if(self.ac5 != null){
-										//}
-								
-										var imsiValue = $(this).find('.imsi-value').html().toString();
-										var iccidValue = $(this).find('.iccid-value').html().toString();
-										
-										let acc5 = self.$app.actions.create({
-										buttons: [
-											{
-												text: 'IMSI: ' + imsiValue,
-												label: true,
-												bold: true,
-												color: 'blue',							
-											},
-											{
-											  text: 'Commands',
-											  onClick: function () {
-												//self.$app.dialog.alert('Button1 clicked')
-									
-											self.$app.actions.close();	
-												
-												mainView.router.navigate('/commands/?imsi='+imsiValue);
-											  }
-											},
-											{
-											  text: 'History',
-											  onClick: function () {
-											  
-											self.$app.actions.close();	
-												mainView.router.navigate('/commands-history/?imsi='+imsiValue);
-											  }
-											},
-											{
-											  text: 'Sim status',
-											  onClick: function () {
-											  
-											self.$app.actions.close();	
-												mainView.router.navigate('/sim-status/?imsi='+imsiValue+'&iccid='+iccidValue);
-											  }
-											},
-										  ],
-											//el: actionsEl
-									});
-									acc5.open();
-								});
-								
-								/*var arr = [];
-								$.each(result.rows, function(index, value){	
-									var objTemp = {
-										IMSI: value.imsi,
-										ICCID: value.iccId,
-										State: value.status,
-										Rag: value.parentLockedByOrder,
-									};	
-									arr.push(objTemp);
-								});
-								
-								$('.searchbar-hide-on-search').addClass('display-none');
-											
-									self.VirtualAssetList.replaceAllItems(arr);									
-									self.$app.preloader.hide();								
-								
-									self.$app.actions.destroy();
-									
-									$$('.ac-5').on('click', function () {
-										var imsiValue = $(this).find('.imsi-value').html();
-										var iccidValue = $(this).find('.iccid-value').html();
-										
-										var ac5 = self.$app.actions.create({
-										buttons: [
-											{
-												text: 'IMSI: ' + imsiValue,
-												label: true,
-												bold: true,
-												color: 'blue',							
-											},
-											{
-											  text: 'Commands',
-											  onClick: function () {
-												//self.$app.dialog.alert('Button1 clicked')
-												mainView.router.navigate('/commands/?imsi='+imsiValue.toString());
-											  }
-											},
-											{
-											  text: 'History',
-											  onClick: function () {
-												mainView.router.navigate('/commands-history/?imsi='+imsiValue.toString());
-											  }
-											},
-											{
-											  text: 'Sim status',
-											  onClick: function () {
-												mainView.router.navigate('/sim-status/?imsi='+imsiValue.toString()+'&iccid='+iccidValue.toString());
-											  }
-											},
-										  ],
-											//el: actionsEl
-									});
-									ac5.open();
-								});*/
-							}else{
-								console.log('something wrong');
+								if (result.rows.length === 0) {
+									/*App.addNotification({
+										hold: 3000,
+										message: LANGUAGE.PROMPT_MSG006
+									});*/
+								}
+							} else {
+								App.alert(LANGUAGE.PROMPT_MSG013);
 							}
+							//self.$app.preloader.hide();
+							
 						},
 						error: function(XMLHttpRequest, textStatus, errorThrown){
 							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
 						}
-					});
+					});				
 			},
-            /*initSearchForm: function () {
+			setSimList: function (simList) {
                 let self = this;
-                let serchbarEl = self.$el.find('.searchbar');
-                let listEl = self.$el.find('.assetList');
-                self.Searchbar = self.$app.searchbar.create({
-                    el: serchbarEl,
-                    customSearch: true,
-                });
-                self.VirtualAssetList = app.virtualList.create({
-                    el: listEl,
-                    items : [],
-                    //height: '',
-                    renderItem: function (item, index) {
-
-                        return `
-                            <li>
-                                <a href="#" class="ac-5 item-link item-content">
-                                    <div class="item-inner">
-                                        <div class="item-title-row">
-                                            <div class="item-title color-custom">
-                                                <div class="display-flex">
-                                                    <div class="prop-name">IMSI:</div>
-                                                    <div class="imsi-value">${ item.IMSI }</div>
-                                                </div>
-                                            </div>
-                                            <div class="item-after color-custom"><i class="f7-icons icon-other-menu3"></i></div>
-                                        </div>
-                                        <div class="item-text">
-                                            <div class="display-flex">
-                                                <div class="prop-name">ICCID:</div>
-                                                <div class="iccid-value">${ item.ICCID }</div>
-                                            </div>
-                                            <div class="display-flex">
-                                                <div class="prop-name">State:</div>
-                                                <div class="uppercase">${ item.State }</div>
-                                            </div>
-                                            <div class="display-flex">
-                                                <div class="prop-name">Rag:</div>
-												<div style="font-size: 17px;color: #CD3333;">&#11044;</div>												
-												<!--${ item.Rag }-->
-                                            </div>
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
-                        `;
-                    }
-                });
+				// Generate new items HTML
+				var html = '';
 				
-                //serchbarEl.on('submit', function () {
-					
-					self.$app.preloader.show();
-					
-					$.ajax({
-						type: "GET",		        
-						url: 'https://m2mdata03.sinopacific.com.ua/em/v3/sims?page=1&pageSize=10',
-						dataType: "json",	
-						async: true,
-						cache: false,
-						headers: { 
-							Authorization: "12345"
-						},
-						success: function (result) {
-							if(result){							
-								var arr = [];
-								$.each(result.rows, function(index, value){	
-									var objTemp = {
-										IMSI: value.imsi,
-										ICCID: value.iccId,
-										State: value.status,
-										Rag: value.parentLockedByOrder,
-									};	
-									arr.push(objTemp);
-								});
+				$.each(simList, function(index, value){	
+					html += '<li>';
+                    html += '<a href="#" data-imsi="'+value.info.imsi+'" data-iccid="'+value.info.iccid+'" class="ac-5 item-link item-content">';
+                    html += '  <div class="item-inner">';
+                    html += '   <div class="item-title-row">';
+                    html += '   <div class="item-title color-custom">';
+                    html += '     <div class="display-flex">';
+                    html += '       <div class="prop-name">IMSI:</div>';
+                    html += '             <div class="imsi-value">'+value.info.imsi+'</div>';
+                    html += '              </div>';
+                    html += '              </div>';
+                    html += '               <div class="item-after color-custom"><i class="f7-icons icon-other-menu3 color-m2m-blue" style="font-size:20px;margin-top:5px;"></i></div>';
+                    html += '               </div>';
+                    html += '                 <div class="item-text">';
+					html += '                         <div class="display-flex">';
+					html += '                                <div class="prop-name">ICCID:</div>';
+                    html += '                           <div class="iccid-value">'+value.info.iccid+'</div>';
+                    html += '                    </div>';
+                    html += '               <div class="display-flex">';
+                    html += '              <div class="prop-name">MSISDN:</div>';
+                    html += '                         <div class="uppercase">'+value.info.msisdn+'</div>';
+                    html += '                         </div>';
+                    html += '                   <div class="display-flex">';
+                    html += '                      <div class="prop-name">Rag:</div>';
+					html += '						<div style="font-size: 14px;color: #CD3333;">&#11044;</div>';
+                    html += '          			</div>';
+                    html += '            </div>';
+                    html += '             </div>';
+					html += '               </a>';
+					html += '               </li>';
+				});
 								
-								$('.searchbar-hide-on-search').addClass('display-none');
-											
-									self.VirtualAssetList.replaceAllItems(arr);									
-									self.$app.preloader.hide();								
-								
-									self.$app.actions.destroy();
-									
-									$$('.ac-5').on('click', function () {
-										var imsiValue = $(this).find('.imsi-value').html();
-										var iccidValue = $(this).find('.iccid-value').html();
-										
-										var ac5 = self.$app.actions.create({
-										buttons: [
-											{
-												text: 'IMSI: ' + imsiValue,
-												label: true,
-												bold: true,
-												color: 'blue',							
-											},
-											{
-											  text: 'Commands',
-											  onClick: function () {
-												//self.$app.dialog.alert('Button1 clicked')
-												mainView.router.navigate('/commands/?imsi='+imsiValue.toString());
-											  }
-											},
-											{
-											  text: 'History',
-											  onClick: function () {
-												mainView.router.navigate('/commands-history/?imsi='+imsiValue.toString());
-											  }
-											},
-											{
-											  text: 'Sim status',
-											  onClick: function () {
-												mainView.router.navigate('/sim-status/?imsi='+imsiValue.toString()+'&iccid='+iccidValue.toString());
-											  }
-											},
-										  ],
-											//el: actionsEl
-									});
-									ac5.open();
-								});
-							}else{
-								console.log('something wrong');
-							}
-						},
-						error: function(XMLHttpRequest, textStatus, errorThrown){
-							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
-						}
-					});
-				//});
-            }*/
-			infinSim: function () {
+				// Append new items
+				$$('.home-list ul').append(html);		
+			},	
+            FilterSimList: function (e) {
                 let self = this;
-				  // Exit, if loading in progress
-				  if (!self.allowInfinite) return;
-
-				  // Set loading flag
-					self.$setState({
-                        allowInfinite: false
-                    });
-				
-				self.$setState({
-                        searchText: $$('.search-sims').val()
-                    });
-				
-				  self.loadSimList(self.searchText);
-				  
-				},
-				submitForm: function(evt) {
+                let filterType = $$(e.target).closest('.tab-link').data('type');				
+				self.submitSearchForm(filterType);
+            },
+			openBarCodeReader: function(input) {
 				let self = this;
-					evt.preventDefault();	
-					
-					//$$('.infinite-scroll-content').off('infinite', self.infinSim);
-					$('.home-list ul').html('');
-					console.log($$('.search-sims').val());
-					self.$setState({
-                        allowInfinite: true,
-						page: 1,
-						ac5: null,
-						lastItemIndex: 0,
-						maxItems: 0,
-						searchText: $$('.search-sims').val()
-                    });
+				//console.log(input);
+				if (window.device && cordova.plugins && cordova.plugins.barcodeScanner) {
+					cordova.plugins.barcodeScanner.scan(
+						function(result) {
+							/*self.$app.dialog.alert("We got a barcode\n" +
+								  "Result: " + result.text + "\n" +
+								  "Format: " + result.format + "\n" +
+								  "Cancelled: " + result.cancelled);*/
+							if (result && result.text) {console.log();
+								input.val(result.text);
+								if(input.attr('name') == 'searchInput') {
+									self.submitSearchForm(self.type);
+								}
+								input.change(); // fix to trigger onchange / oninput event listener
+							}
 
-				self.loadSimList(self.searchText);
-				
-					/**/
-					
-					
-					
-					//$$('.infinite-scroll-content').on('infinite', self.infinSim);
-					//self.infinSim(searchText);
-				
-				
+						},
+						function(error) {
+							self.$app.dialog.alert("Scanning failed: " + error);
+						}, {
+							//preferFrontCamera : true, // iOS and Android
+							showFlipCameraButton: true, // iOS and Android
+							showTorchButton: true, // iOS and Android
+							torchOn: true, // Android, launch with the torch switched on (if available)
+							//saveHistory: true, // Android, save scan history (default false)
+							prompt: "Place a barcode inside the scan area", // Android
+							resultDisplayDuration: 0, // Android, display scanned text for X ms. 0 suppresses it entirely, default 1500
+							//formats : "QR_CODE,PDF_417", // default: all but PDF_417 and RSS_EXPANDED
+							//orientation : "landscape", // Android only (portrait|landscape), default unset so it rotates with the device
+							//disableAnimations : true, // iOS
+							//disableSuccessBeep: false // iOS and Android
+						}
+					);
+				} else {
+					self.$app.dialog.alert('Your device does not support this function');
 				}
+			}
         },
-
         on: {
             pageInit: function (e, page) {
                 let self = this;
-
-				self.loadSimList(self.searchText);
 				
-				$$('.custom-searchbar').on("submit", self.submitForm);
+				self.submitSearchForm(self.type);
+				$$('body').on('submit', '.formSearchSim', function(e) {
+					e.preventDefault();
+					self.submitSearchForm(self.type);
+					return false;
+				});
+				$$('body').on('click', '.searchSim', function() {
+					self.submitSearchForm(self.type);
+				});
 				
-                
+				$$('body').on('click', '.simList .item-inner', function() {
+					var parrent = $$(this).closest('.item-content');
+					var imsi = parrent.attr('data-imsi');
+					var iccid = parrent.attr('data-iccid');
 
-				// Attach 'infinite' event handler
-				$$('.infinite-scroll-content').on('infinite', self.infinSim);
+					var notificationsCheck = '';
+					if (parrent.data('notifications') == 1) {
+						notificationsCheck = 'checked="checked"';
+					}
 
+
+					var commands = '<div class="action_button_wrapper">' +
+						'<div class="action_button_block action_button_media">' +
+						'<i class="f7-icons icon-other-commands commands-icon color-m2m-blue"></i>' +
+						'</div>' +
+						'<div class="action_button_block action_button_text color-m2m-grey">' +
+						'Commands' +
+						'</div>' +
+						'</div>';
+
+					var commandsHistory = '<div class="action_button_wrapper">' +
+						'<div class="action_button_block action_button_media">' +
+						'<i class="material-icons md-36 color-m2m-blue">watch_later</i>' +
+						'</div>' +
+						'<div class="action_button_block action_button_text color-m2m-grey">' +
+						'History' +
+						'</div>' +
+						'</div>';
+
+
+					var SIMStatus = '<div class="action_button_wrapper">' +
+						'<div class="action_button_block action_button_media">' +
+						'<i class="material-icons md-36 color-m2m-blue">info</i>' +
+						'</div>' +
+						'<div class="action_button_block action_button_text color-m2m-grey">' +
+						'SIM Status' +
+						'</div>' +
+						'</div>';
+
+					var buttons = [{
+							text: 'IMSI: '+ imsi,
+							label: true,
+							color: 'blue',
+						},
+						{
+							text: commands,
+							onClick: function() {
+								//loadPageCommands();
+								mainView.router.navigate('/commands/?imsi='+imsi.toString());
+							},
+						},
+						{
+							text: commandsHistory,
+							onClick: function() {
+								mainView.router.navigate('/commands-history/?imsi='+imsi.toString());;
+							},
+						},
+						{
+							text: SIMStatus,
+							onClick: function() {
+								mainView.router.navigate('/sim-status/?imsi='+imsi.toString()+'&iccid='+iccid.toString());
+							},
+						},
+					];
+
+					self.$app.actions.create({buttons}).open();
+				});
+				
+				$$('body').on('click', '.scanBarCode', function() {
+					//let input = $$('body').find('.searchInput');//$$(this).siblings('input');
+					var input = $$('.formSearchSim input[name="searchInput"');
+
+					let permissions = cordova.plugins.permissions;
+					if (!permissions) {
+						self.$app.dialog.alert('plugin not supported')
+					} else {
+						permissions.hasPermission(permissions.CAMERA, function(status) {
+							// App.alert(JSON.stringify(status))
+
+							if (status.hasPermission) {
+								self.openBarCodeReader(input);
+							} else {
+								permissions.requestPermission(permissions.CAMERA, success, error);
+
+								function error() {
+									self.$app.dialog.alert('Camera permission is not turned on');
+								}
+
+								function success(status1) {
+									self.openBarCodeReader(input);
+									if (!status1.hasPermission) error();
+								}
+							}
+						});
+
+					}
+				});				
+				
             },
             pageAfterIn:function(){
 
             },
-            pageBeforeRemove: function () {
-                let self = this;
-               
-														
-$('.home-list ul').html('');
-					$$('.search-sims').val('');
-					//$$('.custom-searchbar').off("submit", self.submitForm);
-					
-					self.$setState({
-                        allowInfinite: true,
-						page: 1,
-						ac5: null,
-						lastItemIndex: 0,
-						maxItems: 0,
-						searchText: ''
-                    }); 
-										 		
-												 
+            pageBeforeOut:function(){
+			
             },
-
+            pageBeforeRemove: function () {
+               									 
+            },
         }
     };
 </script>

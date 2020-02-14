@@ -51,6 +51,9 @@
         },
         "cordova-plugin-inappbrowser": {
             "PACKAGE_NAME": "com.sinopacific.quiktrak2"
+        },
+        "kaiquecruz-phonegap-plugin-barcodescanner-custom": {
+            "PACKAGE_NAME": "com.quiktrak.m2mcontroller"
         }
     },
     "dependent_plugins": {
