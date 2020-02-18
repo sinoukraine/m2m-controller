@@ -95,7 +95,7 @@
 				var input = $$('.formSearchSim input[name="searchInput"');
 
 				//if (input.val()) {
-					$$('.home-list ul').html('');
+					$$('.simList ul').html('');
 					input.blur();
 
 					var searchby = input.data('searchby');
@@ -137,7 +137,7 @@
 						headers: { 
 							Authorization: "12345"
 						},
-						success: function (result) {console.log(result);
+						success: function (result) {//console.log(result);
 							if (result.rows) {
 								//$$('.page-content').removeClass('first_login');
 																	
@@ -148,7 +148,7 @@
 
 									self.$setState({
 										maxItems: result.total,
-										lastItemIndex: $$('.home-list li').length,										
+										lastItemIndex: $$('.simList li').length,										
 									});
 								}
 							
@@ -243,7 +243,7 @@
 				});
 								
 				// Append new items
-				$$('.home-list ul').append(html);		
+				$$('.simList ul').append(html);		
 			},	
             FilterSimList: function (e) {
                 let self = this;
