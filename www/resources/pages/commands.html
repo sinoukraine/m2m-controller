@@ -85,35 +85,18 @@
 					"smsValidityHours": "1",
 					"smsValidityMinutes": "2"
 				}*/
-				
 				var data = {
-					content: 'where#',
-					description: 'get SIM location',
-					imsi: self.imsiTitle,
-					login: 'Testa',
-					name: 'Location',
-					path: '-',
-				}
-				
-				$.ajax({
-					async: true,
-					crossDomain: true,
-					url: "http://m2mdata03.sinopacific.com.ua/em/v3/sms",
-					method: "POST",
-					headers: {
-						"authorization": "12345",
-						"content-type": "application/json"
-					},
-					processData: false,
-					data: JSON.stringify(data),
-					success: function (result) {console.log(result);
-						self.receiveMessage(text, result.orderId);
-						
-					},
-					error: function(XMLHttpRequest, textStatus, errorThrown){
-						console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
+					"smsParameters": {
+						"data": "where#",
+						"from": "Platform",
+						"replaceIfPresent": "No",
+						"smsType": "Text",
+						"smsValidityDays": "1",
+						"smsValidityHours": "1",
+						"smsValidityMinutes": "2",
+						"udh": "No"
 					}
-				});
+				}
 				/*var question = data.data;
 						setTimeout(function () {
 						  self.messages.addMessage({
@@ -121,7 +104,7 @@
 							type: 'sent',
 						  });
 					*/
-				/*$.ajax({
+				$.ajax({
 					async: true,
 					crossDomain: true,
 					url: "http://m2mdata03.sinopacific.com.ua/m2mdata/v3/sims/" + self.imsiTitle + "/sms",
@@ -139,8 +122,7 @@
 					error: function(XMLHttpRequest, textStatus, errorThrown){
 						console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
 					}
-				});*/
-				
+				});			
 						
             },
 			receiveMessage: function(text, id){					

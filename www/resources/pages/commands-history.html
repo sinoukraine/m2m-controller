@@ -30,8 +30,14 @@
                     <div class="item-inner display-block">
                         <div class="item-title label">{{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG06}}</div>
                         <div class="item-input">
-                            <select name="LastDaySelect" data-set="{{LastDay}}">                               
-                                <option value="1">1 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG04}}</option>
+                            <select name="LastDaySelect" data-set="{{LastDay}}">                 
+								<option value="1">1 day</option>
+								<option value="2">3 days</option>
+								<option value="7">1 week</option>
+								<option value="14">2 weeks</option>
+								<option value="14">1 month</option>
+								<option value="14">all time</option>
+                                <!--<option value="1">1 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG04}}</option>
                                 <option value="2">2 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option>
                                 <option value="3">3 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option>
                                 <option value="4">4 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option>
@@ -44,7 +50,7 @@
                                 <option value="11">11 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option> 
                                 <option value="12">12 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option> 
                                 <option value="13">13 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option> 
-                                <option value="14">14 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option> 
+                                <option value="14">14 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option> -->
                             </select>
                             <i class="f7-icons icon-arrow-drop-down select_arrow"></i>
                         </div>
@@ -229,7 +235,7 @@
 					"04", "05", "06", "07", "08", "09", 
 					"10", "11", "12"); 
 					
-					var today = d.getDate(); 
+					var today = d.getDate()+1; 
 					var curr_month = d.getMonth();
 					var curr_year = d.getFullYear();
 					nextDate = curr_year + "-" + m_names[curr_month] + "-" + today;
@@ -243,7 +249,7 @@
 						type: "GET",		        
 						//url: 'https://m2mdata03.sinopacific.com.ua/em/v3/sims?page=' + self.page + '&pageSize=10&query%5Binfo.imsi%5D%5B%24regex%5D=',234500003096631 
 						//url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/nomad/orders?query%5Bimsi%5D=' + self.IMSI + '&query%5BcreatedAt%5D%5B%24gt%5D=2020-02-14&query%5BcreatedAt%5D%5B%24lt%5D=2020-02-15',' + data + '
-						url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/nomad/messages?query%5Bimsi%5D=' + self.IMSI + '&query%5BcreatedAt%5D%5B%24gt%5D=' + curDate + '&pageSize=500&query%5BcreatedAt%5D%5B%24lt%5D=' + nextDate,
+						url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/nomad/messages?query%5Bimsi%5D=' + self.IMSI + '&query%5BcreatedAt%5D%5B%24gt%5D=' + curDate + '&pageSize=500&sort=createdAt&query%5BcreatedAt%5D%5B%24lt%5D=' + nextDate,
 						dataType: "json",	
 						async: true,
 						cache: false,
@@ -283,7 +289,7 @@
 					//var datearr[index] = datetime;
 					
 					//var prevDate = $$('.page').find('.commandsHistoryList ul [ridx="' + (index - 1) + '"] .sms-datetime').html();
-					if(index){						
+					/*if(index){						
 						var prevDate = callbackList[index-1].createdAt.slice(0,10).toString();
 						var currDate = callbackList[index].createdAt.slice(0,10).toString();						
 						var p = new Date(prevDate);
@@ -306,7 +312,7 @@
 							html += '</div>';
 							html += '</li>';	
 						}
-					}
+					}*/
 					
 					if (value.message) {
 						value.message = value.message.replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -323,7 +329,7 @@
 					if (value.status == 'delivered') {
 						html += '<i class="material-icons md-36">settings</i>';
 					} else {
-						html += '<i class="material-icons md-36 gly-rotate-180">send</i>';
+						html += '<i class="material-icons md-36 ">email</i>';
 					}
 						html += '</div>';
 						html += '<div class="item-after sms-datetime">' + datetime + '</div>';
@@ -367,7 +373,7 @@
 					$.ajax({
 						type: "GET",		        
 						//url: 'https://m2mdata03.sinopacific.com.ua/em/v3/sims?page=' + self.page + '&pageSize=10&query%5Binfo.imsi%5D%5B%24regex%5D=',234500003096631 
-						url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/nomad/orders?query%5Bimsi%5D=' + self.IMSI + '&query%5BcreatedAt%5D%5B%24gt%5D='+ago+'&query%5BcreatedAt%5D%5B%24lt%5D='+now+'&sort=createdAt',
+						url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/nomad/orders?query%5Bimsi%5D=' + self.IMSI + '&query%5BcreatedAt%5D%5B%24gt%5D='+ago+'&sort=createdAt',//&query%5BcreatedAt%5D%5B%24lt%5D='+now+'
 						dataType: "json",	
 						async: true,
 						cache: false,
