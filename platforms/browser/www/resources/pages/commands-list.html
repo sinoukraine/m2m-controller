@@ -18,7 +18,11 @@
             </div>
         </div>
 		
-		<div class="page-content">			
+		<div class="page-content ptr-content">		
+			<div class="ptr-preloader">
+						<div class="preloader"></div>
+						<div class="ptr-arrow"></div>
+					</div>
             <div class="block searchbar-hide-on-search">
 				<h3>Commands List</h3>
                 <p>In this screen, you can send different commands to test this device</p>				
@@ -68,11 +72,8 @@
 					<div class="item-inner">
 					  <div class="item-title">Demo list</div>
 					</div></a>
-				  <div class="accordion-item-content accordion-item-opened ptr-content">
-					<div class="ptr-preloader">
-						<div class="preloader"></div>
-						<div class="ptr-arrow"></div>
-					</div>
+				  <div class="accordion-item-content accordion-item-opened ">
+					
 					<div class="list command-list-icons commandsList ">
 					  <ul>
 						<!--<li class="li-cmd">
@@ -501,7 +502,7 @@
 					self.showCommandsList();	
 					//$ptrContent.find('ul').prepend(itemHTML);
 					// When loading done, we need to reset it
-					App.ptr.done(); // or e.detail();
+					self.$app.ptr.done(); // or e.detail();
 				  }, 2000);
 				});
 				
