@@ -46,6 +46,11 @@ var routes = [
         componentUrl: './resources/pages/edit-command.html?v=2.7',
         name: 'edit-command'
     },
+    {
+        path: '/add-command/',
+        componentUrl: './resources/pages/add-command.html?v=3.4',
+        name: 'add-command'
+    },
 
 
 

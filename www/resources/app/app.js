@@ -144,6 +144,9 @@ var app = new Framework7({
                 deviceType: localStorage.DEVICE_TYPE,
             };
 
+			localStorage.ACCOUNT = account.val();
+            localStorage.PASSWORD = password.val();
+					
             self.loginScreen.close();
 
             /*app.dialog.progress();

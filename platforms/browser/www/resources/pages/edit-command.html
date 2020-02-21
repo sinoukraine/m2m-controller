@@ -11,20 +11,22 @@
                     </a>
                 </div>
                 <div class="title sliding">
-                    {{Title}}
+                    {{name}}
                 </div>
             </div>
         </div>
 		
 		<div class="page-content">			
 			
-			<div class="block-title">{{Info}}</div>
+			<div class="block-title">You can edit your command here</div>
 			<div class="list inset">
+				<input type="hidden" name="imsi" value="{{imsi}}">
+				<input type="hidden" name="login" value="{{login}}">
 			  <ul>
 				<li class="item-content item-input">
 				  <div class="item-inner">
 					<div class="item-input-wrap">
-					  <input type="text" value="{{Name}}" placeholder="Name">
+					  <input type="text" name="name" value="{{name}}" placeholder="Name">
 					  <span class="input-clear-button"></span>
 					</div>
 				  </div>
@@ -32,7 +34,23 @@
 				<li class="item-content item-input">
 				  <div class="item-inner">
 					<div class="item-input-wrap">
-					  <input type="text" value="{{Command}}" placeholder="Command">
+					  <input type="text" name="content" value="{{content}}" placeholder="Command">
+					  <span class="input-clear-button"></span>
+					</div>
+				  </div>
+				</li>
+				<li class="item-content item-input">
+				  <div class="item-inner">
+					<div class="item-input-wrap">
+					  <input type="text" name="description" value="{{description}}" placeholder="Description">
+					  <span class="input-clear-button"></span>
+					</div>
+				  </div>
+				</li>
+				<li class="item-content item-input">
+				  <div class="item-inner">
+					<div class="item-input-wrap">
+					  <input type="text" name="path" value="{{path}}" placeholder="Group Name">
 					  <span class="input-clear-button"></span>
 					</div>
 				  </div>
@@ -40,8 +58,11 @@
 			  </ul>
 			</div>
 			
+			<div class="location-div">
+				<button class="col button button-outline saveData" >Save</button>
+			</div>
 		</div>
-</div>
+	</div>
 </template>
 
 <script>
@@ -49,42 +70,104 @@
     return { 
         data: function () {
             var self = this;
-            var ret = {};   
+            var ret = {
+				name: '',
+				content: '',
+				description: '',
+				path: '',
+				login: '',
+				imsi: ''
+			};   
 			
-            if (self.$route.query.name) {
-				ret.Title = self.$route.query.name;
-				ret.Name = self.$route.query.name;
-				ret.Info = 'You can edit your command here';
-            }else{
-				ret.Name = '';
-				ret.Title = 'Add Command';
-				ret.Info = 'You can add a new command here';
-			}
-			
-			if (self.$route.query.command) {
-				ret.Command = self.$route.query.command;
-            }else{
-				ret.Command = '';
-			}
+            if (self.$route.query.id) {
+				ret.id = self.$route.query.id;
+            }
 
             return ret;
-        },
-
+        },					
+        methods: {
+			saveData: function () {
+                let self = this;
+					self.$app.preloader.show();
+					
+					var data = {
+						content: $$("input[name='content']").val(),
+						description: $$("input[name='description']").val(),
+						imsi: $$("input[name='imsi']").val(),
+						login: $$("input[name='login']").val(),
+						name: $$("input[name='name']").val(),
+						path: $$("input[name='path']").val(),
+					}
+					
+					$.ajax({
+						async: true,
+						crossDomain: true,
+						url: "http://m2mdata03.sinopacific.com.ua/em/v3/sms/" + self.id,
+						method: "PUT",
+						headers: {
+							"authorization": "12345",
+							"content-type": "application/json"
+						},
+						processData: false,
+						data: JSON.stringify(data),
+						success: function (result) {							
+							self.$app.preloader.hide();
+						},
+						error: function(XMLHttpRequest, textStatus, errorThrown){
+							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
+						}
+					});	
+			},
+			getData: function () {
+                let self = this;
+					self.$app.preloader.show();
+					$.ajax({
+						type: "GET",		        
+						url: 'http://m2mdata03.sinopacific.com.ua/em/v3/sms/' + self.id,
+						dataType: "json",	
+						async: true,
+						cache: false,
+						headers: { 
+							Authorization: "12345"
+						},
+						success: function (result) {console.log(result);
+							if (result) {								
+								self.setData(result);
+							}	
+							self.$app.preloader.hide();
+						},
+						error: function(XMLHttpRequest, textStatus, errorThrown){
+							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
+							self.$app.preloader.hide();							
+						}
+					});				
+			},
+			setData: function (data) {
+                let self = this;
+						
+				self.$setState({
+					content: data.content,
+					description: data.description,
+					name: data.name,
+					path: data.path,
+					imsi: data.imsi,
+					login: data.login
+				});
+									
+				// Append new items
+				//$$('.commandsList ul').append(html);		
+			},	
+		},
         on: {
             pageInit: function (e, page) {
                 let self = this;
 				
-				
-				
-				
-				
-				}
+				self.getData();
+				$('.saveData').on('click', function(){		
+					self.saveData();							
+				});
 			}
-			//myApp.onPageBeforeAnimation('page1', function (page){
-		
-		
-												
-
+		}
     };
 </script>
     

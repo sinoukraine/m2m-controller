@@ -343,7 +343,8 @@
 }
 
 .color-m2m-blue{
-	color: rgb(39,166,255);
+	/*color: rgb(39,166,255);*/
+	color: #2196f3;
 }
 
 .action_button_media {
@@ -441,4 +442,13 @@
 
 .leaflet-control-container{
 	display: none;
+}
+
+.gly-rotate-180 {
+  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=0.5);
+  -webkit-transform: rotate(180deg);
+  -moz-transform: rotate(180deg);
+  -ms-transform: rotate(180deg);
+  -o-transform: rotate(180deg);
+  transform: rotate(180deg);
 }

@@ -1,6 +1,6 @@
 <!--suppress JSAnnotator -->
 <template>
-	<div data-name="edit-command" class="page"> <!-- page-with-subnavbar -->
+	<div data-name="add-command" class="page"> <!-- page-with-subnavbar -->
 		<!-- Top Navbar -->
 		<div class="navbar">
             <div class="navbar-bg"></div>
@@ -11,14 +11,14 @@
                     </a>
                 </div>
                 <div class="title sliding">
-                    {{name}}
+                    Add Command
                 </div>
             </div>
         </div>
 		
 		<div class="page-content">			
 			
-			<div class="block-title">You can edit your command here</div>
+			<div class="block-title">You can add new command here</div>
 			<div class="list inset">
 				<input type="hidden" name="imsi" value="{{imsi}}">
 				<input type="hidden" name="login" value="{{login}}">
@@ -74,95 +74,81 @@
 				name: '',
 				content: '',
 				description: '',
-				path: '',
-				login: '',
-				imsi: ''
+				path: 'Demo list',
+				login: localStorage.ACCOUNT,
 			};   
 			
-            if (self.$route.query.id) {
-				ret.id = self.$route.query.id;
-            }
-
+			if (self.$route.query.imsi) {
+				ret.imsi = self.$route.query.imsi;
+            } 
             return ret;
         },					
         methods: {
 			saveData: function () {
                 let self = this;
-					self.$app.preloader.show();
+					
+					var content = $$("input[name='content']").val();
+					var description = $$("input[name='description']").val();
+					var imsi = $$("input[name='imsi']").val();
+					var login = $$("input[name='login']").val();
+					var name = $$("input[name='name']").val();
+					var path = $$("input[name='path']").val();
 					
 					var data = {
-						content: $$("input[name='content']").val(),
-						description: $$("input[name='description']").val(),
-						imsi: $$("input[name='imsi']").val(),
-						login: $$("input[name='login']").val(),
-						name: $$("input[name='name']").val(),
-						path: $$("input[name='path']").val(),
+						content,
+						description,
+						imsi,
+						login: 'demo',
+						name,
+						path,
 					}
 					
-					$.ajax({
-						async: true,
-						crossDomain: true,
-						url: "http://m2mdata03.sinopacific.com.ua/em/v3/sms/" + self.id,
-						method: "PUT",
-						headers: {
-							"authorization": "12345",
-							"content-type": "application/json"
-						},
-						processData: false,
-						data: JSON.stringify(data),
-						success: function (result) {							
-							self.$app.preloader.hide();
-						},
-						error: function(XMLHttpRequest, textStatus, errorThrown){
-							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
-						}
-					});	
-			},
-			getData: function () {
-                let self = this;
-					self.$app.preloader.show();
-					$.ajax({
-						type: "GET",		        
-						url: 'http://m2mdata03.sinopacific.com.ua/em/v3/sms/' + self.id,
-						dataType: "json",	
-						async: true,
-						cache: false,
-						headers: { 
-							Authorization: "12345"
-						},
-						success: function (result) {console.log(result);
-							if (result) {								
-								self.setData(result);
-							}	
-							self.$app.preloader.hide();
-						},
-						error: function(XMLHttpRequest, textStatus, errorThrown){
-							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
-							self.$app.preloader.hide();							
-						}
-					});				
-			},
-			setData: function (data) {
-                let self = this;
-						
-				self.$setState({
-					content: data.content,
-					description: data.description,
-					name: data.name,
-					path: data.path,
-					imsi: data.imsi,
-					login: data.login
-				});
-									
-				// Append new items
-				//$$('.commandsList ul').append(html);		
-			},	
+					
+					console.log(data);
+					
+					if(content.length && description.length && imsi.length && login.length && name.length && path.length){
+						self.$app.preloader.show();
+					
+						$.ajax({
+							async: true,
+							crossDomain: true,
+							url: "http://m2mdata03.sinopacific.com.ua/em/v3/sms",
+							method: "POST",
+							headers: {
+								"authorization": "12345",
+								"content-type": "application/json"
+							},
+							processData: false,
+							data: JSON.stringify(data),
+							success: function (result) {							
+								self.$app.preloader.hide();
+								
+								self.$app.dialog.alert('Command created');
+								
+								self.$setState({
+									content: '',
+									description: '',
+									name: '',
+									path: '',
+									login: 'demo'
+								});
+							},
+							error: function(XMLHttpRequest, textStatus, errorThrown){
+								console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);					
+								self.$app.preloader.hide();
+								
+
+							}
+						});	
+					}else{
+						self.$app.dialog.alert('All fields are required');
+					}
+			}	
 		},
         on: {
             pageInit: function (e, page) {
                 let self = this;
 				
-				self.getData();
 				$('.saveData').on('click', function(){		
 					self.saveData();							
 				});

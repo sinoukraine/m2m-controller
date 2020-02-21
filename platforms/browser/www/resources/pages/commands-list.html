@@ -11,7 +11,7 @@
                     </a>
                 </div>
                 <div class="right">
-                    <a href="/edit-command/" class="link icon-only ">
+                    <a href="#" class="link icon-only add-cmd">
                         <i class="material-icons md-36">add</i>
                     </a>
                 </div>
@@ -66,12 +66,16 @@
 			  <ul>
 				<li class="accordion-item"><a href="#" class="item-content item-link">
 					<div class="item-inner">
-					  <div class="item-title">QT EE500</div>
+					  <div class="item-title">Demo list</div>
 					</div></a>
-				  <div class="accordion-item-content accordion-item-opened">
-					<div class="list command-list-icons">
+				  <div class="accordion-item-content accordion-item-opened ptr-content">
+					<div class="ptr-preloader">
+						<div class="preloader"></div>
+						<div class="ptr-arrow"></div>
+					</div>
+					<div class="list command-list-icons commandsList ">
 					  <ul>
-						<li class="li-cmd">
+						<!--<li class="li-cmd">
 						  <div class="item-content">
 							<div class="item-inner">
 							  <div class="item-title cmd" cmd-name="WHERE#">Location</div>
@@ -222,10 +226,12 @@
 							  <a href="/edit-command/?command=qtee500 act live&name=Activate Live"><div class="item-after"><i class="material-icons md-24">create</i></div></a>
 							</div>
 						  </div>
-						</li>
+						</li>-->
+						
 					  </ul>
 				  </div>
-				</li>
+				  <div class="preloader infinite-scroll-preloader"></div>
+				</li><!--
 				<li class="accordion-item"><a href="#" class="item-content item-link">
 					<div class="item-inner">
 					  <div class="item-title">QT BJ 01</div>
@@ -316,7 +322,7 @@
 						  </ul>
 						</div>
 				   </div>
-				</li>
+				</li>-->
 			  </ul>
 			</div>
 		</div>
@@ -328,40 +334,179 @@
     return { 
         data: function () {
             var self = this;
-            var ret = {};            
+            var ret = {
+				allowInfinite: true,
+				page: 1,
+				lastItemIndex: 0,
+				maxItems: 0
+			};            
             
-			/*console.log(self.$route.query.code);
-			if (self.$route.query.code) {
-				ret.PhotoPath = self.$route.query.code;
-            }*/
+			/*console.log(self.$route.query.code);*/
+			if (self.$route.query.imsi) {
+				ret.imsi = self.$route.query.imsi;
+            }
 
             return ret;
         },
-
-        on: {
-            pageInit: function (e, page) {
+        methods: {
+			showCommandsList: function () {
                 let self = this;
 				
-				$$('.li-cmd').on('click', function () {
-					let cmd = $(this).find('.cmd').attr('cmd-name');
+					$$('.commandsList ul').html('');
+					
+					self.$setState({
+						page: 1
+					});
+					
+					self.getCommandsList();
+					self.$app.infiniteScroll.create('.infinite-scroll-content');	
+					
+				//} else {
+					/*App.addNotification({
+						hold: 3000,
+						message: LANGUAGE.PROMPT_MSG008
+					});*/
+				//}		
+			},						
+			getCommandsList: function () {
+                let self = this;
+					if (!self.allowInfinite) return;					
+					
+					// Set loading flag
+					self.$setState({
+                        allowInfinite: false
+                    });
+					
+					//self.$app.preloader.show();
+					$.ajax({
+						type: "GET",		        
+						//url: 'https://m2mdata03.sinopacific.com.ua/em/v3/sims?page=' + self.page + '&pageSize=10&query%5Binfo.' + self.type + '%5D%5B%24regex%5D=' + self.text,
+						url: 'http://m2mdata03.sinopacific.com.ua/em/v3/sms',
+						dataType: "json",	
+						async: true,
+						cache: false,
+						headers: { 
+							Authorization: "12345"
+						},
+						success: function (result) {console.log(result);
+							if (result.rows) {
+								//$$('.page-content').removeClass('first_login');
+																	
+								if(result.page == 1){
+									
+									self.$app.infiniteScroll.create('.infinite-scroll-content');
+									// Loading flag
+
+									self.$setState({
+										maxItems: result.total,
+										lastItemIndex: $$('.commandsList li').length,										
+									});
+								}
+							
+									// Reset loading flag
+									self.$setState({
+										allowInfinite: true
+									});
+								
+								self.setCommandsList(result.rows);
+								
+								//if (self.lastItemIndex >= self.maxItems) {
+								if (result.page === result.totalPages) {
+								  self.$app.infiniteScroll.destroy('.infinite-scroll-content');
+								  
+								  // Remove preloader
+								  $$('.infinite-scroll-preloader').remove();
+								  return;
+								}
+																		
+								let incrList = self.lastItemIndex + 10;
+								
+								self.$setState({
+									lastItemIndex: incrList
+								});
+								
+								let incr = self.page + 1;
+								
+								self.$setState({
+									page: incr
+								});
+									
+								//$('.searchbar-hide-on-search').addClass('display-none');
+																
+								if(self.page == 2){
+									$$('.infinite-scroll-content').on('infinite', self.getCommandsList);
+								}
+										
+								if (result.rows.length === 0) {
+									/*App.addNotification({
+										hold: 3000,
+										message: LANGUAGE.PROMPT_MSG006
+									});*/
+								}
+							} else {
+								App.alert(LANGUAGE.PROMPT_MSG013);
+							}
+							//self.$app.preloader.hide();
+							
+						},
+						error: function(XMLHttpRequest, textStatus, errorThrown){
+							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
+						}
+					});				
+			},
+			setCommandsList: function (commandsList) {
+                let self = this;
+				// Generate new items HTML
+				var html = '';
+				
+				$.each(commandsList, function(index, value){	
+					html += '<li class="li-cmd"><a href="/commands/?cmd=' + value.content + '">';
+					html += '	  <div class="item-content">';
+					html += '		<div class="item-inner">';
+					html += '		  <div class="item-title cmd" cmd-name="' + value.content + '">' + value.name + '</div>';
+					html += '		  <a href="/edit-command/?id=' + value._id + '"><div class="item-after"><i class="material-icons md-24">create</i></div></a>';
+					html += '		</div>';
+					html += '	  </div></a>';					
+					html += '               </li>';
+				});
+								
+				// Append new items
+				$$('.commandsList ul').append(html);		
+			},	
+		},
+        on: {
+            pageInit: function (e, page) {
+                let self = this; 
+				
+				self.showCommandsList();
+				
+				$$('.page').find('.add-cmd').on('click', function () {console.log(self.imsi);
+					//let cmd = $(this).find('.cmd').attr('cmd-name');
 					//self.$app.methods.setInStorage({cmd: cmd});
 					
 					// somewhere in the app send notification
 					//myEvents.emit('cmdReceived', {
 					  //cmd,
 					//});
-					mainView.router.navigate('/commands/?cmd='+cmd);					
+					mainView.router.navigate('/add-command/?imsi=' + self.imsi);					
 				});
 				
-				
+				// Pull to refresh content
+				var $ptrContent = $$('.ptr-content');
+				// Add 'refresh' listener on it
+				$ptrContent.on('ptr:refresh', function (e) {
+				  // Emulate 2s loading
+				  setTimeout(function () { // Prepend new list element
+					
+					self.showCommandsList();	
+					//$ptrContent.find('ul').prepend(itemHTML);
+					// When loading done, we need to reset it
+					App.ptr.done(); // or e.detail();
+				  }, 2000);
+				});
 				
 				}
 			}
-			//myApp.onPageBeforeAnimation('page1', function (page){
-		
-		
-												
-
     };
 </script>
     

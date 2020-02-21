@@ -15,7 +15,7 @@
                     <!-- 234507098430582-->
                 </div>
                 <div class="right">
-                    <a href="/commands-list/" class="link icon-only ">
+                    <a href="#" class="link icon-only cmdList">
                         <i class="material-icons md-36">list</i>
                     </a>
                 </div>
@@ -76,7 +76,7 @@
             sendCommand: function(data){					
 				var self = this;  
 				var text = data;		
-				var data = {
+				/*var data = {
 					"smsType": "Text",
 					"data": text,
 					"udh": "No",
@@ -84,8 +84,36 @@
 					"smsValidityDays": "1",
 					"smsValidityHours": "1",
 					"smsValidityMinutes": "2"
+				}*/
+				
+				var data = {
+					content: 'where#',
+					description: 'get SIM location',
+					imsi: self.imsiTitle,
+					login: 'Testa',
+					name: 'Location',
+					path: '-',
 				}
 				
+				$.ajax({
+					async: true,
+					crossDomain: true,
+					url: "http://m2mdata03.sinopacific.com.ua/em/v3/sms",
+					method: "POST",
+					headers: {
+						"authorization": "12345",
+						"content-type": "application/json"
+					},
+					processData: false,
+					data: JSON.stringify(data),
+					success: function (result) {console.log(result);
+						self.receiveMessage(text, result.orderId);
+						
+					},
+					error: function(XMLHttpRequest, textStatus, errorThrown){
+						console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
+					}
+				});
 				/*var question = data.data;
 						setTimeout(function () {
 						  self.messages.addMessage({
@@ -93,7 +121,7 @@
 							type: 'sent',
 						  });
 					*/
-				$.ajax({
+				/*$.ajax({
 					async: true,
 					crossDomain: true,
 					url: "http://m2mdata03.sinopacific.com.ua/m2mdata/v3/sims/" + self.imsiTitle + "/sms",
@@ -111,7 +139,7 @@
 					error: function(XMLHttpRequest, textStatus, errorThrown){
 						console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
 					}
-				});
+				});*/
 				
 						
             },
@@ -256,6 +284,12 @@
 					});
 					//app.views.main.router.navigate('/home/', {reloadAll: true})
 				});*/
+				
+				$('.cmdList').on('click', function(){		
+					//app.views.main.router.navigate('/home/', {reloadAll: true})	
+					mainView.router.navigate('/commands-list/?imsi=' + self.imsiTitle);
+				});
+				
 	
 			},
 			pageBeforeRemove: function () {
