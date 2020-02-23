@@ -80,6 +80,8 @@
 				page: 1,
 				lastItemIndex: 0,
 				maxItems: 0,
+				used_id: [],
+				month_names_short: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
 			};            
             
 			if (self.$route.query.imsi) {
@@ -223,33 +225,38 @@
 				//}		
 			},						
 			getCallbackList: function (date, index, curId) {
-									
-				var nextId = $$('.page').find('.commandsHistoryList ul [idx="' + (index - 1) + '"]').attr('id');
-				var nextDate = $$('.page').find('.commandsHistoryList ul [idx="' + (index - 1) + '"] .sms-datetime').html();	
 				
-				var curDate = date.slice(0,10).toString();
+				//var curDate = d.toISOString();//.substr(0, 11) + '00:00:00.000Z';
+
+					
+				var nextId = $$('.page').find('.commandsHistoryList ul [idx="' + (index - 1) + '"]').attr('id');
+				var nextDate = $$('.page').find('.commandsHistoryList ul [idx="' + (index - 1) + '"] .sms-datetime').attr('date');	
+				
+				var curDate = date;//.slice(0,10).toString();
 				
 				if(nextDate == undefined) {
 					var d = new Date();
-					var m_names = new Array("01", "02", "03", 
+					/*var m_names = new Array("01", "02", "03", 
 					"04", "05", "06", "07", "08", "09", 
 					"10", "11", "12"); 
 					
 					var today = d.getDate()+1; 
 					var curr_month = d.getMonth();
 					var curr_year = d.getFullYear();
-					nextDate = curr_year + "-" + m_names[curr_month] + "-" + today;
+					nextDate = curr_year + "-" + m_names[curr_month] + "-" + today;*/
+					//nextDate = d.toISOString();
+					var nextDate = d.toISOString().substr(0, 11) + '23:59:59.100Z';
+					console.log(curDate, nextDate);
 				}else{
-					nextDate = nextDate.slice(0,10).toString();
+					//nextDate = nextDate;//.slice(0,10).toString();
+					console.log(curDate, nextDate);
 				}				
 				
                 let self = this;
 					//self.$app.preloader.show();
 					$.ajax({
 						type: "GET",		        
-						//url: 'https://m2mdata03.sinopacific.com.ua/em/v3/sims?page=' + self.page + '&pageSize=10&query%5Binfo.imsi%5D%5B%24regex%5D=',234500003096631 
-						//url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/nomad/orders?query%5Bimsi%5D=' + self.IMSI + '&query%5BcreatedAt%5D%5B%24gt%5D=2020-02-14&query%5BcreatedAt%5D%5B%24lt%5D=2020-02-15',' + data + '
-						url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/nomad/messages?query%5Bimsi%5D=' + self.IMSI + '&query%5BcreatedAt%5D%5B%24gt%5D=' + curDate + '&pageSize=500&sort=createdAt&query%5BcreatedAt%5D%5B%24lt%5D=' + nextDate,
+						url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/nomad/messages?query%5Bimsi%5D=' + self.IMSI + '&query%5BcreatedAt%5D%5B%24gt%5D=' + curDate + '&pageSize=100&sort=createdAt&query%5BcreatedAt%5D%5B%24lt%5D=' + nextDate,
 						dataType: "json",	
 						async: true,
 						cache: false,
@@ -282,10 +289,15 @@
 				// Generate new items HTML
 				var html = '';
 				$.each(callbackList, function(index, value){	//console.log(value);
+								
+					if(value.status != 'delivered'){//self.used_id.indexOf( value._id ) == -1 && 
+					//self.used_id.push(value._id);
 					//console.log(value);
-					var datetime = moment.utc(value.createdAt).toDate();
-						datetime = moment(datetime).format(window.COM_TIMEFORMAT);
-					
+					/*var datetime = moment.utc(value.createdAt).toDate();
+						datetime = moment(datetime).format(window.COM_TIMEFORMAT);*/
+						var date = moment.utc(value.createdAt).toDate();
+						var datetime = date.toISOString();
+						var time = date.getDate() + ' ' + self.month_names_short[date.getMonth()] + ' ' + ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2) + ':' + ('0' + date.getSeconds()).slice(-2);
 					//var datearr[index] = datetime;
 					
 					//var prevDate = $$('.page').find('.commandsHistoryList ul [ridx="' + (index - 1) + '"] .sms-datetime').html();
@@ -332,7 +344,7 @@
 						html += '<i class="material-icons md-36 ">email</i>';
 					}
 						html += '</div>';
-						html += '<div class="item-after sms-datetime">' + datetime + '</div>';
+						html += '<div class="item-after ">' + time + '</div>';
 						html += '</div>';
 					if(value.message){
 						html += '<div class="item-text">' + value.message + '</div>';
@@ -341,9 +353,9 @@
 					}
 						html += '</div>';
 						html += '</li>';		
-						
+					}
 				});
-				
+				//console.log($('#sms-id_' + curId).html(), html);
 				$('#sms-id_' + curId).after(html);		
 			
 		},
@@ -373,7 +385,7 @@
 					$.ajax({
 						type: "GET",		        
 						//url: 'https://m2mdata03.sinopacific.com.ua/em/v3/sims?page=' + self.page + '&pageSize=10&query%5Binfo.imsi%5D%5B%24regex%5D=',234500003096631 
-						url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/nomad/orders?query%5Bimsi%5D=' + self.IMSI + '&query%5BcreatedAt%5D%5B%24gt%5D='+ago+'&sort=createdAt',//&query%5BcreatedAt%5D%5B%24lt%5D='+now+'
+						url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/nomad/orders?query%5Bimsi%5D=' + self.IMSI + '&query%5BcreatedAt%5D%5B%24gt%5D='+ago+'&sort=-createdAt',//&query%5BcreatedAt%5D%5B%24lt%5D='+now+'
 						dataType: "json",	
 						async: true,
 						cache: false,
@@ -458,7 +470,7 @@
 			setHistoryList: function (historyList) {
                 let self = this;
 				// Generate new items HTML
-				var html = '';
+				
 					/*
 						html += '<li class="item-content" idx="0" id="sms-id_5e46d802344b03443d5762d4">';
 					
@@ -495,10 +507,13 @@
 						html += '</li>';
 						*/
 				$.each(historyList, function(index, value){	
+					var html = '';
 					//console.log(value);
-					var datetime = moment.utc(value.createdAt).toDate();
-						datetime = moment(datetime).format(window.COM_TIMEFORMAT);
-
+					/*var datetime = moment.utc(value.createdAt).toDate();
+						datetime = moment(datetime).format(window.COM_TIMEFORMAT);*/
+						var date = moment.utc(value.createdAt).toDate();
+						var datetime = date.toISOString();
+						var time = date.getDate() + ' ' + self.month_names_short[date.getMonth()] + ' ' + ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2) + ':' + ('0' + date.getSeconds()).slice(-2);
 					var message = '';
 					if (value.payload.smsParameters.data) {
 						message = value.payload.smsParameters.data.replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -518,17 +533,18 @@
 						html += '<i class="material-icons md-36">send</i>';
 					//}
 						html += '</div>';
-						html += '<div class="item-after sms-datetime">' + datetime + '</div>';
+						html += '<div class="item-after sms-datetime" date="'+datetime+'">' + time + '</div>';
 						html += '</div>';
 						html += '<div class="item-text">' + message + '</div>';
 						html += '</div>';
 						html += '</li>';		
-						self.getCallbackList(value.createdAt, index, value._id);
+						$$('.commandsHistoryList ul').prepend(html);	
+						self.getCallbackList(datetime, index, value._id);
 				});
 				
 				
 				// Append new items
-				$$('.commandsHistoryList ul').prepend(html);	
+				
 						//self.getCallbackList('2020-02-14T17:25:22.872Z', '0', 'sms-id_5e46d802344b03443d5762d4');
 						//self.getCallbackList('2020-02-13T16:25:22.872Z', '1', 'sms-id_5e46d802344b03443d5762d3');	
 			},	

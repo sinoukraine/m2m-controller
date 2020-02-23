@@ -452,3 +452,18 @@
   -o-transform: rotate(180deg);
   transform: rotate(180deg);
 }
+
+.popup .page-content{
+	padding-top: 0px;
+}
+
+.popup .page-content li{
+	height: 50px;
+}
+.accordion-item-content {
+    margin-bottom: 100px;
+}
+    
+.dirrect-search-toggle{
+	margin-right: 5px;
+}

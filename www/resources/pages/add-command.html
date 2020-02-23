@@ -104,7 +104,6 @@
 					}
 					
 					
-					console.log(data);
 					
 					if(content.length && description.length && imsi.length && name.length){
 						self.$app.preloader.show();
@@ -122,16 +121,15 @@
 							data: JSON.stringify(data),
 							success: function (result) {							
 								self.$app.preloader.hide();
-								
-								self.$app.dialog.alert('Command created');
-								
 								self.$setState({
-									content: '',
-									description: '',
-									name: '',
-									path: '',
+									content: ' ',
+									description: ' ',
+									name: ' ',
 									login: 'demo'
 								});
+								self.$app.dialog.alert('Command saved');
+								
+								
 							},
 							error: function(XMLHttpRequest, textStatus, errorThrown){
 								console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);					

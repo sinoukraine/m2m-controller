@@ -30,8 +30,13 @@
 
         <form class="searchbar custom-searchbar formSearchSim">
             <div class="searchbar-inner">
+				
+				  <label class="toggle toggle-init color-blue dirrect-search-toggle">
+					<input type="checkbox" class="dirrectSearch">
+					<span class="toggle-icon"></span>
+				  </label>
                 <div class="searchbar-input-wrap">
-                    <input type="search" name="searchInput" class="search-sims" placeholder="{{@global.LANGUAGE.COM_MSG002}}" title="{{@global.LANGUAGE.COM_MSG002}}">
+                    <input type="search" name="searchInput" class="search-sims" placeholder="{{placeholderSearch}}" title="{{@global.LANGUAGE.COM_MSG002}}">
                     <!--<i class="searchbar-icon"></i>-->
                     <span class="input-clear-button"></span>
                     <button type="submit" class="button search-sims-btn"><i class="material-icons">search</i></button>
@@ -77,6 +82,8 @@
     return {
         data: function () {
             let ret = {
+				toggleValue: false,
+				placeholderSearch: 'BETA Search',
 				text: '',
 				type: 'imsi',
 				allowInfinite: true,
@@ -89,9 +96,8 @@
             return ret;
         },
         methods: {
-			submitSearchForm: function (type) {
+			submitSearchForm: function (type) { 
                 let self = this;
-				
 				var input = $$('.formSearchSim input[name="searchInput"');
 
 				//if (input.val()) {
@@ -108,16 +114,117 @@
 						page: 1
 					});
 					
-					self.getSimList();
-					self.$app.infiniteScroll.create('.infinite-scroll-content');	
-					
+					if(self.toggleValue){
+						console.log('dri');
+						self.getSim();
+					}else{
+						self.getSimList();
+						self.$app.infiniteScroll.create('.infinite-scroll-content');	
+					}
 				//} else {
 					/*App.addNotification({
 						hold: 3000,
 						message: LANGUAGE.PROMPT_MSG008
 					});*/
 				//}		
-			},						
+			},				
+			getSim: function () {
+                let self = this;
+					
+					if(!self.text){
+						self.$app.dialog.alert('Please fill search field.');
+						self.$setState({
+										allowInfinite: true
+									});
+								
+								self.$app.infiniteScroll.destroy('.infinite-scroll-content');
+								  
+								  // Remove preloader
+								  $$('.infinite-scroll-preloader').remove();
+								  return;
+					}
+					//self.$app.preloader.show();
+					$.ajax({
+						type: "GET",		        
+						//url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/sims?query%5Binfo.' + self.type + '%5D%5B%24regex%5D=' + self.text,
+						//url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/sims?page=' + self.page + '&pageSize=10&query%5B' + self.type + '%5D%5B%24regex%5D=' + self.text,
+						url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/sims/' + self.text,
+						dataType: "json",	
+						async: true,
+						cache: false,
+						headers: { 
+							Authorization: "12345"
+						},
+						success: function (result) {
+							console.log(result);
+							if (result) {
+								//$$('.page-content').removeClass('first_login');
+								var html = '';
+								
+								html += '<li>';
+								html += '<a href="#" data-imsi="'+result.imsi+'" data-iccid="'+result.iccId+'" class="ac-5 item-link item-content">';
+								html += '  <div class="item-inner">';
+								html += '   <div class="item-title-row">';
+								html += '   <div class="item-title color-custom">';
+								html += '     <div class="display-flex">';
+								html += '       <div class="prop-name">IMSI:</div>';
+								html += '             <div class="imsi-value">'+result.imsi+'</div>';
+								html += '              </div>';
+								html += '              </div>';
+								html += '               <div class="item-after color-custom"><i class="f7-icons icon-other-menu3 color-m2m-blue" style="font-size:20px;margin-top:5px;"></i></div>';
+								html += '               </div>';
+								html += '                 <div class="item-text">';
+								html += '                         <div class="display-flex">';
+								html += '                                <div class="prop-name">ICCID:</div>';
+								html += '                           <div class="iccid-value">'+result.iccId+'</div>';
+								html += '                    </div>';
+								html += '               <div class="display-flex">';
+								html += '              <div class="prop-name">MSISDN:</div>';
+								html += '                         <div class="uppercase">'+result.msisdn+'</div>';
+								html += '                         </div>';
+								html += '                   <div class="display-flex">';
+								html += '                      <div class="prop-name">Rag:</div>';
+								html += '						<div style="font-size: 14px;color: #CD3333;">&#11044;</div>';
+								html += '          			</div>';
+								html += '            </div>';
+								html += '             </div>';
+								html += '               </a>';
+								html += '               </li>';
+							
+											
+							// Append new items
+							$$('.simList ul').append(html);							
+									
+							}else{
+								self.$app.dialog.alert('Incorrect IMSI number.');
+							}
+							
+							self.$setState({
+										allowInfinite: true
+									});
+								
+								self.$app.infiniteScroll.destroy('.infinite-scroll-content');
+								  
+								  // Remove preloader
+								  $$('.infinite-scroll-preloader').remove();
+								  return;
+						},
+						error: function(XMLHttpRequest, textStatus, errorThrown){
+							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
+								self.$app.dialog.alert('Incorrect IMSI number.');
+								
+								self.$setState({
+										allowInfinite: true
+									});
+								
+								self.$app.infiniteScroll.destroy('.infinite-scroll-content');
+								  
+								  // Remove preloader
+								  $$('.infinite-scroll-preloader').remove();
+								  return;
+						}
+					});	
+			},															
 			getSimList: function () {
                 let self = this;
 					if (!self.allowInfinite) return;					
@@ -137,8 +244,8 @@
 						headers: { 
 							Authorization: "12345"
 						},
-						success: function (result) {//console.log(result);
-							if (result.rows) {
+						success: function (result) {
+							if (result.total) {
 								//$$('.page-content').removeClass('first_login');
 																	
 								if(result.page == 1){
@@ -195,13 +302,35 @@
 									});*/
 								}
 							} else {
-								App.alert(LANGUAGE.PROMPT_MSG013);
+								//App.alert(LANGUAGE.PROMPT_MSG013);
+								self.$app.dialog.alert('No one IMSI found with this number. Please try with direct search.');
+								// Reset loading flag
+									self.$setState({
+										allowInfinite: true
+									});
+								
+								self.$app.infiniteScroll.destroy('.infinite-scroll-content');
+								  
+								  // Remove preloader
+								  $$('.infinite-scroll-preloader').remove();
+								  return;
 							}
 							//self.$app.preloader.hide();
 							
 						},
 						error: function(XMLHttpRequest, textStatus, errorThrown){
 							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
+								self.$app.dialog.alert('Something wrong.');
+							self.$app.infiniteScroll.destroy('.infinite-scroll-content');
+							self.$setState({
+										allowInfinite: true
+									});
+								
+								self.$app.infiniteScroll.destroy('.infinite-scroll-content');
+								  
+								  // Remove preloader
+								  $$('.infinite-scroll-preloader').remove();
+								  return;
 						}
 					});				
 			},
@@ -400,7 +529,26 @@
 						});
 
 					}
-				});				
+				});		
+				
+				var toggle = app.toggle.create({
+				  el: '.toggle',
+				  on: {
+					change: function () {
+						if(toggle.checked){
+							self.$setState({
+								toggleValue: true,
+								placeholderSearch: 'Direct search'
+							});
+						}else{
+							self.$setState({
+								toggleValue: false,
+								placeholderSearch: 'BETA search'
+							});
+						}						
+					}
+				  }
+				})			
 				
             },
             pageAfterIn:function(){

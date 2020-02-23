@@ -461,13 +461,13 @@
 				var html = '';
 				
 				$.each(commandsList, function(index, value){	
-					html += '<li class="li-cmd"><a href="/commands/?cmd=' + value.content + '">';
+					html += '<li class="li-cmd"><a href="/commands/?cmd=' + value.content + '" class="link">';//
 					html += '	  <div class="item-content">';
 					html += '		<div class="item-inner">';
 					html += '		  <div class="item-title cmd" cmd-name="' + value.content + '">' + value.name + '</div>';
 					html += '		  <a href="/edit-command/?id=' + value._id + '"><div class="item-after"><i class="material-icons md-24">create</i></div></a>';
 					html += '		</div>';
-					html += '	  </div></a>';					
+					html += '	  </div></a>';	//				
 					html += '               </li>';
 				});
 								
@@ -482,6 +482,10 @@
 				self.showCommandsList();
 				
 				$$('.page').find('.add-cmd').on('click', function () {console.log(self.imsi);
+					mainView.router.navigate('/add-command/?imsi=' + self.imsi);					
+				});
+				
+				$('.li-cmd').on('click', function () {console.log(1111);
 					//let cmd = $(this).find('.cmd').attr('cmd-name');
 					//self.$app.methods.setInStorage({cmd: cmd});
 					
@@ -491,6 +495,7 @@
 					//});
 					mainView.router.navigate('/add-command/?imsi=' + self.imsi);					
 				});
+				
 				
 				// Pull to refresh content
 				var $ptrContent = $$('.ptr-content');

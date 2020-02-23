@@ -11,7 +11,7 @@
                     </a>
                 </div>
                 <div class="title sliding imsi-title">
-					{{imsiTitle}}
+					{{imsi}}
                     <!-- 234507098430582-->
                 </div>
                 <div class="right">
@@ -28,7 +28,7 @@
 			  <!-- messagebar attachments -->
 			  <div class="messagebar-attachments">...</div>
 			  <!-- messagebar resizable textarea -->
-			  <textarea class="resizable" placeholder="Command">{{cmd}}</textarea>
+			  <textarea class="resizable" placeholder="Command"></textarea>
 			</div>
 			<a href="#" class="link send-link"><i class="icon material-icons">send</i></a>
 		  </div>
@@ -52,42 +52,33 @@
         data: function () {
             var self = this;
             var ret = {
+				intervalForReply: {},
 				responseInProgress: false,
 				messages: {},
 				messagebar: {},
+				allowInfinite: true,
+				page: 1,
+				lastItemIndex: 0,
+				maxItems: 0,
+				month_names_short: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+				used_id: [],
+				//customCmd: '',
+				dynamicPopup: {}
 			};     
 
 			if (self.$route.query.imsi) {
-				ret.imsiTitle = self.$route.query.imsi;
+				ret.imsi = self.$route.query.imsi;
             }  	
-
-			if (self.$route.query.cmd) {
-				ret.cmd = self.$route.query.cmd;
-            }  				
-            
-			/*console.log(self.$route.query.code);
-			if (self.$route.query.code) {
-				ret.PhotoPath = self.$route.query.code;
-            }*/
 
             return ret;
         },		
         methods: {
-            sendCommand: function(data){					
+            sendCommand: function(text){					
 				var self = this;  
-				var text = data;		
-				/*var data = {
-					"smsType": "Text",
-					"data": text,
-					"udh": "No",
-					"replaceIfPresent": "No",
-					"smsValidityDays": "1",
-					"smsValidityHours": "1",
-					"smsValidityMinutes": "2"
-				}*/
+				//var text = data;	
 				var data = {
 					"smsParameters": {
-						"data": "where#",
+						"data": text,
 						"from": "Platform",
 						"replaceIfPresent": "No",
 						"smsType": "Text",
@@ -97,17 +88,12 @@
 						"udh": "No"
 					}
 				}
-				/*var question = data.data;
-						setTimeout(function () {
-						  self.messages.addMessage({
-							text: question,
-							type: 'sent',
-						  });
-					*/
+				//console.log(data, "http://m2mdata03.sinopacific.com.ua/m2mdata/v3/sims/" + self.imsi + "/sms");
+				
 				$.ajax({
 					async: true,
 					crossDomain: true,
-					url: "http://m2mdata03.sinopacific.com.ua/m2mdata/v3/sims/" + self.imsiTitle + "/sms",
+					url: "http://m2mdata03.sinopacific.com.ua/m2mdata/v3/sims/" + self.imsi + "/sms",
 					method: "POST",
 					headers: {
 						"authorization": "12345",
@@ -116,20 +102,90 @@
 					processData: false,
 					data: JSON.stringify(data),
 					success: function (result) {
-						self.receiveMessage(text, result.orderId);
-						
+						//self.receiveMessage(text, result.orderId);
+						//self.getReplyMessages(text, result.orderId);
+						console.log(result);
 					},
 					error: function(XMLHttpRequest, textStatus, errorThrown){
 						console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
 					}
-				});			
-						
+				});	
+				
+				
             },
-			receiveMessage: function(text, id){					
+			getReplyMessages: function () {					
+					var d = new Date();
+				
+					let self = this;
+					var curDate = d.toISOString().substr(0, 11) + '00:00:00.000Z';
+					
+					console.log(curDate);
+					$.ajax({
+						type: "GET",		        
+						url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/nomad/messages?query%5Bimsi%5D=' + self.imsi + '&query%5BcreatedAt%5D%5B%24gt%5D=' + curDate + '&pageSize=100&sort=createdAt',//&query%5BcreatedAt%5D%5B%24lt%5D=' + nextDate &query%5BcreatedAt%5D%5B%24gt%5D=' + curDate
+						dataType: "json",	
+						async: true,
+						cache: false,
+						headers: { 
+							Authorization: "12345"
+						},
+						success: function (result) {//console.log(result);
+							if (result.rows) {
+								self.setReplyMessages(result.rows);
+										
+								if (result.rows.length === 0) {
+									/*App.addNotification({
+										hold: 3000,
+										message: LANGUAGE.PROMPT_MSG006
+									});*/
+								}
+							} else {
+								App.alert(LANGUAGE.PROMPT_MSG013);
+							}
+						},
+						error: function(XMLHttpRequest, textStatus, errorThrown){
+							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
+						}
+					});				
+			},
+			setReplyMessages: function (callbackList) {
+                let self = this;
+				
+				var html = '';
+				$.each(callbackList, function(index, value){					
+					if(self.used_id.indexOf( value._id ) == -1 ){
+						self.used_id.push(value._id);
+						var datetime = moment.utc(value.createdAt).toDate();
+							//datetime = moment(datetime).format(window.COM_TIMEFORMAT);
+							
+						var time = datetime.getDate() + ' ' + self.month_names_short[datetime.getMonth()] + ' ' + ('0' + datetime.getHours()).slice(-2) + ':' + ('0' + datetime.getMinutes()).slice(-2) + ':' + ('0' + datetime.getSeconds()).slice(-2);
+						var replySMS;
+						
+						if (value.message) {
+							replySMS = value.message.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+						}else{
+							replySMS = value.status;
+						}
+						//replySMS += ' (' + datetime + ')';
+						
+						//setTimeout(function () {				
+							  self.messages.addMessage({
+								text: replySMS,
+								type: 'received',
+								textFooter: time,	
+								attrs: {
+									'data-id': value._id,	
+								}								
+							  });
+						//}, 5000);
+					}
+				});
+			},
+			/*receiveMessage: function(text, id){					
 				var self = this;  
 				
 				var orderId = id;
-						console.log('https://m2mdata03.sinopacific.com.ua/m2mdata/v3/sims/orders/'+orderId);
+						//console.log('https://m2mdata03.sinopacific.com.ua/m2mdata/v3/sims/orders/'+orderId);
 				$.ajax({
 					type: "GET",
 					url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/sims/orders/'+orderId,
@@ -164,13 +220,144 @@
 					}
 				});
 				
-			}
+			},*/
+			showCommandsList: function () {
+                let self = this;
+				
+					$$('.commandsList ul').html('');
+					
+					self.$setState({
+						page: 1
+					});
+					
+					self.getCommandsList();
+					self.$app.infiniteScroll.create('.infinite-scroll-content');	
+					
+				//} else {
+					/*App.addNotification({
+						hold: 3000,
+						message: LANGUAGE.PROMPT_MSG008
+					});*/
+				//}		
+			},						
+			getCommandsList: function () {
+                let self = this;
+					if (!self.allowInfinite) return;					
+					
+					// Set loading flag
+					self.$setState({
+                        allowInfinite: false
+                    });
+					//self.$app.preloader.show();
+					$.ajax({
+						type: "GET",		        
+						//url: 'https://m2mdata03.sinopacific.com.ua/em/v3/sims?page=' + self.page + '&pageSize=10&query%5Binfo.' + self.type + '%5D%5B%24regex%5D=' + self.text,
+						url: 'http://m2mdata03.sinopacific.com.ua/em/v3/sms?page=' + self.page + '&pageSize=100',
+						dataType: "json",	
+						async: true,
+						cache: false,
+						headers: { 
+							Authorization: "12345"
+						},
+						success: function (result) {
+							if (result.rows) {
+								//$$('.page-content').removeClass('first_login');
+																	
+								if(result.page == 1){
+									
+									self.$app.infiniteScroll.create('.infinite-scroll-content');
+									// Loading flag
+
+									self.$setState({
+										maxItems: result.total,
+										lastItemIndex: $$('.commandsList li').length,										
+									});
+								}
+							
+									// Reset loading flag
+									self.$setState({
+										allowInfinite: true
+									});
+								
+								self.setCommandsList(result.rows);
+								
+								//if (self.lastItemIndex >= self.maxItems) {
+								if (result.page === result.totalPages) {
+								  self.$app.infiniteScroll.destroy('.infinite-scroll-content');
+								  
+								  // Remove preloader
+								  $$('.infinite-scroll-preloader').remove();
+								  return;
+								}
+																		
+								let incrList = self.lastItemIndex + 10;
+								
+								self.$setState({
+									lastItemIndex: incrList
+								});
+								
+								let incr = self.page + 1;
+								
+								self.$setState({
+									page: incr
+								});
+									
+								//$('.searchbar-hide-on-search').addClass('display-none');
+																
+								if(self.page == 2){
+									$$('.infinite-scroll-content').on('infinite', self.getCommandsList);
+								}
+										
+								if (result.rows.length === 0) {
+									/*App.addNotification({
+										hold: 3000,
+										message: LANGUAGE.PROMPT_MSG006
+									});*/
+								}
+							} else {
+								App.alert(LANGUAGE.PROMPT_MSG013);
+							}
+							//self.$app.preloader.hide();
+							
+						},
+						error: function(XMLHttpRequest, textStatus, errorThrown){
+							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
+						}
+					});				
+			},
+			setCommandsList: function (commandsList) {
+                let self = this;
+				// Generate new items HTML
+				var html = '';
+				
+				$.each(commandsList, function(index, value){	
+					html += '<li class="li-cmd">';//<a href="/commands/?cmd=' + value.content + '" class="link">
+					html += '	  <div class="item-content">';
+					html += '		<div class="item-inner">';
+					html += '		  <div class="item-title cmd" cmd-name="' + value.content + '">' + value.name + '</div>';
+					html += '		  <a href="/edit-command/?id=' + value._id + '" class="popup-close"><div class="item-after"><i class="material-icons md-24">create</i></div></a>';
+					html += '		</div>';
+					html += '	  </div>';	//	</a>			
+					html += '</li>';
+				});
+								
+				// Append new items
+				$$('.commandsList ul').append(html);	
+				$$('.commandsList ul .li-cmd').on('click', function(){	
+					let command = $(this).find('.cmd').attr('cmd-name');
+					self.messagebar.setValue(command);
+					//self.$update();
+					
+					/*self.$setState({
+						customCmd: command,
+					});		*/
+					self.dynamicPopup.close();	
+				});				
+			},	
 		},
         on: {
             pageInit: function (e, page) {  
-				var self = this;              
-			
-				
+				var self = this; 
 				
 				
 				
@@ -230,6 +417,7 @@
 					
 					
 					var text = self.messagebar.getValue().replace(/\n/g, '<br>').trim();
+					//console.log(self.messagebar.getValue());
 					  // return if empty message
 					  if (!text.length) return;
 
@@ -246,6 +434,18 @@
 					self.sendCommand(text);
 
 				});
+				
+						if(!self.responseInProgress){
+							self.getReplyMessages();
+							self.$setState({
+								responseInProgress: true,
+							});
+						}
+						
+						self.intervalForReply = setInterval(function () {		
+							self.getReplyMessages();
+						}, 30000);				
+						
 				
 				/*myEvents.on('cmdReceived', function (data) {
 					
@@ -267,16 +467,83 @@
 					//app.views.main.router.navigate('/home/', {reloadAll: true})
 				});*/
 				
-				$('.cmdList').on('click', function(){		
+				/*$('.cmdList').on('click', function(){		
 					//app.views.main.router.navigate('/home/', {reloadAll: true})	
-					mainView.router.navigate('/commands-list/?imsi=' + self.imsiTitle);
-				});
+					mainView.router.navigate('/commands-list/?imsi=' + self.imsi);
+				});*/
 				
-	
+				
+				self.dynamicPopup = self.$app.popup.create({
+								  content: 
+									  '<div class="popup"><div class="navbar">'+
+										'<div class="navbar-bg"></div>'+
+										'<div class="navbar-inner">'+
+											'<div class="left">'+
+												'<a href="#" class="link icon-only popup-close" >'+
+													'<i class="icon material-icons">arrow_back</i>'+
+												'</a>'+
+											'</div>'+
+											'<div class="right">'+
+												'<a href="/add-command/?imsi=' + self.imsi + '" class="link icon-only popup-close add-cmd">'+
+													'<i class="material-icons md-36">add</i>'+
+												'</a>'+
+											'</div>'+
+										'</div>'+
+									'</div>'+
+									'<div class="page-content  ">'+	// ptr-content	
+										/*'<div class="ptr-preloader">'+
+													'<div class="preloader"></div>'+
+													'<div class="ptr-arrow"></div>'+
+										'</div>'+*/
+										'<div class="block searchbar-hide-on-search">'+
+											'<h3>Commands List</h3>'+
+											'<p>In this screen, you can send different commands to test this device</p>		'+		
+										'</div><div class="list">'+
+											'<ul>'+
+											'<li class="accordion-item"><a href="#" class="item-content item-link">'+
+												'<div class="item-inner">'+
+												  '<div class="item-title">Demo list</div>'+
+												'</div></a>'+
+												'<div class="accordion-item-content accordion-item-opened ">'+						
+													'<div class="list command-list-icons commandsList ">'+
+													'<ul>'+
+													'</ul>'+
+													'</div>'+
+													'<div class="preloader infinite-scroll-preloader"></div>'+
+												'</div>'+
+											'</li>'+
+											'</ul>'+
+										'</div>'+
+									'</div>'+	
+									'</div>',	
+			
+								  on: {
+									open: function (popup) {									
+									  //console.log('Popup open');
+									  self.showCommandsList();
+									},
+									opened: function (popup) {
+									  //console.log('Popup opened');
+									},
+								  }
+								});
+								
+				$('.cmdList').on('click', function(){		
+					self.dynamicPopup.open();							
+				});
 			},
 			pageBeforeRemove: function () {
+				var self = this; 
+				
                 myEvents.off('cmdReceived');
-            }
+				clearInterval(self.intervalForReply);
+            },
+            pageBeforeOut:function(){
+				var self = this; 
+				
+				myEvents.off('cmdReceived');
+				clearInterval(self.intervalForReply);
+            },
 		}
 
     };
