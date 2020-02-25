@@ -21,7 +21,7 @@
 				<h3>{{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG02}}</h3>
                 <p>{{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG03}}</p>				
             </div>
-			<div class="list">
+			<!--<div class="list">
 				<input type="hidden" name="IMSI" value="{{IMSI}}">
 				<input type="hidden" name="LastDay" value="1">
 			  <ul>
@@ -38,7 +38,7 @@
 								<option value="30">1 month</option>
 								<option value="60">2 months</option>
 								<option value="3000">all time</option>
-                                <!--<option value="1">1 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG04}}</option>
+                                <option value="1">1 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG04}}</option>
                                 <option value="2">2 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option>
                                 <option value="3">3 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option>
                                 <option value="4">4 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option>
@@ -51,21 +51,19 @@
                                 <option value="11">11 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option> 
                                 <option value="12">12 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option> 
                                 <option value="13">13 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option> 
-                                <option value="14">14 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option> -->
+                                <option value="14">14 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option>
                             </select>
                             <i class="f7-icons icon-arrow-drop-down select_arrow"></i>
                         </div>
                     </div>
                 </li>
             </ul>
-        </div>
+        </div>-->
 
-        <div class="list home-list commandsHistoryList">
-            <ul>
-
-            </ul>
+        <div class="list virtual-list home-list commandsHistoryList">
+         
         </div>
-		<div class="preloader infinite-scroll-preloader"></div>
+		<!--<div class="preloader infinite-scroll-preloader"></div>-->
     </div>
 </div>
 </template>
@@ -76,12 +74,14 @@
         data: function () {
             var self = this;
             var ret = {
+				oldHistoryArray: [],
 				virtualCommandsHistoryList: false,
 				allowInfinite: true,
 				page: 1,
 				lastItemIndex: 0,
 				maxItems: 0,
 				used_id: [],
+				VirtualHistoryList: {},
 				month_names_short: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
 			};            
             
@@ -92,9 +92,10 @@
             return ret;
         },
 		methods: {
-			/*requestCommandHistory: function(params){	
+			requestCommandHistory: function(list){	
 				var self = this;
-				if (params && params.IMSI && params.LastDay) {
+				self.$app.preloader.hide();
+				/*if (params && params.IMSI && params.LastDay) {
 					var data = {
 						IMSI: self.IMSI,
 						LastDay: params.LastDay,
@@ -117,32 +118,48 @@
 							if(result){				
 								
 									if (result) {
-										
+										*/
 										var listEl = self.$el.find('.commandsHistoryList');
-										
+										/*
 										if (self.virtualCommandsHistoryList) {
 											self.virtualCommandsHistoryList.destroy();
-										}
+										}*/
 										
 										//result.length = 5;
 										
-										self.virtualCommandsHistoryList = app.virtualList.create({
-											el: listEl, 
-											items: result,
-											height: function(item) {
-												var height = 99;
-												if (item.direction == 'Inbound') {
-													height = 79;
-												}
-												return height; //display the image with 50px height
-											},
-											renderItem: function(item, index) {
-												var html = '';
+										self.virtualCommandsHistoryList = self.$app.virtualList.create({
+                    el: listEl,
+                    items : [],
+                    //cache: false,
+                    //showFilteredItemsOnly: true,
+                    /*searchAll: function (query, items) {
+                        let filterType = this.el.data('filter-type');
+                        let filteredListIndexes = self.$app.methods.filterAssetList(items, filterType);
+                        let found = [];
 
-												var datetime = moment.utc(item.insertedDate).toDate();
+                        for (let i = 0; i < filteredListIndexes.length; i++) {
+                            if (items[filteredListIndexes[i]].Name.toLowerCase().indexOf(query.toLowerCase()) >= 0 || query.trim() === '') found.push(filteredListIndexes[i]);
+                        }
+
+                        return found; //return array with mathced indexes
+                    },*/
+                    height: function(item){
+                        let height = 65.33;
+                        /*let afs = Protocol.Helper.getAssetStateInfo(POSINFOASSETLIST[item.IMEI]);
+                        if (afs && afs.stats) {
+                            height = 164.63;
+                            if (afs.voltage && afs.fuel || afs.battery && afs.fuel || afs.battery && afs.voltage) {
+                                height = 192.94;
+                            }
+                        }*/
+                        return height;
+                    },
+                    renderItem: function (item, index) {console.log(item);
+									let html = '';
+									var datetime = moment.utc(item.insertedDate).toDate();
 												datetime = moment(datetime).format(window.COM_TIMEFORMAT);
 
-
+												
 												if (item.message) {
 													item.message = item.message.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 												}
@@ -166,12 +183,46 @@
 												html += '<div class="item-text">' + item.message + '</div>';
 												html += '</div>';
 												html += '</li>';
-												return ret;
+												return html;
+
+						
+						
+						
+												
+												/*
+												var datetime = moment.utc(item.insertedDate).toDate();
+												datetime = moment(datetime).format(window.COM_TIMEFORMAT);
+
+												
+												if (item.message) {
+													item.message = item.message.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+												}
+
+												if (item.direction == 1) {
+													html += '<li class="item-content with-divider-bottom" >';
+												} else {
+													html += '<li class="item-content" >';
+												}
+												html += '<div class="item-inner item-inner-commands-history">';
+												html += '<div class="item-title-row">';
+												html += '<div class="item-title">';
+												if (item.direction == 'Inbound') {
+													html += '<i class="material-icons md-36">email</i>';
+												} else {
+													html += '<i class="material-icons md-36">send</i>';
+												}
+												html += '</div>';
+												html += '<div class="item-after">' + datetime + '</div>';
+												html += '</div>';
+												html += '<div class="item-text">' + item.message + '</div>';
+												html += '</div>';
+												html += '</li>';
+												return ret;*/
 											}
 										});
 										
-										//virtualCommandsHistoryList.replaceAllItems(result);
-									} else {
+										self.virtualCommandsHistoryList.replaceAllItems(list);
+									/*} else {
 									
 										if (self.virtualCommandsHistoryList) {
 											self.virtualCommandsHistoryList.deleteAllItems();
@@ -187,8 +238,72 @@
 							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
 						}
 					});
-				}
-			},*/
+				}*/
+			},
+			getOldHistory: function () {
+				let self = this;
+				self.$app.preloader.show();
+				$.ajax({
+						type: "GET",		        
+						url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/sims/' + self.IMSI + '/sms?page=' + self.page + '&pageSize=100',//?startDate=2019-03-14T10:36:31.000Z&endDate=2019-03-17T12:26:05.000Z
+						dataType: "json",	
+						async: true,
+						cache: false,
+						headers: { 
+							Authorization: "12345"
+						},
+						success: function (result) {
+							if (result.length) {
+								/**/
+								
+								if(self.page > 1){
+									self.oldHistoryArray= self.oldHistoryArray.concat(result);
+								}else{
+									self.oldHistoryArray= result;									
+								}
+															
+								//console.log(self.oldHistoryArray);
+								
+								//if(self.page < 4){
+									let incr = self.page + 1;
+									
+									self.$setState({
+										page: incr
+									});
+									
+									self.getOldHistory();
+								//}								
+							}						
+						},
+						error: function(XMLHttpRequest, textStatus, errorThrown){
+							//console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
+							if(self.oldHistoryArray.length > 0){
+								/*var arr = [];
+								
+								$.each(self.oldHistoryArray, function(index, value){
+									arr[new Date(value.insertedDate).getTime()] = value;
+								});
+								
+								arr.sort(function(o1,o2){
+								  return sort_o1_before_o2 ? -1 : sort_o1_after_o2 ? 1 : 0;
+								});
+								
+								console.log(arr);*/
+								self.oldHistoryArray.sort(function(a,b){
+									var c = new Date(a.insertedDate);
+									var d = new Date(b.insertedDate);
+									return d-c;
+								});
+								
+								self.requestCommandHistory(self.oldHistoryArray);
+								//console.log(self.oldHistoryArray);
+							}	else{
+								self.$app.preloader.hide();
+								self.$app.dialog.alert('There are no history for this period');
+							}
+						}
+					});
+			},
 			getCommandHistory: function (params) {
                 let self = this;
 				
@@ -221,6 +336,8 @@
 				//}		
 			},						
 			getCallbackList: function (date, index, curId) {
+				let self = this;
+				
 				
 				//var curDate = d.toISOString();//.substr(0, 11) + '00:00:00.000Z';
 
@@ -243,12 +360,13 @@
 					//nextDate = d.toISOString();
 					var nextDate = d.toISOString().substr(0, 11) + '23:59:59.100Z';
 					
-				}else{
-					//nextDate = nextDate;//.slice(0,10).toString();
-					
-				}				
+				}
+					$.each(self.oldHistoryArray, function(index, value){
+						var nx = new Date(nextDate).getTime();
+						
+				//		console.log(value, index);						
+					});
 				
-                let self = this;
 					//self.$app.preloader.show();
 					$.ajax({
 						type: "GET",		        
@@ -278,7 +396,9 @@
 						error: function(XMLHttpRequest, textStatus, errorThrown){
 							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
 						}
-					});				
+					});
+
+					
 			},
 			setCallbackList: function (callbackList, curId) {
                 let self = this;
@@ -534,7 +654,7 @@
 						datetime = moment(datetime).format(window.COM_TIMEFORMAT);*/
 					var start = nowFull.add(-n, 'days');
 					var ago = start.toISOString();
-					console.log('https://m2mdata03.sinopacific.com.ua/m2mdata/v3/nomad/messages?query%5Bimsi%5D=' + self.IMSI + '&query%5BcreatedAt%5D%5B%24gt%5D=' + ago + '&pageSize=10&sort=-createdAt');
+					//console.log('https://m2mdata03.sinopacific.com.ua/m2mdata/v3/nomad/messages?query%5Bimsi%5D=' + self.IMSI + '&query%5BcreatedAt%5D%5B%24gt%5D=' + ago + '&pageSize=10&sort=-createdAt');
 					//self.$app.preloader.show();start.format(window.COM_TIMEFORMAT)
 					$.ajax({
 						type: "GET",		        
@@ -547,7 +667,7 @@
 						headers: { 
 							Authorization: "12345"
 						},
-						success: function (result) {console.log(result);
+						success: function (result) {//console.log(result);
 							if (result.rows.length) {
 								//$$('.page-content').removeClass('first_login');
 																	
@@ -673,7 +793,7 @@
 				var self = this;        
 				var thisPage = page.$el.find('.page-content'); 
 
-				
+				self.getOldHistory();
 
 				var selectLastDay = $$('select[name="LastDaySelect"]');
 				selectLastDay.val(selectLastDay.data("set"));
@@ -681,7 +801,7 @@
 				var IMSI = thisPage.find('[name="IMSI"]').val();
 				var LastDay = thisPage.find('[name="LastDay"]').val();
 				
-				if (IMSI && LastDay) {
+				/*if (IMSI && LastDay) {
 					
 					self.getCommandHistory({ IMSI: IMSI, LastDay: LastDay });
 					//self.requestCommandHistory({ IMSI: IMSI, LastDay: LastDay });
@@ -694,7 +814,7 @@
 					LastDay = thisPage.find('[name="LastDaySelect"]').val();
 					self.getCommandHistory({ IMSI: IMSI, LastDay: LastDay });
 					//self.requestCommandHistory({ IMSI: IMSI, LastDay: this.value });
-				});
+				});*/
 
 			}
 		}
