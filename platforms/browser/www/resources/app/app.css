@@ -468,3 +468,6 @@
 	margin-right: 5px;
 }
 
+.list.commandsHistoryList ul:after {
+	display: none;
+}

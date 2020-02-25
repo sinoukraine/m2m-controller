@@ -61,7 +61,7 @@
         </div>-->
 
 		
-        <div class="list virtual-list home-list commandsHistoryList" style="margin: 0">
+        <div class="list virtual-list home-list commandsHistoryList" style="">
          
         </div>
 		<!--<div class="preloader infinite-scroll-preloader"></div>-->
@@ -157,8 +157,11 @@
                     },
                     renderItem: function (item, index) {console.log(item);
 									let html = '';
-									var datetime = moment.utc(item.insertedDate).toDate();
-												datetime = moment(datetime).format(window.COM_TIMEFORMAT);
+									/*var datetime = moment.utc(item.insertedDate).toDate();
+												datetime = moment(datetime).format(window.COM_TIMEFORMAT);.getFullYear();*/
+						var date = moment.utc(item.insertedDate).toDate();
+						var datetime = date.toISOString();
+						var time = date.getDate() + ' ' + self.month_names_short[date.getMonth()] + ' ' + date.getFullYear() + ' ' + ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2) + ':' + ('0' + date.getSeconds()).slice(-2);
 
 												
 												if (item.message) {
@@ -179,7 +182,7 @@
 													html += '<i class="material-icons md-36">send</i>';
 												}
 												html += '</div>';
-												html += '<div class="item-after">' + datetime + '</div>';
+												html += '<div class="item-after">' + time + '</div>';
 												html += '</div>';
 												html += '<div class="item-text">' + item.message + '</div>';
 												html += '</div>';
