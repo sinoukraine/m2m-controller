@@ -15,12 +15,16 @@ var API_URL = {};
 var API_DOMIAN1 = "https://m2mdata03.sinopacific.com.ua/m2mdata/v3/";
 API_URL.URL_GET_COMMAND_HISTORY = API_DOMIAN1 + "sims/";
 
+// Create custom events bus
+var myEvents = new Framework7.Events();
 
 var virtualCommandsHistoryList = null;
 // Init App
-
-// Create custom events bus
-var myEvents = new Framework7.Events();
+Framework7.request.setup({
+    headers: { 
+        Authorization: "12345"
+    }
+});
 				
 var app = new Framework7({
 	dialog: {

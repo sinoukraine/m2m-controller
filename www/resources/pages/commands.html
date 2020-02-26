@@ -15,7 +15,7 @@
                     <!-- 234507098430582-->
                 </div>
                 <div class="right">
-                    <a href="#" class="link icon-only cmdList">
+                    <a href="/commands-list/?imsi={{imsi}}" class="link icon-only cmdList">
                         <i class="material-icons md-36">list</i>
                     </a>
                 </div>
@@ -28,7 +28,7 @@
 			  <!-- messagebar attachments -->
 			  <div class="messagebar-attachments">...</div>
 			  <!-- messagebar resizable textarea -->
-			  <textarea class="resizable" placeholder="Command"></textarea>
+			  <textarea class="resizable" placeholder="Command">{{selectedCmd}}</textarea>
 			</div>
 			<a href="#" class="link send-link"><i class="icon material-icons">send</i></a>
 		  </div>
@@ -65,7 +65,10 @@
 				//customCmd: '',
 				dynamicPopup: {}
 			};     
-
+			
+			if (self.$route.query.selectedCmd) {
+				ret.selectedCmd = self.$route.query.selectedCmd;
+            }  	
 			if (self.$route.query.imsi) {
 				ret.imsi = self.$route.query.imsi;
             }  	
@@ -89,8 +92,8 @@
 					}
 				}
 				//console.log(data, "http://m2mdata03.sinopacific.com.ua/m2mdata/v3/sims/" + self.imsi + "/sms");
-				
-				$.ajax({
+				console.log('emit sending message');
+				/*$.ajax({
 					async: true,
 					crossDomain: true,
 					url: "http://m2mdata03.sinopacific.com.ua/m2mdata/v3/sims/" + self.imsi + "/sms",
@@ -109,7 +112,7 @@
 					error: function(XMLHttpRequest, textStatus, errorThrown){
 						console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
 					}
-				});	
+				});	*/
 				
 				
             },
@@ -447,32 +450,12 @@
 						}, 30000);				
 						
 				
-				/*myEvents.on('cmdReceived', function (data) {
-					
-					self.messagebar.setValue('778');
-					self.$update();
-					
-					//
-					//page.$pageEl.find('textarea').val('777');
-					//console.log(self.messagebar);
-				});
 				
+			
 				
-				$$('.my-back-home').on('click', function () {
-					page.view.router.back({
-						url: 'home',
-						force: true,
-						ignoreCache: true
-					});
-					//app.views.main.router.navigate('/home/', {reloadAll: true})
-				});*/
+			
 				
-				/*$('.cmdList').on('click', function(){		
-					//app.views.main.router.navigate('/home/', {reloadAll: true})	
-					mainView.router.navigate('/commands-list/?imsi=' + self.imsi);
-				});*/
-				
-				
+				/*
 				self.dynamicPopup = self.$app.popup.create({
 								  content: 
 									  '<div class="popup"><div class="navbar">'+
@@ -491,10 +474,10 @@
 										'</div>'+
 									'</div>'+
 									'<div class="page-content  ">'+	// ptr-content	
-										/*'<div class="ptr-preloader">'+
+										*'<div class="ptr-preloader">'+
 													'<div class="preloader"></div>'+
 													'<div class="ptr-arrow"></div>'+
-										'</div>'+*/
+										'</div>'+*
 										'<div class="block searchbar-hide-on-search">'+
 											'<h3>Commands List</h3>'+
 											'<p>In this screen, you can send different commands to test this device</p>		'+		
@@ -504,7 +487,7 @@
 													'</ul>'+
 													'</div>'+
 													'<div class="preloader infinite-scroll-preloader"></div>'+
-											/*'<ul>'+
+											*'<ul>'+
 											'<li class="accordion-item"><a href="#" class="item-content item-link">'+
 												'<div class="item-inner">'+
 												  '<div class="item-title">Demo list</div>'+
@@ -513,7 +496,7 @@
 													
 												'</div>'+
 											'</li>'+
-											'</ul>'+*/
+											'</ul>'+*
 										'</div>'+
 									'</div>'+	
 									'</div>',	
@@ -529,9 +512,17 @@
 								  }
 								});
 								
-								
 				$('.cmdList').on('click', function(){		
 					self.dynamicPopup.open();							
+				});*/
+			
+				/*$('.cmdList').on('click', function(){		
+					mainView.router.navigate('/commands-list/?imsi=' + self.imsi);
+				});*/
+				
+				myEvents.on('cmdReceived', function (data) {					
+					self.messagebar.setValue(data.cmd);		
+					$$('.send-link').click();			
 				});
 			},
 			pageBeforeRemove: function () {
@@ -541,13 +532,11 @@
 				clearInterval(self.intervalForReply);
             },
             pageBeforeOut:function(){
-				var self = this; 
+				var self = this; 				
 				
-				myEvents.off('cmdReceived');
 				clearInterval(self.intervalForReply);
             },
 		}
 
     };
 </script>
-    
