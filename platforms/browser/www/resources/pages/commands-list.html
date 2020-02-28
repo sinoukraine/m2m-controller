@@ -17,7 +17,7 @@
                 </div>
             </div>
         </div>		
-		<div class="page-content ptr-content">		
+		<div class="page-content ptr-content infinite-scroll-commands-list-content infinite-scroll-bottom data-infinite-distance">		
 			<div class="ptr-preloader">
 				<div class="preloader"></div>
 				<div class="ptr-arrow"></div>
@@ -35,13 +35,13 @@
 							  <div class="item-title">Demo list</div>
 							</div>
 						</a>
-						<div class="accordion-item-content accordion-item-opened ">					
+						<div class="accordion-item-content accordion-item-opened ">		
 							<div class="list command-list-icons commandsList ">
 							  <ul>
 								
 							  </ul>
 							</div>
-							<div class="preloader infinite-scroll-preloader"></div>
+							<div class="preloader infinite-scroll-preloader infinite-scroll-commands-list-preloader"></div>
 						</div>
 					</li>
 				</ul>
@@ -59,7 +59,8 @@
 				allowInfinite: true,
 				page: 1,
 				lastItemIndex: 0,
-				maxItems: 0
+				maxItems: 0,
+				
 			};            
             
 			/*console.log(self.$route.query.code);*/
@@ -80,7 +81,7 @@
 					});
 					
 					self.getCommandsList();
-					self.$app.infiniteScroll.create('.infinite-scroll-content');	
+					self.$app.infiniteScroll.create('.infinite-scroll-commands-list-content');	
 					
 				//} else {
 					/*App.addNotification({
@@ -99,8 +100,8 @@
                         allowInfinite: false
                     });
 
-					self.$app.preloader.show();
-	                self.$app.request.promise.get('https://m2mdata03.sinopacific.com.ua/em/v3/sms', {}, 'json')
+					//self.$app.preloader.show();
+	                self.$app.request.promise.get('https://m2mdata03.sinopacific.com.ua/em/v3/sms?page=' + self.page + '&pageSize=10', {}, 'json')
 	                    .then(function (result) {
 	                    	console.log(result);
 	                        if (result.rows) {
@@ -108,7 +109,7 @@
 																	
 								if(result.page == 1){
 									
-									self.$app.infiniteScroll.create('.infinite-scroll-content');
+									self.$app.infiniteScroll.create('.infinite-scroll-commands-list-content');
 									// Loading flag
 
 									self.$setState({
@@ -126,10 +127,10 @@
 								
 								//if (self.lastItemIndex >= self.maxItems) {
 								if (result.page === result.totalPages) {
-								  self.$app.infiniteScroll.destroy('.infinite-scroll-content');
+								  self.$app.infiniteScroll.destroy('.infinite-scroll-commands-list-content');
 								  
 								  // Remove preloader
-								  $$('.infinite-scroll-preloader').remove();
+								  $$('.infinite-scroll-commands-list-preloader').remove();
 								  return;
 								}
 																		
@@ -148,7 +149,7 @@
 								//$('.searchbar-hide-on-search').addClass('display-none');
 																
 								if(self.page == 2){
-									$$('.infinite-scroll-content').on('infinite', self.getCommandsList);
+									$$('.infinite-scroll-commands-list-content').on('infinite', self.getCommandsList);
 								}
 										
 								if (result.rows.length === 0) {
@@ -162,7 +163,7 @@
 							}
 	                    })
 	                    .finally(function () {
-	                        self.$app.preloader.hide();
+	                        //self.$app.preloader.hide();
 	                    })
 	                    .catch(function (err) {
 	                        console.log(err);
@@ -260,7 +261,7 @@
 					html += '<li class="li-cmd " data-command-content="'+value.content+'">';//<a href="#" class="link">
 					html += '	  <div class="item-content">';
 					html += '		<div class="item-inner">';
-					html += '		  <div class="item-title cmd" cmd-name="' + value.content + '">' + value.name + '</div>';
+					html += '		  <div class="item-title cmd-code" data-cmd-name="' + value.content + '">' + value.name + '</div>';
 					html += '		  <a href="/edit-command/?id=' + value._id + '"><div class="item-after"><i class="material-icons md-24">create</i></div></a>';
 					html += '		</div>';
 					html += '	  </div>';	//</a>				
@@ -281,8 +282,8 @@
 					mainView.router.navigate('/add-command/?imsi=' + self.imsi);					
 				});
 				
-				page.$el.on('click', '.li-cmd', function () {					
-					let command = $$(this).closest('.li-cmd').data('command-content');
+				page.$el.on('click', '.cmd-code', function () {					
+					let command = $$(this).closest('.cmd-code').data('cmd-name');
 					
 					myEvents.emit('cmdReceived', {
 					  	cmd: command

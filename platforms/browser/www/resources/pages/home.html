@@ -1,6 +1,6 @@
 <!--suppress JSAnnotator -->
 <template>
-    <div class="page " data-name="home"> <!-- page-with-subnavbar -->
+    <div class="page" data-name="home"> <!-- page-with-subnavbar -->
         <!-- Top Navbar -->
         <div class="navbar">
             <div class="navbar-bg"></div>
@@ -45,7 +45,7 @@
             </div>
         </form>
 
-        <div class="page-content  infinite-scroll-content infinite-scroll-bottom data-infinite-distance">
+        <div class="page-content  infinite-scroll-home-content infinite-scroll-bottom data-infinite-distance">
 	
             <!--fake tabs for tabbar correct working working-->
             <div class="tabs">
@@ -69,7 +69,7 @@
 			  </ul>
             </div>
 
-			<div class="preloader infinite-scroll-preloader"></div>
+			<div class="preloader infinite-scroll-preloader infinite-scroll-home-preloader"></div>
         </div>
 
 		<p><a href="#" data-actions=".my-actions" class="actions-open">Open Actions</a></p>
@@ -114,12 +114,17 @@
 						page: 1
 					});
 					
+					
+					if($('.infinite-scroll-home-preloader').hasClass('display-none')){
+						$('.infinite-scroll-home-preloader').removeClass('display-none')
+					}
+					
 					if(self.toggleValue){
 						console.log('dri');
 						self.getSim();
 					}else{
 						self.getSimList();
-						self.$app.infiniteScroll.create('.infinite-scroll-content');	
+						self.$app.infiniteScroll.create('.infinite-scroll-home-content');	
 					}
 				//} else {
 					/*App.addNotification({
@@ -137,10 +142,12 @@
 										allowInfinite: true
 									});
 								
-								self.$app.infiniteScroll.destroy('.infinite-scroll-content');
+								self.$app.infiniteScroll.destroy('.infinite-scroll-home-content');
 								  
 								  // Remove preloader
-								  $$('.infinite-scroll-preloader').remove();
+								if(!$('.infinite-scroll-home-preloader').hasClass('display-none')){
+									$('.infinite-scroll-home-preloader').addClass('display-none')
+								}
 								  return;
 					}
 					//self.$app.preloader.show();
@@ -203,10 +210,12 @@
 										allowInfinite: true
 									});
 								
-								self.$app.infiniteScroll.destroy('.infinite-scroll-content');
+								self.$app.infiniteScroll.destroy('.infinite-scroll-home-content');
 								  
 								  // Remove preloader
-								  $$('.infinite-scroll-preloader').remove();
+								if(!$('.infinite-scroll-home-preloader').hasClass('display-none')){
+									$('.infinite-scroll-home-preloader').addClass('display-none')
+								}
 								  return;
 						},
 						error: function(XMLHttpRequest, textStatus, errorThrown){
@@ -217,10 +226,12 @@
 										allowInfinite: true
 									});
 								
-								self.$app.infiniteScroll.destroy('.infinite-scroll-content');
+								self.$app.infiniteScroll.destroy('.infinite-scroll-home-content');
 								  
 								  // Remove preloader
-								  $$('.infinite-scroll-preloader').remove();
+								if(!$('.infinite-scroll-home-preloader').hasClass('display-none')){
+									$('.infinite-scroll-home-preloader').addClass('display-none')
+								}
 								  return;
 						}
 					});	
@@ -244,13 +255,13 @@
 						headers: { 
 							Authorization: "12345"
 						},
-						success: function (result) {
+						success: function (result) {console.log(result);
 							if (result.total) {
 								//$$('.page-content').removeClass('first_login');
 																	
 								if(result.page == 1){
 									
-									self.$app.infiniteScroll.create('.infinite-scroll-content');
+									self.$app.infiniteScroll.create('.infinite-scroll-home-content');
 									// Loading flag
 
 									self.$setState({
@@ -268,10 +279,12 @@
 								
 								//if (self.lastItemIndex >= self.maxItems) {
 								if (result.page === result.totalPages) {
-								  self.$app.infiniteScroll.destroy('.infinite-scroll-content');
+								  self.$app.infiniteScroll.destroy('.infinite-scroll-home-content');
 								  
 								  // Remove preloader
-								  $$('.infinite-scroll-preloader').remove();
+								if(!$('.infinite-scroll-home-preloader').hasClass('display-none')){
+									$('.infinite-scroll-home-preloader').addClass('display-none')
+								}
 								  return;
 								}
 										
@@ -292,7 +305,7 @@
 								$('.searchbar-hide-on-search').addClass('display-none');
 																
 								if(self.page == 2){
-									$$('.infinite-scroll-content').on('infinite', self.getSimList);
+									$$('.infinite-scroll-home-content').on('infinite', self.getSimList);
 								}
 										
 								if (result.rows.length === 0) {
@@ -309,10 +322,12 @@
 										allowInfinite: true
 									});
 								
-								self.$app.infiniteScroll.destroy('.infinite-scroll-content');
+								self.$app.infiniteScroll.destroy('.infinite-scroll-home-content');
 								  
 								  // Remove preloader
-								  $$('.infinite-scroll-preloader').remove();
+								if(!$('.infinite-scroll-home-preloader').hasClass('display-none')){
+									$('.infinite-scroll-home-preloader').addClass('display-none')
+								}
 								  return;
 							}
 							//self.$app.preloader.hide();
@@ -321,15 +336,17 @@
 						error: function(XMLHttpRequest, textStatus, errorThrown){
 							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
 								self.$app.dialog.alert('Something wrong.');
-							self.$app.infiniteScroll.destroy('.infinite-scroll-content');
+							self.$app.infiniteScroll.destroy('.infinite-scroll-home-content');
 							self.$setState({
 										allowInfinite: true
 									});
 								
-								self.$app.infiniteScroll.destroy('.infinite-scroll-content');
+								self.$app.infiniteScroll.destroy('.infinite-scroll-home-content');
 								  
 								  // Remove preloader
-								  $$('.infinite-scroll-preloader').remove();
+								if(!$('.infinite-scroll-home-preloader').hasClass('display-none')){
+									$('.infinite-scroll-home-preloader').addClass('display-none')
+								}
 								  return;
 						}
 					});				
