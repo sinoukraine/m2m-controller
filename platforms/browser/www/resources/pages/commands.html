@@ -144,16 +144,16 @@
 								}
 							} else {
 								//App.alert(LANGUAGE.PROMPT_MSG013);
-								self.$app.dialog.alert('delivering...');
+								//self.$app.dialog.alert('delivering...');
 							}
 						},
 						error: function(XMLHttpRequest, textStatus, errorThrown){
 							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
-								self.$app.dialog.alert('erroring...');
+								//self.$app.dialog.alert('erroring...');
 						}
 					});				
 			},
-			setReplyMessages: function (callbackList) {
+			setReplyMessages: function (callbackList) { console.log(callbackList);
                 let self = this;
 				
 				var html = '';
@@ -320,7 +320,7 @@
 									});*/
 								}
 							} else {
-								App.alert(LANGUAGE.PROMPT_MSG013);
+								//App.alert(LANGUAGE.PROMPT_MSG013);
 							}
 							//self.$app.preloader.hide();
 							
@@ -536,7 +536,7 @@
             pageBeforeOut:function(){
 				var self = this; 				
 				
-				clearInterval(self.intervalForReply);
+				//clearInterval(self.intervalForReply);
             },
 		}
 

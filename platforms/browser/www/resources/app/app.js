@@ -271,10 +271,10 @@ var app = new Framework7({
                         }
                     break;  
 					default:
-                        App.dialog.alert('There is no item saved with such name - '+name);
+                        //App.dialog.alert('There is no item saved with such name - '+name);
                 }
             }else{
-                App.dialog.alert('Wrong query parameters!');
+                //App.dialog.alert('Wrong query parameters!');
             }
             return ret;
 		},
@@ -287,10 +287,10 @@ var app = new Framework7({
                         localStorage.setItem("COM.M2MDATA.CMD", JSON.stringify(params.data));
                     break;                     
                     default:
-                        App.dialog.alert('There is no function associated with this name - '+params.name);
+                        //App.dialog.alert('There is no function associated with this name - '+params.name);
                 }   
             }else{
-                App.dialog.alert('Wrong query parameters!');
+               // App.dialog.alert('Wrong query parameters!');
             }
         },
     },
