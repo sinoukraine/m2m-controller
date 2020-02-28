@@ -143,11 +143,13 @@
 									});*/
 								}
 							} else {
-								App.alert(LANGUAGE.PROMPT_MSG013);
+								//App.alert(LANGUAGE.PROMPT_MSG013);
+								self.$app.dialog.alert('delivering...');
 							}
 						},
 						error: function(XMLHttpRequest, textStatus, errorThrown){
 							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
+								self.$app.dialog.alert('erroring...');
 						}
 					});				
 			},
