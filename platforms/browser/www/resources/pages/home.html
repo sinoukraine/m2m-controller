@@ -31,10 +31,10 @@
         <form class="searchbar custom-searchbar formSearchSim">
             <div class="searchbar-inner">
 				
-				  <label class="toggle toggle-init color-blue dirrect-search-toggle">
+				  <!--<label class="toggle toggle-init color-blue dirrect-search-toggle">
 					<input type="checkbox" class="dirrectSearch">
 					<span class="toggle-icon"></span>
-				  </label>
+				  </label>-->
                 <div class="searchbar-input-wrap">
                     <input type="search" name="searchInput" class="search-sims" placeholder="{{placeholderSearch}}" title="{{@global.LANGUAGE.COM_MSG002}}">
                     <!--<i class="searchbar-icon"></i>-->
@@ -83,7 +83,7 @@
         data: function () {
             let ret = {
 				toggleValue: false,
-				placeholderSearch: 'Smart search',
+				placeholderSearch: 'Search',
 				text: '',
 				type: 'imsi',
 				allowInfinite: true,
@@ -316,7 +316,8 @@
 								}
 							} else {
 								//App.alert(LANGUAGE.PROMPT_MSG013);
-								self.$app.dialog.alert('No one IMSI found with this number. Please try with direct search.');
+								//self.$app.dialog.alert('No one IMSI found with this number. Please try with direct search.');
+								
 								// Reset loading flag
 									self.$setState({
 										allowInfinite: true
@@ -328,7 +329,10 @@
 								if(!$('.infinite-scroll-home-preloader').hasClass('display-none')){
 									$('.infinite-scroll-home-preloader').addClass('display-none')
 								}
-								  return;
+								
+								self.getSim();
+								
+								//return;
 							}
 							//self.$app.preloader.hide();
 							
@@ -548,7 +552,7 @@
 					}
 				});		
 				
-				var toggle = app.toggle.create({
+				/*var toggle = app.toggle.create({
 				  el: '.toggle',
 				  on: {
 					change: function () {
@@ -565,7 +569,7 @@
 						}						
 					}
 				  }
-				})			
+				})	*/		
 				
             },
             pageAfterIn:function(){
