@@ -66,6 +66,8 @@ var app = new Framework7({
         init: function () {
             var self = this;
 
+			self.methods.handleAndroidBackButton();
+			
             if(localStorage.ACCOUNT && localStorage.PASSWORD) {
                 self.methods.login();
             }
@@ -192,7 +194,71 @@ var app = new Framework7({
                 },
                 'json');*/
         },
-		
+		handleAndroidBackButton: function () {
+    //var app = cordovaApp.f7;
+    //const $ = app.$;
+	var f7 = this;
+    if (f7.device.electron) return;
+
+    document.addEventListener('backbutton', function (e) {
+      if ($('.actions-modal.modal-in').length) {
+        f7.actions.close('.actions-modal.modal-in');
+        e.preventDefault();
+        return false;
+      }
+      if ($('.dialog.modal-in').length) {
+        f7.dialog.close('.dialog.modal-in');
+        e.preventDefault();
+        return false;
+      }
+      if ($('.sheet-modal.modal-in').length) {
+        f7.sheet.close('.sheet-modal.modal-in');
+        e.preventDefault();
+        return false;
+      }
+      if ($('.popover.modal-in').length) {
+        f7.popover.close('.popover.modal-in');
+        e.preventDefault();
+        return false;
+      }
+      if ($('.popup.modal-in').length) {
+        if ($('.popup.modal-in>.view').length) {
+          const currentView = f7.views.get('.popup.modal-in>.view');
+          if (currentView && currentView.router && currentView.router.history.length > 1) {
+            currentView.router.back();
+            e.preventDefault();
+            return false;
+          }
+        }
+        f7.popup.close('.popup.modal-in');
+        e.preventDefault();
+        return false;
+      }
+      if ($('.login-screen.modal-in').length) {
+        f7.loginScreen.close('.login-screen.modal-in');
+        e.preventDefault();
+        return false;
+      }
+      if($('.searchbar-enabled').length){
+        f7.searchbar.disable();
+        e.preventDefault();
+        return false;
+      }
+      
+      const currentView = f7.views.current;
+      if (currentView && currentView.router && currentView.router.history.length > 1) {
+        currentView.router.back();
+        e.preventDefault();
+        return false;
+      }
+
+      if ($('.panel.panel-in').length) {
+        f7.panel.close('.panel.panel-in');
+        e.preventDefault();
+        return false;
+      }
+    }, false);
+},
         getFromStorage: function(name){
             var ret = [];
             var str = '';
