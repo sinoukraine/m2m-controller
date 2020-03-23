@@ -52,6 +52,12 @@ var routes = [
         name: 'add-command'
     },
 
+    {
+        path: '/settings/',
+        componentUrl: './resources/pages/settings.html?v=1.6',
+        name: 'settings'
+    },
+
 
 
     // Default route (404 page). MUST BE THE LAST

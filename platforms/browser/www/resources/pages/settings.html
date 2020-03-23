@@ -1,0 +1,140 @@
+<!--suppress JSAnnotator -->
+<template>
+	<div data-name="settings" class="page"> <!-- page-with-subnavbar -->
+		<!-- Top Navbar -->
+		<div class="navbar">
+            <div class="navbar-bg"></div>
+            <div class="navbar-inner">
+                <div class="left">
+                    <a href="#" class="back link icon-only " >
+                        <i class="icon material-icons">arrow_back</i>
+                    </a>
+                </div>
+                <div class="title sliding">
+                    Settings
+                </div>
+            </div>
+        </div>
+		
+		<div class="page-content">
+					<li class="item-content">
+						<div class="item-inner not-empty-state border-bottom">
+							<a href="/my-resolution-settings/" class=" item-inner-bottom display-flex align-items-center justify-content-space-between">
+								<span>Data Usage</span>
+								<i class="f7-icons icon-right"></i>
+							</a>
+						</div>
+					</li>
+			
+		</div>
+    </div>
+</template>
+
+<script>
+  // script must return component object
+    return { 
+        data: function () {
+            var self = this;
+            var ret = {				
+				checkState1: false,
+				checkState2: false,
+				checkState3: false,
+			};         
+					
+			if (self.$route.query.imsi) {
+				ret.IMSI = self.$route.query.imsi;
+            }  			
+            return ret;
+        },
+		methods: {
+			setNewState: function (stateId) {
+                let self = this;
+				var data = {
+					"offer": "M2M Data",
+					"offerOptions": {},
+				}
+				let setStatus = '';
+				
+				switch(stateId){
+					case 'state-1':					
+						setStatus = '/activate';						
+					break;
+					case 'state-2':					
+						setStatus = '/suspend';
+					break;
+					case 'state-3':					
+						setStatus = '/resume';
+					break;
+				}
+								
+								
+				$.ajax({
+						type: "PUT",		        
+						url: API_URL.URL_GET_COMMAND_HISTORY + self.IMSI + setStatus, 
+						dataType: "json",	
+						async: true,
+						//cache: false,
+						data: JSON.stringify(data),
+						headers: {
+							"authorization": "12345",
+							"content-type": "application/json"
+						},
+						success: function (result) {
+							if(result){		
+								console.log(result);
+								//self.$app.dialog.alert('Button1 clicked')
+								self.$app.dialog.alert('Status changed');
+							}else{
+								console.log('something wrong');
+								
+								self.$app.dialog.alert('Something wrong');
+							}
+						},
+						error: function(XMLHttpRequest, textStatus, errorThrown){
+							
+							self.$app.dialog.alert('This SIM is activated already');
+							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
+						}
+					});
+			
+			},
+			initStateList: function () {
+                let self = this;
+				console.log('123');				
+			}
+		
+		},
+        on: {
+            pageInit: function (e, page) {  
+				var self = this;        
+				var thisPage = page.$el.find('.page-content'); 			
+
+				console.log(self.IMSI);
+				$.ajax({
+						type: "GET",		        
+						url: 'https://m2mdata03.sinopacific.com.ua/em/v3/sims/'+ self.IMSI, 
+						dataType: "json",	
+						async: true,
+						//cache: false,
+						headers: { 
+							Authorization: "12345"
+						},
+						success: function (result) {
+							if(result){
+								console.log(result);
+							}else{
+								console.log('something wrong');
+							}
+						},
+						error: function(XMLHttpRequest, textStatus, errorThrown){
+							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
+						}
+					});
+                //self.initStateList();
+				
+				
+			}
+		}
+    };
+</script>
+    

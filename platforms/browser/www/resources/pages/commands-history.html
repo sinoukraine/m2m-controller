@@ -252,7 +252,7 @@
 						url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/sims/' + self.IMSI + '/sms?page=' + self.page + '&pageSize=100',//?startDate=2019-03-14T10:36:31.000Z&endDate=2019-03-17T12:26:05.000Z
 						dataType: "json",	
 						async: true,
-						cache: false,
+						//cache: false,
 						headers: { 
 							Authorization: "12345"
 						},
@@ -377,7 +377,7 @@
 						url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/nomad/messages?query%5Bimsi%5D=' + self.IMSI + '&query%5BcreatedAt%5D%5B%24gt%5D=' + curDate + '&pageSize=100&sort=createdAt&query%5BcreatedAt%5D%5B%24lt%5D=' + nextDate,
 						dataType: "json",	
 						async: true,
-						cache: false,
+						//cache: false,
 						headers: { 
 							Authorization: "12345"
 						},
@@ -514,7 +514,7 @@
 						url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/nomad/orders?query%5Bimsi%5D=' + self.IMSI + '&query%5BcreatedAt%5D%5B%24gt%5D='+ago+'&sort=-createdAt&query%5Baction%5D=sendSms',//&query%5BcreatedAt%5D%5B%24lt%5D='+now+'
 						dataType: "json",	
 						async: true,
-						cache: false,
+						//cache: false,
 						headers: { 
 							Authorization: "12345"
 						},
@@ -667,7 +667,7 @@
 						url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/nomad/messages?query%5Bimsi%5D=' + self.IMSI + '&query%5BcreatedAt%5D%5B%24gt%5D=' + ago + '&pageSize=10&sort=-createdAt',
 						dataType: "json",	
 						async: true,
-						cache: false,
+						//cache: false,
 						headers: { 
 							Authorization: "12345"
 						},

@@ -13,6 +13,11 @@
                 <div class="title sliding">
                     SIM Status
                 </div>
+                <div class="right">
+                    <a href="#" class="link icon-only setSetting" >
+                        <i class="material-icons md-36">settings</i>
+                    </a>
+                </div>
             </div>
         </div>
 		
@@ -45,7 +50,7 @@
 				
 				
 				
-				<div class="list">
+				<div class="list no-y-margin">
 					<ul><!-- class="item-inner" class="additional-sim-info-ul"
 						<li class="item-content additional-sim-info">
 							<div class="item-media"></div>
@@ -67,7 +72,7 @@
 						</li>-->
 						<!-- Default Setup -->
 						<li class="state-block display-none">
-						  <a class="item-link smart-select smart-select-init">
+						  <a class="item-link smart-select smart-select-init ">
 							<select name="sim-state">
 							  <option value="Productive" id="state-1">Active</option>
 							  <option value="Suspended" id="state-2">Suspend</option>
@@ -79,15 +84,42 @@
 							</div>
 						  </a>
 						</li>
+						<li class="state-block display-none">
+						  <a class="item-link smart-select smart-select-init ">
+							<select name="sim-state">
+							  <option value="qt" id="qt">QuikTrak</option>
+							</select>
+							<div class="item-content">
+							  <div class="item-inner">
+								<div class="item-title">Customer</div>
+							  </div>
+							</div>
+						  </a>
+						</li>
+						<li>
+						  <!--<a href="#" class="item-link smart-select smart-select-init custom-smart-select" data-open-in="popup" data-virtual-list="true" data-page-back-link-text="Go back">
+							<select name="fruits">
+							  <option value="apple" selected>Apple</option>
+							  <option value="pineapple">Pineapple</option>
+							</select>
+							<div class="item-content">
+							  <div class="item-inner">
+								
+				 <div class="text-editor-content" style="margin: 15px;    padding-bottom: 15px;" contenteditable>
+    <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Consequatur sunt, Lorem, ipsum dolor sit amet consectetur adipisicing elit. Consequatur sunt,</p>
+  </div>
+								<div class="item-title item-label">Description</div>
+								<div class="item-after">Apple</div>-->
+							<!--  </div>
+							</div>
+						  </a>-->
+						</li>
 					</ul>
-				</div>					
-				
-					<div class="item-inner">
-						<div class="location-div display-none">
-							<button class="col button button-outline currentLocation" >Show location</button>
-						</div>
-					</div>
+				</div>
 			</div>
+		</div>
+		<div class="location-div display-none">
+			<button class="col button button-outline currentLocation" >Show location</button>
 		</div>
     </div>
 </template>
@@ -125,7 +157,7 @@
 						url: API_URL.URL_GET_COMMAND_HISTORY + self.IMSI + '/coordinates?formula=centerOfMass', 
 						dataType: "json",	
 						async: true,
-						cache: false,
+						//cache: false,
 						headers: { 
 							Authorization: "12345"
 						},
@@ -161,7 +193,7 @@
 						url: API_URL.URL_GET_COMMAND_HISTORY + self.IMSI + '/sms', 
 						dataType: "json",	
 						async: true,
-						cache: false,
+						//cache: false,
 						headers: { 
 							Authorization: "12345"
 						},
@@ -198,7 +230,7 @@
 						url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/cdrs/'+ self.IMSI, 
 						dataType: "json",	
 						async: true,
-						cache: false,
+						//cache: false,
 						headers: { 
 							Authorization: "12345"
 						},
@@ -231,7 +263,7 @@
 						url: API_URL.URL_GET_COMMAND_HISTORY + self.IMSI, 
 						dataType: "json",	
 						async: true,
-						cache: false,
+						//cache: false,
 						headers: { 
 							Authorization: "12345"
 						},
@@ -296,7 +328,7 @@
 						url: API_URL.URL_GET_COMMAND_HISTORY + self.IMSI + setStatus, 
 						dataType: "json",	
 						async: true,
-						cache: false,
+						//cache: false,
 						data: JSON.stringify(data),
 						headers: {
 							"authorization": "12345",
@@ -427,6 +459,10 @@
 				
 				$('.currentState').on('click', function(){						
 					mainView.router.navigate('/set-status/?imsi='+self.IMSI);
+				});
+				
+				$('.setSettings').on('click', function(){						
+					mainView.router.navigate('/settings/?imsi='+self.IMSI);
 				});
 				
 				$('.currentLocation').on('click', function(){		

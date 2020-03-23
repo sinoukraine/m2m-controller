@@ -128,7 +128,7 @@
 						url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/nomad/messages?query%5Bimsi%5D=' + self.imsi + '&query%5BcreatedAt%5D%5B%24gt%5D=' + curDate + '&pageSize=100&sort=createdAt',//&query%5BcreatedAt%5D%5B%24lt%5D=' + nextDate &query%5BcreatedAt%5D%5B%24gt%5D=' + curDate
 						dataType: "json",	
 						async: true,
-						cache: false,
+						//cache: false,
 						headers: { 
 							Authorization: "12345"
 						},
@@ -260,7 +260,7 @@
 						url: 'http://m2mdata03.sinopacific.com.ua/em/v3/sms?page=' + self.page + '&pageSize=100',
 						dataType: "json",	
 						async: true,
-						cache: false,
+						//cache: false,
 						headers: { 
 							Authorization: "12345"
 						},
