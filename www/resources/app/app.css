@@ -514,3 +514,20 @@
 	position: absolute;
 	z-index: 10;
 }
+
+.mb-5{
+	margin-bottom: 40px;
+}
+
+.placeholder{
+	color: grey;
+}
+
+.smart-select-page .list{
+	margin-top: 0px;
+	
+}
+.smart-select-page .list:before{
+	display: none;
+	
+}

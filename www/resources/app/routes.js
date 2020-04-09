@@ -54,7 +54,7 @@ var routes = [
 
     {
         path: '/settings/',
-        componentUrl: './resources/pages/settings.html?v=1.6',
+        componentUrl: './resources/pages/settings.html?v=1.7',
         name: 'settings'
     },
 

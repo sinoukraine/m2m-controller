@@ -169,7 +169,7 @@
 								var html = '';
 								
 								html += '<li>';
-								html += '<a href="#" data-imsi="'+result.imsi+'" data-iccid="'+result.iccId+'" class="ac-5 item-link item-content">';
+								html += '<a href="#" data-id="'+result._id+'"  data-imsi="'+result.imsi+'" data-iccid="'+result.iccId+'" class="ac-5 item-link item-content">';
 								html += '  <div class="item-inner">';
 								html += '   <div class="item-title-row">';
 								html += '   <div class="item-title color-custom">';
@@ -362,7 +362,7 @@
 				
 				$.each(simList, function(index, value){	
 					html += '<li>';
-                    html += '<a href="#" data-imsi="'+value.info.imsi+'" data-iccid="'+value.info.iccid+'" class="ac-5 item-link item-content">';
+                    html += '<a href="#" data-id="'+value._id+'" data-imsi="'+value.info.imsi+'" data-iccid="'+value.info.iccid+'" class="ac-5 item-link item-content">';
                     html += '  <div class="item-inner">';
                     html += '   <div class="item-title-row">';
                     html += '   <div class="item-title color-custom">';
@@ -456,6 +456,7 @@
 				
 				$$('body').on('click', '.simList .item-inner', function() {
 					var parrent = $$(this).closest('.item-content');
+					var id = parrent.attr('data-id');
 					var imsi = parrent.attr('data-imsi');
 					var iccid = parrent.attr('data-iccid');
 
@@ -514,7 +515,7 @@
 						{
 							text: SIMStatus,
 							onClick: function() {
-								mainView.router.navigate('/sim-status/?imsi='+imsi.toString()+'&iccid='+iccid.toString());
+								mainView.router.navigate('/sim-status/?id='+id.toString()+'&imsi='+imsi.toString()+'&iccid='+iccid.toString());
 							},
 						},
 					];

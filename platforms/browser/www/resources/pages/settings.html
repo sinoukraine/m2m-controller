@@ -17,15 +17,28 @@
         </div>
 		
 		<div class="page-content">
-					<li class="item-content">
-						<div class="item-inner not-empty-state border-bottom">
-							<a href="/my-resolution-settings/" class=" item-inner-bottom display-flex align-items-center justify-content-space-between">
-								<span>Data Usage</span>
-								<i class="f7-icons icon-right"></i>
-							</a>
-						</div>
-					</li>
-			
+			<div class="item-content">
+				<div class="list no-y-margin mb-5" >
+					<ul>
+						<li class="state-block">
+						  <a class="item-link smart-select smart-select-unit smart-select-init ">
+							<select name="sim-state">
+							  <option value="mb/month" id="unit-1">mb/month</option>
+							  <option value="gb/month" id="unit-2">gb/month</option>
+							</select>
+							<div class="item-content">
+							  <div class="item-inner">
+								<div class="item-title">Data Usage Threshold Unit</div>
+							  </div>
+							</div>
+						  </a>
+						</li>						
+						<li>
+							<div class="text-editor-content" style="margin: 15px;padding-bottom: 15px; " contenteditable></div>
+						</li>
+					</ul>
+				</div>
+			</div>			
 		</div>
     </div>
 </template>
@@ -35,103 +48,172 @@
     return { 
         data: function () {
             var self = this;
-            var ret = {				
-				checkState1: false,
-				checkState2: false,
-				checkState3: false,
+            var ret = {			
+				obj: {}
 			};         
 					
-			if (self.$route.query.imsi) {
-				ret.IMSI = self.$route.query.imsi;
+			if (self.$route.query.id) {
+				ret.ID = self.$route.query.id;
             }  			
             return ret;
         },
 		methods: {
-			setNewState: function (stateId) {
+			getSim: function (payload) {
                 let self = this;
-				var data = {
-					"offer": "M2M Data",
-					"offerOptions": {},
-				}
-				let setStatus = '';
-				
-				switch(stateId){
-					case 'state-1':					
-						setStatus = '/activate';						
-					break;
-					case 'state-2':					
-						setStatus = '/suspend';
-					break;
-					case 'state-3':					
-						setStatus = '/resume';
-					break;
-				}
-								
-								
 				$.ajax({
-						type: "PUT",		        
-						url: API_URL.URL_GET_COMMAND_HISTORY + self.IMSI + setStatus, 
+						type: "GET",		        
+						url: 'https://m2mdata03.sinopacific.com.ua/em/v3/sims/'+ self.ID, 
 						dataType: "json",	
 						async: true,
-						//cache: false,
+						headers: { 
+							Authorization: "12345"
+						},
+						success: function (result) {
+							if(result){		
+								console.log(result);								
+								self.obj = result;
+								
+								//if (!self.isEmptyObject(result.settings.dataUsageThreshold)) {
+									payload.html(result.settings.dataUsageThreshold);	
+								//}
+								//if (!self.isEmptyObject(result.settings.dataUsageUnits)) {
+									//self.getCustomerName(self.obj.ancestors[0]);
+								//}
+								
+								
+								self.smartSelect.setValue(result.settings.dataUsageUnits);
+											
+							}else{
+								console.log('something wrong');
+							}
+						},
+						error: function(XMLHttpRequest, textStatus, errorThrown){
+							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
+						}
+					});
+			},
+			saveSim: function (payload) {
+			
+				var self = this;				
+				var data = { 
+					'info' : self.obj.info,
+					'settings' : self.obj.settings,
+					'ancestors' : self.obj.ancestors,
+					'tags' : self.obj.tags					
+				};
+				
+				data.settings.dataUsageThreshold = payload;
+				
+				$.ajax({
+						//type: "PUT",		        
+						url: 'https://m2mdata03.sinopacific.com.ua/em/v3/sims/'+ self.ID, 
+						dataType: "json",	
+						async: true,
+						//cache: false,						
 						data: JSON.stringify(data),
+						method: "PUT",
 						headers: {
 							"authorization": "12345",
 							"content-type": "application/json"
 						},
 						success: function (result) {
-							if(result){		
-								console.log(result);
-								//self.$app.dialog.alert('Button1 clicked')
-								self.$app.dialog.alert('Status changed');
+							if(result){							
+								console.log(result);	
+								
 							}else{
 								console.log('something wrong');
-								
-								self.$app.dialog.alert('Something wrong');
 							}
 						},
 						error: function(XMLHttpRequest, textStatus, errorThrown){
-							
-							self.$app.dialog.alert('This SIM is activated already');
 							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
 						}
 					});
-			
+					
 			},
-			initStateList: function () {
-                let self = this;
-				console.log('123');				
+			setNewState: function (state) {
+				
+				var self = this;				
+				var data = { 
+					'info' : self.obj.info,
+					'settings' : self.obj.settings,
+					'ancestors' : self.obj.ancestors,
+					'tags' : self.obj.tags					
+				};
+				
+				data.settings.dataUsageUnits = state;
+				
+				$.ajax({
+						//type: "PUT",		        
+						url: 'https://m2mdata03.sinopacific.com.ua/em/v3/sims/'+ self.ID, 
+						dataType: "json",	
+						async: true,
+						//cache: false,						
+						data: JSON.stringify(data),
+						method: "PUT",
+						headers: {
+							"authorization": "12345",
+							"content-type": "application/json"
+						},
+						success: function (result) {
+							if(result){							
+								console.log(result);	
+								
+							}else{
+								console.log('something wrong');
+							}
+						},
+						error: function(XMLHttpRequest, textStatus, errorThrown){
+							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
+						}
+					});
+				
+			},	
+			isEmptyObject: function (obj) {
+				for (var i in obj) {
+					if (obj.hasOwnProperty(i)) {
+						return false;
+					}
+				}
+				return true;
 			}
-		
 		},
         on: {
             pageInit: function (e, page) {  
 				var self = this;        
-				var thisPage = page.$el.find('.page-content'); 			
+				var thisPage = page.$el.find('.page-content'); 	
 
-				console.log(self.IMSI);
-				$.ajax({
-						type: "GET",		        
-						url: 'https://m2mdata03.sinopacific.com.ua/em/v3/sims/'+ self.IMSI, 
-						dataType: "json",	
-						async: true,
-						//cache: false,
-						headers: { 
-							Authorization: "12345"
-						},
-						success: function (result) {
-							if(result){
-								console.log(result);
-							}else{
-								console.log('something wrong');
-							}
-						},
-						error: function(XMLHttpRequest, textStatus, errorThrown){
-							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
-						}
-					});
-                //self.initStateList();
+				var placeholder = '<span class="placeholder">Threshold</span>';
+				var textarea = page.$el.find('.text-editor-content');
+				textarea.html(placeholder);				
 				
+				self.getSim(textarea);	
+				
+				textarea.on('click', function(){
+					$(this).find('.placeholder').remove();
+				});
+				
+				textarea.on('blur', function(){
+					if(!$(this).html()) {
+						$(this).html(placeholder);
+					}else{
+						var data = $(this).html().replace(/(<([^>]+)>)/ig,"");
+						self.saveSim(data);
+					}
+				});			
+
+				var listEl = self.$el.find('.smart-select-unit');
+								
+						self.smartSelect = self.$app.smartSelect.create({
+							el: listEl,
+						  on: {
+							opened: function () {
+							},
+							closed: function () {
+							  self.setNewState(self.smartSelect.getValue());
+							}
+						  }
+						});							
+						
 				
 			}
 		}
