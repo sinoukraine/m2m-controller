@@ -100,7 +100,6 @@
                 let self = this;
 				var input = $$('.formSearchSim input[name="searchInput"');
 
-				//if (input.val()) {
 					$$('.simList ul').html('');
 					input.blur();
 
@@ -120,50 +119,53 @@
 					}
 					
 					if(self.toggleValue){
-						console.log('dri');
 						self.getSim();
 					}else{
 						self.getSimList();
 						self.$app.infiniteScroll.create('.infinite-scroll-home-content');	
 					}
-				//} else {
-					/*App.addNotification({
-						hold: 3000,
-						message: LANGUAGE.PROMPT_MSG008
-					});*/
-				//}		
 			},				
 			getSim: function () {
                 let self = this;
-					
-					if(!self.text){
-						self.$app.dialog.alert('Please fill search field.');
-						self.$setState({
-										allowInfinite: true
-									});
+									
+				if(!self.text){
+					self.$app.dialog.alert('Please fill search field.');
+					self.$setState({
+						allowInfinite: true
+					});
 								
-								self.$app.infiniteScroll.destroy('.infinite-scroll-home-content');
+					self.$app.infiniteScroll.destroy('.infinite-scroll-home-content');
 								  
-								  // Remove preloader
-								if(!$('.infinite-scroll-home-preloader').hasClass('display-none')){
-									$('.infinite-scroll-home-preloader').addClass('display-none')
-								}
-								  return;
+					// Remove preloader
+					if(!$('.infinite-scroll-home-preloader').hasClass('display-none')){
+						$('.infinite-scroll-home-preloader').addClass('display-none')
 					}
-					//self.$app.preloader.show();
+					return;
+				}
+				
+			
+					let userInfo = self.$app.methods.getFromStorage('userInfo');
+					let accessToken = userInfo.accessToken;
+				
+					
+					/*let url = 'https://m2mdata03.sinopacific.com.ua/api/v3/sims?page=' + self.page + '&pageSize=10';
+					if (self.text.length > 0){
+						url += '&sample=' + self.text;
+					}*/	
+				
+				//self.$app.preloader.show();
 					$.ajax({
 						type: "GET",		        
 						//url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/sims?query%5Binfo.' + self.type + '%5D%5B%24regex%5D=' + self.text,
 						//url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/sims?page=' + self.page + '&pageSize=10&query%5B' + self.type + '%5D%5B%24regex%5D=' + self.text,
-						url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/sims/' + self.text,
+						//url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/sims/' + self.text,
+						url: 'https://m2mdata03.sinopacific.com.ua/api/v3/sims/' + self.text,
 						dataType: "json",	
 						async: true,
-						//cache: false,
 						headers: { 
-							Authorization: "12345"
+							Authorization: "Bearer " + accessToken,
 						},
 						success: function (result) {
-							console.log(result);
 							if (result) {
 								//$$('.page-content').removeClass('first_login');
 								var html = '';
@@ -238,27 +240,35 @@
 			},															
 			getSimList: function () {
                 let self = this;
+				
 					if (!self.allowInfinite) return;					
 					
-				  // Set loading flag
+					// Set loading flag
 					self.$setState({
                         allowInfinite: false
                     });
 					
-					//self.$app.preloader.show();
+					let userInfo = self.$app.methods.getFromStorage('userInfo');
+					let accessToken = userInfo.accessToken;
+				
+					
+					let url = 'https://m2mdata03.sinopacific.com.ua/api/v3/sims?page=' + self.page + '&pageSize=10&scope=sub&populate[]=ancestors';
+					if (self.text.length > 0){
+						url += '&sample=' + self.text;
+					}
+					
 					$.ajax({
 						type: "GET",		        
-						url: 'https://m2mdata03.sinopacific.com.ua/em/v3/sims?page=' + self.page + '&pageSize=10&query%5Binfo.' + self.type + '%5D%5B%24regex%5D=' + self.text,
+						url: url,
 						dataType: "json",	
 						async: true,
 						//cache: false,
 						headers: { 
-							Authorization: "12345"
+							Authorization: "Bearer " + accessToken,
 						},
-						success: function (result) {console.log(result);
-							if (result.total) {
-								//$$('.page-content').removeClass('first_login');
-																	
+						success: function (result) {
+							console.log('list',result);
+							if (result.total) {																	
 								if(result.page == 1){
 									
 									self.$app.infiniteScroll.create('.infinite-scroll-home-content');
@@ -307,17 +317,7 @@
 								if(self.page == 2){
 									$$('.infinite-scroll-home-content').on('infinite', self.getSimList);
 								}
-										
-								if (result.rows.length === 0) {
-									/*App.addNotification({
-										hold: 3000,
-										message: LANGUAGE.PROMPT_MSG006
-									});*/
-								}
 							} else {
-								//App.alert(LANGUAGE.PROMPT_MSG013);
-								//self.$app.dialog.alert('No one IMSI found with this number. Please try with direct search.');
-								
 								// Reset loading flag
 									self.$setState({
 										allowInfinite: true
@@ -325,21 +325,17 @@
 								
 								self.$app.infiniteScroll.destroy('.infinite-scroll-home-content');
 								  
-								  // Remove preloader
+								// Remove preloader
 								if(!$('.infinite-scroll-home-preloader').hasClass('display-none')){
 									$('.infinite-scroll-home-preloader').addClass('display-none')
 								}
 								
 								self.getSim();
-								
-								//return;
-							}
-							//self.$app.preloader.hide();
-							
+							}							
 						},
 						error: function(XMLHttpRequest, textStatus, errorThrown){
 							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
-								self.$app.dialog.alert('Something wrong.');
+								self.$app.dialog.alert('Something wrong..');
 							self.$app.infiniteScroll.destroy('.infinite-scroll-home-content');
 							self.$setState({
 										allowInfinite: true
@@ -361,29 +357,73 @@
 				var html = '';
 				
 				$.each(simList, function(index, value){	
+					var simID = value._id;
+					
+					//var simState = 'active';
+					
+					var simName = 'noname';
+					if(value.info.name!==undefined){
+						simName = value.info.name;
+					}
+					
+					var simOwner = 'noname';
+					if(value.ancestors[0].info.name!==undefined){
+						simOwner = value.ancestors[0].info.name;
+					}
+					
+					var simIMSI = '';
+					if(value.info.imsi!==undefined){
+						simIMSI = value.info.imsi;
+					}
+					
+					var simICCID = '';
+					if(value.info.iccid!==undefined){
+						simICCID = value.info.iccid;
+						//console.log('simname',value.info.name);
+					}
+					
+					var simMSISDN = '';
+					if(value.info.msisdn!==undefined){
+						simMSISDN = value.info.msisdn;
+						//console.log('simname',value.info.name);
+					}
+					
 					html += '<li>';
-                    html += '<a href="#" data-id="'+value._id+'" data-imsi="'+value.info.imsi+'" data-iccid="'+value.info.iccid+'" class="ac-5 item-link item-content">';
+                    html += '<a href="#" data-id="'+simID+'" data-imsi="'+simIMSI+'" data-iccid="'+simICCID+'" class="ac-5 item-link item-content">';
                     html += '  <div class="item-inner">';
                     html += '   <div class="item-title-row">';
                     html += '   <div class="item-title color-custom">';
                     html += '     <div class="display-flex">';
-                    html += '       <div class="prop-name">IMSI:</div>';
-                    html += '             <div class="imsi-value">'+value.info.imsi+'</div>';
+                    html += '       <div class="prop-name">IMSI:</div>';							
+                    html += '             <div class="imsi-value">'+simIMSI+'</div>';
                     html += '              </div>';
                     html += '              </div>';
                     html += '               <div class="item-after color-custom"><i class="f7-icons icon-other-menu3 color-m2m-blue" style="font-size:20px;margin-top:5px;"></i></div>';
                     html += '               </div>';
                     html += '                 <div class="item-text">';
+					
 					html += '                         <div class="display-flex">';
 					html += '                                <div class="prop-name">ICCID:</div>';
-                    html += '                           <div class="iccid-value">'+value.info.iccid+'</div>';
+                    html += '                           <div class="iccid-value">'+simICCID+'</div>';
+                    html += '                    </div>';
+					html += '                         <div class="display-flex">';
+					html += '                                <div class="prop-name">MSISDN:</div>';
+                    html += '                           <div class="iccid-value">'+simMSISDN+'</div>';
+                    html += '                    </div>';
+					html += '                         <div class="display-flex">';
+					html += '                                <div class="prop-name">Name:</div>';
+                    html += '                           <div class="iccid-value">'+simName+'</div>';
                     html += '                    </div>';
                     html += '               <div class="display-flex">';
-                    html += '              <div class="prop-name">MSISDN:</div>';
-                    html += '                         <div class="uppercase">'+value.info.msisdn+'</div>';
+                    html += '              			<div class="prop-name">Owner:</div>';
+                    html += '                         <div class="uppercase">'+simOwner+'</div>';
                     html += '                         </div>';
+					/*html += '                         <div class="display-flex">';
+					html += '                                <div class="prop-name">State:</div>';
+                    html += '                           <div class="iccid-value">'+simState+'</div>';
+                    html += '                    </div>';*/
                     html += '                   <div class="display-flex">';
-                    html += '                      <div class="prop-name">Rag:</div>';
+                    html += '                      <div class="prop-name">State:</div>';
 					html += '						<div style="font-size: 14px;color: #CD3333;">&#11044;</div>';
                     html += '          			</div>';
                     html += '            </div>';
@@ -410,7 +450,7 @@
 								  "Result: " + result.text + "\n" +
 								  "Format: " + result.format + "\n" +
 								  "Cancelled: " + result.cancelled);*/
-							if (result && result.text) {console.log();
+							if (result && result.text) {
 								input.val(result.text);
 								if(input.attr('name') == 'searchInput') {
 									self.submitSearchForm(self.type);
@@ -438,11 +478,9 @@
 				} else {
 					self.$app.dialog.alert('Your device does not support this function');
 				}
-			}
-        },
-        on: {
-            pageInit: function (e, page) {
-                let self = this;
+			},
+			initHome: function(){
+				var self = this;
 				
 				self.submitSearchForm(self.type);
 				$$('body').on('submit', '.formSearchSim', function(e) {
@@ -494,6 +532,15 @@
 						'</div>' +
 						'</div>';
 
+					var SIMReport = '<div class="action_button_wrapper">' +
+						'<div class="action_button_block action_button_media">' +
+						'<i class="material-icons md-36 color-m2m-blue">assessment</i>' +
+						'</div>' +
+						'<div class="action_button_block action_button_text color-m2m-grey">' +
+						'IMSI Usage Report' +
+						'</div>' +
+						'</div>';
+
 					var buttons = [{
 							text: 'IMSI: '+ imsi,
 							label: true,
@@ -503,13 +550,13 @@
 							text: commands,
 							onClick: function() {
 								//loadPageCommands();
-								mainView.router.navigate('/commands/?imsi='+imsi.toString());
+								mainView.router.navigate('/commands/?id='+id.toString()+'&imsi='+imsi.toString());
 							},
 						},
 						{
 							text: commandsHistory,
 							onClick: function() {
-								mainView.router.navigate('/commands-history/?imsi='+imsi.toString());;
+								mainView.router.navigate('/commands-history/?id='+id.toString()+'&imsi='+imsi.toString());;
 							},
 						},
 						{
@@ -517,7 +564,13 @@
 							onClick: function() {
 								mainView.router.navigate('/sim-status/?id='+id.toString()+'&imsi='+imsi.toString()+'&iccid='+iccid.toString());
 							},
-						},
+						},/*
+						{
+							text: SIMReport,
+							onClick: function() {
+								mainView.router.navigate('/report/?id='+id.toString()+'&imsi='+imsi.toString()+'&iccid='+iccid.toString());
+							},
+						},*/
 					];
 
 					self.$app.actions.create({buttons}).open();
@@ -532,8 +585,6 @@
 						self.$app.dialog.alert('plugin not supported')
 					} else {
 						permissions.hasPermission(permissions.CAMERA, function(status) {
-							// App.alert(JSON.stringify(status))
-
 							if (status.hasPermission) {
 								self.openBarCodeReader(input);
 							} else {
@@ -549,28 +600,25 @@
 								}
 							}
 						});
-
 					}
-				});		
+				});
+			}
+        },
+        on: {
+            pageInit: function (e, page) {
+                let self = this;				
 				
-				/*var toggle = app.toggle.create({
-				  el: '.toggle',
-				  on: {
-					change: function () {
-						if(toggle.checked){
-							self.$setState({
-								toggleValue: true,
-								placeholderSearch: 'Direct search'
-							});
-						}else{
-							self.$setState({
-								toggleValue: false,
-								placeholderSearch: 'Smart search'
-							});
-						}						
-					}
-				  }
-				})	*/		
+				
+				myEvents.on('home', self.initHome);
+						
+				let userInfo = self.$app.methods.getFromStorage('userInfo');
+				let isToken = userInfo.accessToken;
+				
+				if(!isToken){
+					self.$app.methods.logout();
+				}else{
+					self.initHome;
+				}
 				
             },
             pageAfterIn:function(){

@@ -57,6 +57,32 @@ var routes = [
         componentUrl: './resources/pages/settings.html?v=1.7',
         name: 'settings'
     },
+	{
+        path: '/my-sim-name/',
+        componentUrl: './resources/pages/my-sim-name.html?v=1.7',
+        name: 'my-sim-name'
+    },
+	{
+        path: '/my-sim-remark/',
+        componentUrl: './resources/pages/my-sim-remark.html?v=1.7',
+        name: 'my-sim-remark'
+    },
+	{
+        path: '/my-sim-threshold/',
+        componentUrl: './resources/pages/my-sim-threshold.html?v=1.7',
+        name: 'my-sim-threshold'
+    },
+
+    {
+        path: '/report/',
+        componentUrl: './resources/pages/report.html?v=1.7',
+        name: 'report'
+    },
+	{
+        path: '/my-sim-expired/',
+        componentUrl: './resources/pages/my-sim-expired.html?v=1.7',
+        name: 'my-sim-expired'
+    },
 
 
 

@@ -12,8 +12,12 @@ var compiledTemplate = Template7.compile(htmlTemplate);
 $$('#app').append(compiledTemplate());
 
 var API_URL = {};
-var API_DOMIAN1 = "https://m2mdata03.sinopacific.com.ua/m2mdata/v3/";
-API_URL.URL_GET_COMMAND_HISTORY = API_DOMIAN1 + "sims/";
+
+var API_DOMIAN = "https://m2mdata03.sinopacific.com.ua/api/v3/";
+API_URL.PRE_LOGIN = API_DOMIAN + "consumers/tokens/";
+
+//var API_DOMIAN1 = "https://m2mdata03.sinopacific.com.ua/m2mdata/v3/";
+API_URL.URL_GET_COMMAND_HISTORY = API_DOMIAN + "sims/";
 
 // Create custom events bus
 var myEvents = new Framework7.Events();
@@ -69,7 +73,7 @@ var app = new Framework7({
 			self.methods.handleAndroidBackButton();
 			
             if(localStorage.ACCOUNT && localStorage.PASSWORD) {
-                self.methods.login();
+                self.methods.preLogin();
             }
             else {
                 self.methods.logout();
@@ -134,29 +138,41 @@ var app = new Framework7({
             self.loginScreen.open('.login-screen');
 
         },
-        login: function(){
+        preLogin: function(){
             let self = this;
-            //self.methods.getPlusInfo();
-
-            let account = $$("input[name='username']");
-            let password = $$("input[name='password']");
-
-            let data = {
-                account: account.val() ? account.val() : localStorage.ACCOUNT,
-                password: password.val() ? password.val() : localStorage.PASSWORD,
-                appKey: localStorage.PUSH_APP_KEY,
-                mobileToken: localStorage.PUSH_MOBILE_TOKEN,
-                deviceToken: localStorage.PUSH_DEVICE_TOKEN,
-                deviceType: localStorage.DEVICE_TYPE,
-            };
-
-			localStorage.ACCOUNT = account.val();
-            localStorage.PASSWORD = password.val();
-					
-            self.loginScreen.close();
-
-            /*app.dialog.progress();
-            app.request.get(API_URL.LOGIN, data, function (result, xhr, status) {
+            				
+            this.preloader.show();
+			$.ajax({
+					async: true,
+					crossDomain: true,
+					url: 'https://m2mdata03.sinopacific.com.ua/api/v3/consumers/tokens',
+					method: "POST",
+					headers: {
+						"content-type": "application/json"
+					},
+					processData: false,
+					success: function (result) {	
+						if(result && result.consumerToken) {
+							let consumerToken = result.consumerToken
+							app.methods.login(consumerToken);
+						}else {
+							self.utils.nextFrame(()=>{
+								app.preloader.hide();
+								app.dialog.alert(LANGUAGE.LOGIN_MSG01);
+								app.loginScreen.open('.login-screen');
+							});
+						}	
+					},
+					error: function(XMLHttpRequest, textStatus, errorThrown){
+						console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
+						self.utils.nextFrame(()=>{
+							app.preloader.hide();
+							app.dialog.alert('Please try again');
+							app.loginScreen.open('.login-screen');
+						});
+					}
+				});	
+            /*app.request.get(API_URL.LOGIN, data, function (result, xhr, status) {
                     console.log(result);
                     if(result && result.MajorCode == '000') {
                         if(account.val()) {
@@ -194,6 +210,83 @@ var app = new Framework7({
                 },
                 'json');*/
         },
+        login: function(token){
+            let self = this;
+			let consumerToken = token;
+			
+            let account = $$("input[name='username']");
+            let password = $$("input[name='password']");
+
+            let data = {
+                login: account.val() ? account.val() : localStorage.ACCOUNT,
+                password: password.val() ? password.val() : localStorage.PASSWORD,
+                /*appKey: localStorage.PUSH_APP_KEY,
+                mobileToken: localStorage.PUSH_MOBILE_TOKEN,
+                deviceToken: localStorage.PUSH_DEVICE_TOKEN,
+                deviceType: localStorage.DEVICE_TYPE,*/
+            };
+
+			localStorage.ACCOUNT = account.val();
+            localStorage.PASSWORD = password.val();
+									
+			//app.dialog.progress();
+			this.preloader.show();
+			$.ajax({
+					async: true,
+					crossDomain: true,
+					url: 'https://m2mdata03.sinopacific.com.ua/api/v3/people/tokens',
+					method: "POST",
+					headers: {
+						"authorization": "Bearer " + consumerToken,
+						"content-type": "application/json"
+					},
+					processData: false,
+					data: JSON.stringify(data),
+					success: function (result) {
+						if(result && result.accessToken) {
+							if(account.val()) {
+								localStorage.ACCOUNT = account.val().trim().toLowerCase();
+								localStorage.PASSWORD = password.val();
+							}
+							//mainView.router.navigate('/home/');
+							//self.methods.submitSearchForm('');
+							
+							password.val(null);
+							self.methods.setInStorage({
+								name:'userInfo',
+								data: {
+									accessToken: result.accessToken
+									/*MajorToken: result.Data.MajorToken,
+									MinorToken: result.Data.MinorToken,
+									UserInfo: result.Data.UserInfo*/
+								}
+							});
+							//self.data.CustomerType = result.Data.UserInfo.CustomerType;
+							app.preloader.hide();
+							app.panel.close();
+							app.loginScreen.close();
+							
+							myEvents.emit('home');
+							
+							//leftView.router.back('/panel-left/');
+						}else {
+							self.utils.nextFrame(()=>{
+								app.preloader.hide();
+								app.dialog.alert(LANGUAGE.LOGIN_MSG01);
+								app.loginScreen.open('.login-screen');
+							});
+						}					
+					},
+					error: function(XMLHttpRequest, textStatus, errorThrown){
+						console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
+						self.utils.nextFrame(()=>{
+							app.preloader.hide();
+							app.dialog.alert('Error occured during login');
+							app.loginScreen.open('.login-screen');
+						});
+					}
+				});	
+		},
 		handleAndroidBackButton: function () {
     //var app = cordovaApp.f7;
     //const $ = app.$;
@@ -269,7 +362,13 @@ var app = new Framework7({
                         if(str) {
                             ret = JSON.parse(str);
                         }
-                    break;  
+                    break;
+                    case 'userInfo':
+                        str = localStorage.getItem("COM.M2MDATA.USERINFO");
+                        if(str) {
+                            ret = JSON.parse(str);
+                        }
+                    break; 
 					default:
                         //App.dialog.alert('There is no item saved with such name - '+name);
                 }
@@ -285,6 +384,9 @@ var app = new Framework7({
                 switch (params.name){
                     case 'cmd':
                         localStorage.setItem("COM.M2MDATA.CMD", JSON.stringify(params.data));
+                    break; 
+					case 'userInfo':
+                        localStorage.setItem("COM.M2MDATA.USERINFO", JSON.stringify(params.data));
                     break;                     
                     default:
                         //App.dialog.alert('There is no function associated with this name - '+params.name);
@@ -340,7 +442,7 @@ $$('body').on('submit', '[name="login-form"]', function (e) {
     e.preventDefault();
     //preLogin();
     app.methods.hideKeyboard();
-    app.methods.login(this);
+    app.methods.preLogin(this);
     return false;
 });
 

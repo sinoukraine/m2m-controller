@@ -57,6 +57,7 @@
 				messages: {},
 				messagebar: {},
 				allowInfinite: true,
+				isSent: false,
 				page: 1,
 				lastItemIndex: 0,
 				maxItems: 0,
@@ -65,6 +66,10 @@
 				//customCmd: '',
 				dynamicPopup: {}
 			};     
+			
+            if (self.$route.query.id) {
+				ret.ID = self.$route.query.id;
+            }  		
 			
 			if (self.$route.query.selectedCmd) {
 				ret.selectedCmd = self.$route.query.selectedCmd;
@@ -80,7 +85,7 @@
 				var self = this;  
 				//var text = data;	
 				var data = {
-					"smsParameters": {
+					/*"smsParameters": {
 						"data": text,
 						"from": "Platform",
 						"replaceIfPresent": "No",
@@ -89,17 +94,23 @@
 						"smsValidityHours": "1",
 						"smsValidityMinutes": "2",
 						"udh": "No"
-					}
+					}*/
+					"content": text
 				}
-				//console.log(data, "http://m2mdata03.sinopacific.com.ua/m2mdata/v3/sims/" + self.imsi + "/sms");
+				
+				
+					let userInfo = self.$app.methods.getFromStorage('userInfo');
+					let accessToken = userInfo.accessToken;
+					
+				//console.log(data, "http://m2mdata03.sinopacific.com.ua/api/v3/sims/" + self.imsi + "/sms");
 				console.log('emit sending message');
 				$.ajax({
 					async: true,
 					crossDomain: true,
-					url: "http://m2mdata03.sinopacific.com.ua/m2mdata/v3/sims/" + self.imsi + "/sms",
+					url: "http://m2mdata03.sinopacific.com.ua/api/v3/sims/" + self.ID + "/sms",
 					method: "POST",
 					headers: {
-						"authorization": "12345",
+						Authorization: "Bearer " + accessToken,
 						"content-type": "application/json"
 					},
 					processData: false,
@@ -122,15 +133,20 @@
 					let self = this;
 					var curDate = d.toISOString().substr(0, 11) + '00:00:00.000Z';
 					
+						
+				let userInfo = self.$app.methods.getFromStorage('userInfo');
+				let accessToken = userInfo.accessToken;		
+				
 					console.log(curDate);
 					$.ajax({
 						type: "GET",		        
-						url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/nomad/messages?query%5Bimsi%5D=' + self.imsi + '&query%5BcreatedAt%5D%5B%24gt%5D=' + curDate + '&pageSize=100&sort=createdAt',//&query%5BcreatedAt%5D%5B%24lt%5D=' + nextDate &query%5BcreatedAt%5D%5B%24gt%5D=' + curDate
+						url: 'https://m2mdata03.sinopacific.com.ua/api/v3/sims/' + self.ID + '/sms?startDate=' + curDate + '&pageSize=100',		        
+						//url: 'https://m2mdata03.sinopacific.com.ua/api/v3/nomad/messages?query%5Bimsi%5D=' + self.imsi + '&query%5BcreatedAt%5D%5B%24gt%5D=' + curDate + '&pageSize=100&sort=createdAt',//&query%5BcreatedAt%5D%5B%24lt%5D=' + nextDate &query%5BcreatedAt%5D%5B%24gt%5D=' + curDate
 						dataType: "json",	
 						async: true,
 						//cache: false,
 						headers: { 
-							Authorization: "12345"
+							Authorization: "Bearer " + accessToken,
 						},
 						success: function (result) {//console.log(result);
 							if (result.rows) {
@@ -158,7 +174,48 @@
 				
 				var html = '';
 				$.each(callbackList, function(index, value){					
-					if(self.used_id.indexOf( value._id ) == -1 ){
+					if(self.used_id.indexOf( value._id ) == -1){
+					
+						self.used_id.push(value._id);
+						var datetime = moment.utc(value.createdAt).toDate();
+							//datetime = moment(datetime).format(window.COM_TIMEFORMAT);
+							
+						var time = datetime.getDate() + ' ' + self.month_names_short[datetime.getMonth()] + ' ' + ('0' + datetime.getHours()).slice(-2) + ':' + ('0' + datetime.getMinutes()).slice(-2) + ':' + ('0' + datetime.getSeconds()).slice(-2);
+						var replySMS;
+						
+						if (value.message) {
+								replySMS = value.message.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+							}else{
+								replySMS = value.status;
+							}
+							
+						if(value.status == 'received'){
+							
+							//replySMS += ' (' + datetime + ')';
+							
+							//setTimeout(function () {				
+								  self.messages.addMessage({
+									text: replySMS,
+									type: 'received',
+									textFooter: time,	
+									attrs: {
+										'data-id': value._id,	
+									}								
+								  });
+							//}, 5000);
+						}else if(!self.isSent || value.status == 'delivered'){		
+							// Add message to messages
+							self.messages.addMessage({
+									text: replySMS,
+									textFooter: time,	
+									attrs: {
+										'data-id': value._id,	
+									}								
+								  });
+						}				
+						
+					}
+					/*if(self.used_id.indexOf( value._id ) == -1 ){
 						self.used_id.push(value._id);
 						var datetime = moment.utc(value.createdAt).toDate();
 							//datetime = moment(datetime).format(window.COM_TIMEFORMAT);
@@ -183,17 +240,17 @@
 								}								
 							  });
 						//}, 5000);
-					}
+					}*/
 				});
 			},
 			/*receiveMessage: function(text, id){					
 				var self = this;  
 				
 				var orderId = id;
-						//console.log('https://m2mdata03.sinopacific.com.ua/m2mdata/v3/sims/orders/'+orderId);
+						//console.log('https://m2mdata03.sinopacific.com.ua/api/v3/sims/orders/'+orderId);
 				$.ajax({
 					type: "GET",
-					url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/sims/orders/'+orderId,
+					url: 'https://m2mdata03.sinopacific.com.ua/api/v3/sims/orders/'+orderId,
 					dataType: "json",	
 					async: true,
 					headers: { 
@@ -436,6 +493,11 @@
 					  self.messages.addMessage({
 						text: text,
 					  });
+					  
+					  self.$setState({
+						isSent: true,
+					});
+							
 					self.sendCommand(text);
 
 				});

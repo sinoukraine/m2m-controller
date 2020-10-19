@@ -1,6 +1,6 @@
 <!--suppress JSAnnotator -->
 <template>
-	<div data-name="settings" class="page"> <!-- page-with-subnavbar -->
+	<div data-name="settings" class="page setting-page"> <!-- page-with-subnavbar -->
 		<!-- Top Navbar -->
 		<div class="navbar">
             <div class="navbar-bg"></div>
@@ -17,10 +17,42 @@
         </div>
 		
 		<div class="page-content">
-			<div class="item-content">
-				<div class="list no-y-margin mb-5" >
-					<ul>
-						<li class="state-block">
+			
+			<div class="list-block no-hairlines setting-list">
+				<ul class="left-padding right-padding no-padding-top no-padding-bottom">
+					<li class="item-content no-padding">
+							<a href="#" class="my-sim-name item-inner not-empty-state display-flex align-items-center justify-content-space-between border-bottom">
+								<span>
+									SIM Name
+								</span>
+								<i class="material-icons md-36">keyboard_arrow_right</i>
+							</a>
+						</li>
+						<li class="item-content no-padding">
+							<a href="#" class="my-sim-remark item-inner not-empty-state display-flex align-items-center justify-content-space-between border-bottom">
+								<span>
+									SIM Information
+								</span>
+								<i class="material-icons md-36">keyboard_arrow_right</i>
+							</a>
+						</li>
+						<li class="item-content no-padding">
+							<a href="#" class="my-sim-threshold item-inner not-empty-state display-flex align-items-center justify-content-space-between border-bottom">
+								<span>
+									Data Usage Threshold
+								</span>
+								<i class="material-icons md-36">keyboard_arrow_right</i>
+							</a>
+						</li>
+						<li class="item-content no-padding">
+							<a href="#" class="my-sim-expired item-inner not-empty-state display-flex align-items-center justify-content-space-between border-bottom">
+								<span>
+									Expiration date
+								</span>
+								<i class="material-icons md-36">keyboard_arrow_right</i>
+							</a>
+						</li>
+						<!--<li class="state-block">
 						  <a class="item-link smart-select smart-select-unit smart-select-init ">
 							<select name="sim-state">
 							  <option value="mb/month" id="unit-1">mb/month</option>
@@ -35,7 +67,7 @@
 						</li>						
 						<li>
 							<div class="text-editor-content" style="margin: 15px;padding-bottom: 15px; " contenteditable></div>
-						</li>
+						</li>-->
 					</ul>
 				</div>
 			</div>			
@@ -58,7 +90,23 @@
             return ret;
         },
 		methods: {
-			getSim: function (payload) {
+			navigateSIMName: function(){
+				var self = this;
+				mainView.router.navigate('/my-sim-name/?id='+self.ID.toString());//?name='+name.toString()+'&mac='+mac.toString()
+			},
+			navigateSIMRemark: function(){
+				var self = this;
+				mainView.router.navigate('/my-sim-remark/?id='+self.ID.toString());//?name='+name.toString()+'&mac='+mac.toString()
+			},
+			navigateSIMThreshold: function(){
+				var self = this;
+				mainView.router.navigate('/my-sim-threshold/?id='+self.ID.toString());//?name='+name.toString()+'&mac='+mac.toString()
+			},
+			navigateSIMExpired: function(){
+				var self = this;
+				mainView.router.navigate('/my-sim-expired/?id='+self.ID.toString());//?name='+name.toString()+'&mac='+mac.toString()
+			},
+			/*getSim: function (payload) {
                 let self = this;
 				$.ajax({
 						type: "GET",		        
@@ -175,14 +223,19 @@
 					}
 				}
 				return true;
-			}
+			}*/
 		},
         on: {
             pageInit: function (e, page) {  
 				var self = this;        
+				
 				var thisPage = page.$el.find('.page-content'); 	
+				thisPage.on('click', '.my-sim-name', self.navigateSIMName);
+				thisPage.on('click', '.my-sim-remark', self.navigateSIMRemark);
+				thisPage.on('click', '.my-sim-threshold', self.navigateSIMThreshold);
+				thisPage.on('click', '.my-sim-expired', self.navigateSIMExpired);
 
-				var placeholder = '<span class="placeholder">Threshold</span>';
+				/*var placeholder = '<span class="placeholder">Threshold</span>';
 				var textarea = page.$el.find('.text-editor-content');
 				textarea.html(placeholder);				
 				
@@ -213,7 +266,7 @@
 							}
 						  }
 						});							
-						
+						*/
 				
 			}
 		}

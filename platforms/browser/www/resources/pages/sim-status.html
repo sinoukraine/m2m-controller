@@ -1,6 +1,6 @@
 <!--suppress JSAnnotator -->
 <template>
-	<div data-name="sim-status" class="page"> <!-- page-with-subnavbar -->
+	<div data-name="sim-status" class="page sim-status-page"> <!-- page-with-subnavbar -->
 		<!-- Top Navbar -->
 		<div class="navbar">
             <div class="navbar-bg"></div>
@@ -14,7 +14,7 @@
                     SIM Status
                 </div>
                 <div class="right">
-                    <a href="#" class="link icon-only openSettings" >
+                    <a href="#" class="link icon-only openSettings px-0" >
                         <i class="material-icons md-36">settings</i>
                     </a>
                 </div>
@@ -26,8 +26,11 @@
 				<div class="sim-status-top">
 					<img class="sim-icon" src="./resources/images/sim.svg" alt="main">
 					<div class="sim-status-top-info">
+						<div class="text-content">{{SIMName}}</div>
 						<div class="text-content">IMSI: {{IMSI}}</div>
 						<div class="text-content">ICCID: {{ICCID}}</div>
+						<div class="text-content">Owner: {{CustomerName}}</div>
+						<div class="text-content">{{Description}}</div>
 					</div>
 				</div>
 				<div class="content-block status_block_top">
@@ -51,31 +54,16 @@
 				
 				
 				<div class="list no-y-margin mb-5" >
-					<ul><!-- class="item-inner" class="additional-sim-info-ul"
-						<li class="item-content additional-sim-info">
-							<div class="item-media"></div>
-							<div class="item-title label additional-sim-label">Customer</div>
-							<div class="item-input dflex item-input-field">
-								<div class="item-title label">Ag Tracking</div>
-								<i class="material-icons md-36 select_arrow">arrow_drop_down</i>
-							</div>
-						</li>-->
-						<!--<li class="item-content additional-sim-info">
-							<a href="#" class="currentState">
-								<div class="item-media"></div>
-								<div class="item-title label additional-sim-label">State</div>
-								<div class="item-input dflex item-input-field">
-									<div class="item-title label">{{statusInfo}}</div>
-									<i class="material-icons md-36 select_arrow">arrow_drop_down</i>
-								</div>
-							</a>
-						</li>-->
+					<ul>
 						<!-- Default Setup -->
 						<li class="state-block display-none">
 						  <a class="item-link smart-select smart-select-0 smart-select-init ">
 							<select name="sim-state">
-							  <option value="Productive" id="state-1">Active</option>
-							  <option value="Suspended" id="state-2">Suspend</option>
+							  <option value="OnStock" id="state-0">{{onstockTitle}}</option>
+							  <option value="Productive" id="state-1">{{productiveTitle}}</option>
+							  <option value="Suspended" id="state-2">{{suspendedTitle}}</option>
+							  <!--<option value="Modified" id="state-3">{{modifiedTitle}}</option>-->
+							  <option value="Deleted" id="state-4">{{terminatedTitle}}</option>
 							</select>
 							<div class="item-content">
 							  <div class="item-inner">
@@ -86,8 +74,23 @@
 						</li>
 						<li class="state-block display-none">
 						  <a class="item-link smart-select smart-select-1 smart-select-init ">
-							<select name="sim-state" class="list home-list customerList">
-							  
+							<select name="sim-csp" class="list  ">							  
+							  <option value="M2M Data" id="state--0">M2M Data</option>
+							  <option value="M2M Data Normal CSP Z1 &2" id="state--1">M2M Data Normal CSP Z1 &2</option>
+							  <option value="M2M Data High CSP Z1-3" id="state--2">M2M Data High CSP Z1-3</option>
+							  <option value="M2M Data Emergency CSP Z1- 9" id="state--3">M2M Data Emergency CSP Z1- 9</option>
+							  <option value="M2M Data Custom Network Profile Australia" id="state--4">M2M Data Custom Network Profile Australia</option>
+							</select>
+							<div class="item-content">
+							  <div class="item-inner">
+								<div class="item-title">CSP</div>
+							  </div>
+							</div>
+						  </a>
+						</li>
+						<!--<li class="state-block display-none">
+						  <a class="item-link smart-select smart-select-1 smart-select-init ">
+							<select name="sim-state" class="list home-list customerList">							  
 							  {{#each customers}}
                                 <option value="{{val}}" data-display-as="{{displayAs}}" {{#if selected}} selected {{/if}}>{{name}}</option>
                                 {{/each}}
@@ -100,14 +103,17 @@
 						  </a>
 						</li>
 						<li>
-							<div class="text-editor-content" style="margin: 15px;padding-bottom: 15px; " contenteditable></div>
-						</li>
+							<div class="text-editor-content desc-editor" style="margin: 15px;padding-bottom: 15px; " contenteditable></div>
+						</li>-->
 					</ul>
 				</div>
 			</div>
 		</div>
 		<div class="location-div display-none">
 			<button class="col button button-outline currentLocation" >Show location</button>
+		</div>
+		<div class="cells-div">
+			<button class="col button button-fill resetNetwork" >Force Reconnect</button>
 		</div>
     </div>
 </template>
@@ -118,8 +124,13 @@
         data: function () {
             var self = this;
             var ret = {
+				onstockTitle: 'OnStock',
+				productiveTitle: 'Productive',
+				suspendedTitle: 'Suspended',
+				terminatedTitle: 'Deleted',
+				modifiedTitle: 'Modified',
 				obj: {},
-				//Description: '',
+				Description: '',
 				lat: '0',
 				lng: '0',
 				dataInfo: 0,
@@ -127,6 +138,7 @@
 				virtualCustomerList: false,
 				messagesInfo: 0,
 				statusInfo: '',
+				cspInfo: '',
 				customers: [],
 				selectedCustomer: 'uui'
 			};         
@@ -145,199 +157,80 @@
             return ret;
         },
 		methods: {
-			getSim: function (payload) {
+			resetNetwork: function () {
 			
-				var self = this;				
-				
-				$.ajax({
-						type: "GET",		        
-						url: 'https://m2mdata03.sinopacific.com.ua/em/v3/sims/'+ self.ID, 
-						dataType: "json",	
-						async: true,
-						//cache: false,
-						headers: { 
-							Authorization: "12345"
-						},
-						success: function (result) {
-							if(result){							
-								//console.log(result);	
-								self.obj = result;
-								/*self.$setState({
-									Description: result.info.description
-								});*/
-								payload.html(result.info.description);							
-							
-								if (self.obj.ancestors.length > 0) {
-									self.getCustomerName(self.obj.ancestors[0]);
-								}
-								/*var listEl1 = self.$el.find('.smart-select-1');
-								
-								if (self.obj.ancestors.length > 0) {
-									let cName; 
-									let cIdx = self.customers.findIndex(x => x.val === self.obj.ancestors[0]);
-										
-									if (cIdx !== -1) {
-										cName = self.customers[cIdx].name;								
-										listEl1.find('.item-after').html(cName);
-									}
-								}*/
-				
-							}else{
-								console.log('something wrong');
-							}
-						},
-						error: function(XMLHttpRequest, textStatus, errorThrown){
-							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
-						}
-					});
-					
-			},
-			
-			getCustomerName: function(id){	
 				var self = this;
+				//self.resetOK.open();
 				
-				var listEl1 = self.$el.find('.smart-select-1');
-				
-								
-										$.ajax({	        
-											url: 'https://m2mdata03.sinopacific.com.ua/em/v3/counterparties/'+id, 
-											dataType: "json",	
-											async: true,
-											method: "GET",
-											headers: {
-												"authorization": "12345",
-												"content-type": "application/json"
-											},
-											success: function (result) {
-												if(result){							
-													//console.log(result);	
-													
-													listEl1.find('.item-after').html(result.info.name);
-													
-													
-												}else{
-													console.log('something wrong');
-												}
-											},
-											error: function(XMLHttpRequest, textStatus, errorThrown){
-												console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
-											}
-										});
-										
-										
-									
-			},
-			requestCustomerList: function(){	
-				var self = this;
-				self.$app.preloader.hide();
-			
-					var listEl = self.$el.find('.customerList');
-									
-										
-				self.virtualCustomerList = self.$app.virtualList.create({
-                    el: listEl,
-                    items : [],
-                    
-                    height: function(item){
-                        let height = 65.33;
-                       
-                        return height;
-                    },
-                    renderItem: function (item, index) {
-									console.log(item);
-									let html = '';
-									
-									//if(item._id != '5e8b317230479466a7d87127'){									
-									html += '<option value="'+item._id+'" id="'+item._id+'">'+item.info.name+'</option>';
-									//}
-									return html;
+				let userInfo = self.$app.methods.getFromStorage('userInfo');
+				let accessToken = userInfo.accessToken;				
 						
-					}
-				});
-				
-				
-										
-										
-										$.ajax({
-											//type: "PUT",		        
-											url: 'https://m2mdata03.sinopacific.com.ua/em/v3/counterparties', 
-											dataType: "json",	
-											async: true,
-											//cache: false,						
-											//data: JSON.stringify(data),
-											method: "GET",
-											headers: {
-												"authorization": "12345",
-												"content-type": "application/json"
-											},
-											success: function (result) {
-												if(result){							
-													//console.log(result);	
-													
-													//self.virtualCustomerList.replaceAllItems(result.rows);
-													var array = [];
-													result.rows.forEach(function(value, index){
-														array.push({
-															val: value._id,
-															displayAs: value.info.name,
-															name: value.info.name,
-														});
-														
-													//array[0].selected = true;
-													/*	
-													var listEl1 = self.$el.find('.smart-select-1');
-													listEl1.find('.item-after').html(value.info.name);
-													*/
-											
-
-														console.log(array[0]);														
-													});													
-													
-													self.$setState({
-														customers: array,
-													});	
-													
-													
-												}else{
-													console.log('something wrong');
-												}
-											},
-											error: function(XMLHttpRequest, textStatus, errorThrown){
-												console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
-											}
-										});
-										
-										
-									
-			},
-			saveSim: function (payload) {
-			
-				var self = this;				
-				var data = { 
-					'info' : self.obj.info,
-					'settings' : self.obj.settings,
-					'ancestors' : self.obj.ancestors,
-					'tags' : self.obj.tags					
-				};
-				
-				data.info.description = payload;
-				
-				$.ajax({
-						//type: "PUT",		        
-						url: 'https://m2mdata03.sinopacific.com.ua/em/v3/sims/'+ self.ID, 
+				$.ajax({      
+						url: 'https://m2mdata03.sinopacific.com.ua/api/v3/sims/'+self.ID+'/cells', 
 						dataType: "json",	
-						async: true,
-						//cache: false,						
-						data: JSON.stringify(data),
+						async: true,				
+						//data: JSON.stringify(data),
 						method: "PUT",
 						headers: {
-							"authorization": "12345",
+							Authorization: "Bearer " + accessToken,
 							"content-type": "application/json"
 						},
 						success: function (result) {
-							if(result){							
-								console.log(result);	
+							self.resetOK.open();
+						},
+						error: function(XMLHttpRequest, textStatus, errorThrown){
+							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
+								self.$app.dialog.alert('Something wrong.');	
+						}
+					});				
+			},	
+			getSim: function (payload) {
+			
+				var self = this;	
 								
+				let userInfo = self.$app.methods.getFromStorage('userInfo');
+				let accessToken = userInfo.accessToken;		
+				
+				$.ajax({
+						type: "GET",		        
+						url: 'https://m2mdata03.sinopacific.com.ua/api/v3/sims/' + self.ID + '?populate[]=ancestors&extra[]=cdrs&extra[]=states',
+						//imsi 234500003041558
+						dataType: "json",	
+						async: true,
+						headers: { 
+							Authorization: "Bearer " + accessToken,
+						},
+						success: function (result) {
+							if(result){							
+								
+								console.log('sim',result);	
+								
+								self.obj = result;
+																
+								var inputDesc = $('body').find('.desc-editor');
+								inputDesc.html(result.info.description);									
+							
+								var setStatus = result.extra.states.current;
+								var setCSP = result.extra.states.csp;
+								
+								self.smartSelect.setValue(setStatus);								
+								self.smartSelect1.setValue(setCSP);
+								
+								$('.state-block').removeClass('display-none');
+								
+								self.$setState({
+									statusInfo: setStatus
+								});								
+								
+								self.$setState({
+									cspInfo: setCSP
+								});
+								
+								self.$setState({
+									CustomerName: result.ancestors[0].info.name,
+									SIMName: result.info.name,
+									Description: result.info.description
+								});
 							}else{
 								console.log('something wrong');
 							}
@@ -347,19 +240,23 @@
 						}
 					});
 					
-			},
+			},					
 			loadTrackPage: function () {
 			
 				var self = this;
 				
+				let userInfo = self.$app.methods.getFromStorage('userInfo');
+				let accessToken = userInfo.accessToken;		
+				
+				
 				$.ajax({
 						type: "GET",		        
-						url: API_URL.URL_GET_COMMAND_HISTORY + self.IMSI + '/coordinates?formula=centerOfMass', 
+						url: API_URL.URL_GET_COMMAND_HISTORY + self.ID + '/coordinates?formula=centerOfMass', 
 						dataType: "json",	
 						async: true,
 						//cache: false,
 						headers: { 
-							Authorization: "12345"
+							Authorization: "Bearer " + accessToken,
 						},
 						success: function (result) {
 							if(result){
@@ -388,31 +285,20 @@
 			initSimInfo: function () {
                 let self = this;
 									
+				let userInfo = self.$app.methods.getFromStorage('userInfo');
+				let accessToken = userInfo.accessToken;		
+				
 					$.ajax({
 						type: "GET",		        
-						url: API_URL.URL_GET_COMMAND_HISTORY + self.IMSI + '/sms', 
+						url: API_URL.URL_GET_COMMAND_HISTORY + self.ID + '/sms', 
 						dataType: "json",	
 						async: true,
 						//cache: false,
 						headers: { 
-							Authorization: "12345"
+							Authorization: "Bearer " + accessToken,
 						},
 						success: function (result) {
 							if(result){
-								var dates = [];
-								
-								$.each(result, function(index, value){										
-									dates.push(new Date(value.insertedDate));
-								});
-									
-								var maxDate = new Date(Math.max.apply(null, dates));
-								var maxDate = moment.utc(maxDate).toDate();
-									maxDate = moment(maxDate).format(window.COM_TIMEFORMAT);
-													
-								self.$setState({
-									dateInfo: maxDate.substr(0, maxDate.length - 6).replace("T", " "),
-								});	
-								
 								self.$setState({
 									messagesInfo: result.length,
 								});		
@@ -427,16 +313,18 @@
 					
 					$.ajax({
 						type: "GET",		        
-						url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/cdrs/'+ self.IMSI, 
+						url: 'https://m2mdata03.sinopacific.com.ua/api/v3/sims/'+ self.ID +'/cdrs/', 
 						dataType: "json",	
 						async: true,
 						//cache: false,
 						headers: { 
-							Authorization: "12345"
+							Authorization: "Bearer " + accessToken,
 						},
 						success: function (result) {
 							if(result){
+								//mb usage & last activity time
 								var total = 0;
+								var dates = [];
 								
 								$.each(result, function(index, value){										
 									var mb = 0;
@@ -444,11 +332,21 @@
 										mb = value.totals.data.originalUnits;
 									}
 									total = total + mb;
+									dates.push(new Date(value.date));
 								});
 								
+								var maxDate = new Date(Math.max.apply(null, dates));
+								var maxDate = moment.utc(maxDate).toDate();
+									maxDate = moment(maxDate).format(window.COM_TIMEFORMAT);
+											
 								self.$setState({
 									dataInfo: (total/1000000).toFixed(3),
 								});
+								
+								self.$setState({
+									dateInfo: maxDate.substr(0, maxDate.length - 6).replace("T", " "),
+								});
+								
 							}else{
 								console.log('something wrong');
 							}
@@ -457,27 +355,36 @@
 							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
 						}
 					});
-					
+					/*
 					$.ajax({
 						type: "GET",		        
-						url: API_URL.URL_GET_COMMAND_HISTORY + self.IMSI, 
+						url: API_URL.URL_GET_COMMAND_HISTORY + self.ID, 
 						dataType: "json",	
 						async: true,
 						//cache: false,
 						headers: { 
-							Authorization: "12345"
+							Authorization: "Bearer " + accessToken,
 						},
 						success: function (result) { 
 							if(result){			
 								
-								let setStatus = '';
+								
 				
 								switch(result.status){
 									case 'Productive':					
 										setStatus = 'Productive';						
 									break;
+									case 'Modify':					
+										setStatus = 'Modified';						
+									break;
+									case 'Suspend':					
+										setStatus = 'Suspended';						
+									break;
+									case 'Terminate':					
+										setStatus = 'Deleted';						
+									break;
 									default:					
-										setStatus = 'Suspended';									
+										setStatus = 'Suspended';							
 								}
 								
 								self.smartSelect.setValue(setStatus);
@@ -496,42 +403,129 @@
 						error: function(XMLHttpRequest, textStatus, errorThrown){
 							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
 						}
-					});
+					});*/
             },
-			setNewState: function (state) {
-                let self = this;
+			setNewCSP: function (state) {
+                let self = this;				
 				
-				if(self.statusInfo != state){
+				if(self.cspInfo != state){
+				var data = {}
 				
-					var data = {
-						"offer": "M2M Data",
-						"offerOptions": {},
-					}
-					let setStatus = '';
-					
-					switch(state){
-						case 'Productive':			
-							if(self.statusInfo == 'Suspended'){
-								setStatus = '/resume';
-							}else{
-								setStatus = '/activate';
-							}							
-						break;
-						case 'Suspended':					
-							setStatus = '/suspend';
-						break;
-					}
-									
-					console.log(API_URL.URL_GET_COMMAND_HISTORY + self.IMSI + setStatus);
-					$.ajax({
+				data.action = 'modify';
+				data.actionParameters = {
+				  csp: state
+				}
+				
+				let userInfo = self.$app.methods.getFromStorage('userInfo');
+				let accessToken = userInfo.accessToken;		
+				
+				
+				$.ajax({
 						type: "PUT",		        
-						url: API_URL.URL_GET_COMMAND_HISTORY + self.IMSI + setStatus, 
+						url: API_URL.URL_GET_COMMAND_HISTORY + self.ID + '/states', 
 						dataType: "json",	
 						async: true,
 						//cache: false,
 						data: JSON.stringify(data),
 						headers: {
-							"authorization": "12345",
+							Authorization: "Bearer " + accessToken,
+							"content-type": "application/json"
+						},
+						success: function (result) {
+							self.notificationFull1.open();
+						},
+						error: function(XMLHttpRequest, textStatus, errorThrown){								
+							
+							self.$app.dialog.alert('Something wrong.');
+							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
+						}
+					});
+				}
+			},
+			setNewState: function (state) {
+                let self = this;
+				
+				if(self.statusInfo != state){
+				
+					/*var data = {
+						"offer": "M2M Data",
+						"offerOptions": {},
+					}*/
+					//let setStatus = '';
+					
+					/*switch(state){
+						case 'Productive':	
+							
+							if(self.statusInfo == 'Suspended'){
+								setStatus = '/resume';
+							}else{
+								setStatus = '/activate';
+							}			
+						break;
+						case 'Terminate':							
+							setNewStateCSP();
+							//setStatus = '/resume';
+						break;
+						case 'Suspended':	
+							setNewStateCSP(0);
+							//setStatus = '/suspend';
+						break;
+						default:
+							
+					}*/
+						
+						if(state == 'Modified' || (state == 'Productive' && self.statusInfo != 'Suspended')) {
+							self.$app.dialog.create({
+								title: 'CSP',
+								text: 'Please select CSP to change state',
+								buttons: [
+								  {
+									text: 'M2M Data',
+									onClick: function() {
+										self.setNewStateCSP(state, self.statusInfo, 'M2M Data');
+									},
+								  },
+								  {
+									text: 'M2M Data Normal CSP Z1 &2',
+									onClick: function() {
+										self.setNewStateCSP(state, self.statusInfo, 'M2M Data Normal CSP Z1 &2');
+									},
+								  },
+								  {
+									text: 'M2M Data High CSP Z1-3',
+									onClick: function() {
+										self.setNewStateCSP(state, self.statusInfo, 'M2M Data High CSP Z1-3');
+									},
+								  },
+								  {
+									text: 'M2M Data Emergency CSP Z1- 9',
+									onClick: function() {
+										self.setNewStateCSP(state, self.statusInfo, 'M2M Data Emergency CSP Z1- 9');
+									},
+								  },
+								  {
+									text: 'M2M Data Custom Network Profile Australia',
+									onClick: function() {
+										self.setNewStateCSP(state, self.statusInfo, 'M2M Data Custom Network Profile Australia');
+									},
+								  }
+								],
+								verticalButtons: true,
+							  }).open();
+						}else{
+							self.setNewStateCSP(state, self.statusInfo);
+						}
+					  
+					//
+					/*$.ajax({
+						type: "PUT",		        
+						url: API_URL.URL_GET_COMMAND_HISTORY + self.ID + setStatus, 
+						dataType: "json",	
+						async: true,
+						//cache: false,
+						data: JSON.stringify(data),
+						headers: {
+							Authorization: "Bearer " + accessToken,
 							"content-type": "application/json"
 						},
 						success: function (result) {
@@ -557,10 +551,100 @@
 							self.$app.dialog.alert('Something wrong');
 							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
 						}
-					});
+					});*/
 				}
-			},	
-		setNewCustomerState: function (state) {
+			},
+			setNewStateCSP: function (state, oldState, csp = null) {
+                let self = this;
+				let putState = '';
+				
+				switch(state){
+					case 'Productive':	
+						if(self.statusInfo == 'Suspended'){
+							putState = 'resume';
+						}else{
+							putState = 'activate';
+						}
+					break;
+					case 'Deleted':			
+						putState = 'terminate';
+					break;
+					case 'Suspended':	
+						putState = 'suspend';
+					break;
+							
+				}
+					
+				var data = {}
+				
+				if(putState.length > 0) {
+					data.action = putState;
+				}
+				
+				if(csp) {
+					data.actionParameters = {
+					  csp: csp
+					}
+				}
+					console.log('data', data);
+				let userInfo = self.$app.methods.getFromStorage('userInfo');
+				let accessToken = userInfo.accessToken;		
+				
+				$('.sim-status-page').find('.smart-select-0').addClass('disabled');				
+							
+							
+				$.ajax({
+						type: "PUT",		        
+						url: API_URL.URL_GET_COMMAND_HISTORY + self.ID + '/states', 
+						dataType: "json",	
+						async: true,
+						//cache: false,
+						data: JSON.stringify(data),
+						headers: {
+							Authorization: "Bearer " + accessToken,
+							"content-type": "application/json"
+						},
+						success: function (result) {
+							self.$setState({
+								onstockTitle: 'Pending',
+							});
+							self.$setState({							
+								productiveTitle: 'Pending',
+							});
+							self.$setState({
+								suspendedTitle: 'Pending',
+							});
+							self.$setState({
+								terminatedTitle: 'Pending',
+							});
+							self.$setState({
+								modifiedTitle: 'Pending',
+							});
+							self.notificationFull.open();
+						},
+						error: function(XMLHttpRequest, textStatus, errorThrown){	
+							
+							self.$setState({
+								onstockTitle: 'OnStock',
+							});
+							self.$setState({							
+								productiveTitle: 'Productive',
+							});
+							self.$setState({
+								suspendedTitle: 'Suspended',
+							});
+							self.$setState({
+								terminatedTitle: 'Deleted',
+							});
+							self.smartSelect.setValue(oldState);
+							
+						$('.sim-status-page').find('.smart-select-0').removeClass('disabled');	
+							self.$app.dialog.alert('Sorry, this state can\'t be changed');
+							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
+						}
+					});
+			}
+		/*setNewCustomerState: function (state) {
                 let self = this;
 				
 				//if(self.customerId != state){
@@ -572,9 +656,7 @@
 					'tags' : self.obj.tags					
 				};
 				
-				/*if(data.ancestors.indexOf(state)!=-1){
-					data.ancestors.push(state);
-				}else if(data.ancestors.lenght){*/
+				
 					data.ancestors.pop(state);
 					data.ancestors.push(state);
 				//}
@@ -603,34 +685,32 @@
 					
 				//},
 				
-		},	
+		},	*/
 		},
         on: {
             pageInit: function (e, page) {  
 				var self = this;        
 				self.$app.preloader.show();
-				
-				self.requestCustomerList();
+				self.getSim();
+				/*var placeholderDesc = '<span class="placeholder placeholder-desc">Description</span>';
 							
-				var placeholder = '<span class="placeholder">Description</span>';
+				var textarea = page.$el.find('.desc-editor');
+				textarea.html(placeholderDesc);				
 				
-				var textarea = page.$el.find('.text-editor-content');
-				textarea.html(placeholder);				
-				
-				self.getSim(textarea);	
+					
 				
 				textarea.on('click', function(){
-					$(this).find('.placeholder').remove();
+					$(this).find('.placeholder-desc').remove();
 				});
 				
 				textarea.on('blur', function(){
 					if(!$(this).html()) {
-						$(this).html(placeholder);
+						$(this).html(placeholderDesc);
 					}else{
 						var data = $(this).html().replace(/(<([^>]+)>)/ig,"");
-						self.saveSim(data);
+						self.saveSimDesc(data);
 					}
-				});
+				});*/
 															
 				var boatMarker = L.icon({
 					iconUrl: 'resources/images/marker.svg',                       
@@ -683,22 +763,32 @@
 								
 					
 						var listEl = self.$el.find('.smart-select-0');
+						var listEl1 = self.$el.find('.smart-select-1');
 								
 						self.smartSelect = self.$app.smartSelect.create({
 							el: listEl,
 						  on: {
 							opened: function () {
-							  //console.log('Smart select opened');		
-							  //console.log(self.smartSelect.getValue());
 							},
 							closed: function () {
-							  //console.log('Smart select closed');
-							  //console.log(self.smartSelect.getValue());
 							  self.setNewState(self.smartSelect.getValue());
 							}
 						  }
 						});	
 						
+								
+						self.smartSelect1 = self.$app.smartSelect.create({
+							el: listEl1,
+						  on: {
+							opened: function () {
+							},
+							closed: function () {
+							  self.setNewCSP(self.smartSelect1.getValue());
+							}
+						  }
+						});	
+						
+						/*
 						var listEl1 = self.$el.find('.smart-select-1');
 								
 						self.smartSelect1 = self.$app.smartSelect.create({
@@ -724,15 +814,33 @@
 							}
 						  }
 						});	
-
+						*/
 						
 								
-				self.notificationFull = self.$app.notification.create({
+						self.notificationFull = self.$app.notification.create({
 								  //icon: '<i class="icon demo-icon">7</i>',
 								  title: 'M2M Data Controller',
 								  //titleRightText: 'now',
 								  subtitle: 'SIM State Notification',
-								  text: 'State was changed successfully',
+								  text: 'State was changed successfully. ',
+								  closeTimeout: 3000,
+								});
+								
+								self.notificationFull1 = self.$app.notification.create({
+								  //icon: '<i class="icon demo-icon">7</i>',
+								  title: 'M2M Data Controller',
+								  //titleRightText: 'now',
+								  subtitle: 'Modify CSP Notification',
+								  text: 'CSP was changed successfully. ',
+								  closeTimeout: 3000,
+								});
+								
+								self.resetOK = self.$app.notification.create({
+								  //icon: '<i class="icon demo-icon">7</i>',
+								  title: 'M2M Data Controller',
+								  //titleRightText: 'now',
+								  subtitle: 'SIM State Notification',
+								  text: 'Network connection was reseted',
 								  closeTimeout: 3000,
 								});
 				
@@ -762,7 +870,10 @@
 							
 				});
 				
-				
+				$('.resetNetwork').on('click', function(){						
+					self.resetNetwork();							
+				});
+						
 				
 			}
 		}

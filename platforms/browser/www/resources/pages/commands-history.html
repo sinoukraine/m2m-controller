@@ -86,6 +86,10 @@
 				month_names_short: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
 			};            
             
+            if (self.$route.query.id) {
+				ret.ID = self.$route.query.id;
+            } 
+			
 			if (self.$route.query.imsi) {
 				ret.IMSI = self.$route.query.imsi;
             }  			
@@ -96,6 +100,8 @@
 			requestCommandHistory: function(list){	
 				var self = this;
 				self.$app.preloader.hide();
+				
+				
 				/*if (params && params.IMSI && params.LastDay) {
 					var data = {
 						IMSI: self.IMSI,
@@ -167,26 +173,31 @@
 												if (item.message) {
 													item.message = item.message.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 												}
-
-												if (item.direction == 1) {
-													html += '<li class="item-content with-divider-bottom" >';
-												} else {
-													html += '<li class="item-content" >';
+												
+												if(item.message == undefined && item.status == 'delivered'){
+													item.message = item.status;
 												}
-												html += '<div class="item-inner item-inner-commands-history">';
-												html += '<div class="item-title-row">';
-												html += '<div class="item-title">';
-												if (item.direction == 'Inbound') {
-													html += '<i class="material-icons md-36">email</i>';
-												} else {
-													html += '<i class="material-icons md-36">send</i>';
-												}
-												html += '</div>';
-												html += '<div class="item-after">' + time + '</div>';
-												html += '</div>';
-												html += '<div class="item-text">' + item.message + '</div>';
-												html += '</div>';
-												html += '</li>';
+												
+													if (item.direction == 1) {
+														html += '<li class="item-content with-divider-bottom" >';
+													} else {
+														html += '<li class="item-content" >';
+													}
+													html += '<div class="item-inner item-inner-commands-history">';
+													html += '<div class="item-title-row">';
+													html += '<div class="item-title">';
+													if (item.direction == 'Outbound') {
+														html += '<i class="material-icons md-36">send</i>';
+													} else {
+														html += '<i class="material-icons md-36">email</i>';
+													}
+													html += '</div>';
+													html += '<div class="item-after">' + time + '</div>';
+													html += '</div>';
+													html += '<div class="item-text">' + item.message + '</div>';
+													html += '</div>';
+													html += '</li>';
+												
 												return html;
 
 						
@@ -246,15 +257,20 @@
 			},
 			getOldHistory: function () {
 				let self = this;
+				
+				let userInfo = self.$app.methods.getFromStorage('userInfo');
+				let accessToken = userInfo.accessToken;		
+				
 				self.$app.preloader.show();
 				$.ajax({
 						type: "GET",		        
-						url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/sims/' + self.IMSI + '/sms?page=' + self.page + '&pageSize=100',//?startDate=2019-03-14T10:36:31.000Z&endDate=2019-03-17T12:26:05.000Z
+						//url: 'https://m2mdata03.sinopacific.com.ua/api/v3/sims/' + self.ID + '/sms?page=' + self.page + '&pageSize=100',//?startDate=2019-03-14T10:36:31.000Z&endDate=2019-03-17T12:26:05.000Z
+						url: 'https://m2mdata03.sinopacific.com.ua/nomad/sims/' + self.IMSI + '/sms?page=' + self.page + '',
 						dataType: "json",	
 						async: true,
 						//cache: false,
 						headers: { 
-							Authorization: "12345"
+							Authorization: "Bearer " + accessToken,
 						},
 						success: function (result) {
 							if (result.length) {
@@ -263,9 +279,11 @@
 								if(self.page > 1){
 									self.oldHistoryArray= self.oldHistoryArray.concat(result);
 								}else{
-									self.oldHistoryArray= result;									
+									self.oldHistoryArray= result;			
+										console.log('a0', self.oldHistoryArray,result);											
 								}
-															
+											
+
 								//console.log(self.oldHistoryArray);
 								
 								//if(self.page < 4){
@@ -275,12 +293,13 @@
 										page: incr
 									});
 									
+									console.log('page', self.page)
 									self.getOldHistory();
 								//}								
-							}						
+							}				
 						},
 						error: function(XMLHttpRequest, textStatus, errorThrown){
-							//console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
+							console.log('a', self.oldHistoryArray);
 							if(self.oldHistoryArray.length > 0){
 								/*var arr = [];
 								
@@ -301,7 +320,7 @@
 								
 								self.requestCommandHistory(self.oldHistoryArray);
 								//console.log(self.oldHistoryArray);
-							}	else{
+							}else{
 								self.$app.preloader.hide();
 								self.$app.dialog.alert('There are no history for this SIM');
 							}
@@ -374,7 +393,7 @@
 					//self.$app.preloader.show();
 					$.ajax({
 						type: "GET",		        
-						url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/nomad/messages?query%5Bimsi%5D=' + self.IMSI + '&query%5BcreatedAt%5D%5B%24gt%5D=' + curDate + '&pageSize=100&sort=createdAt&query%5BcreatedAt%5D%5B%24lt%5D=' + nextDate,
+						//url: 'https://m2mdata03.sinopacific.com.ua/api/v3/nomad/messages?query%5Bimsi%5D=' + self.IMSI + '&query%5BcreatedAt%5D%5B%24gt%5D=' + curDate + '&pageSize=100&sort=createdAt&query%5BcreatedAt%5D%5B%24lt%5D=' + nextDate,
 						dataType: "json",	
 						async: true,
 						//cache: false,
@@ -511,7 +530,7 @@
 					$.ajax({
 						type: "GET",		        
 						//url: 'https://m2mdata03.sinopacific.com.ua/em/v3/sims?page=' + self.page + '&pageSize=10&query%5Binfo.imsi%5D%5B%24regex%5D=',234500003096631 
-						url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/nomad/orders?query%5Bimsi%5D=' + self.IMSI + '&query%5BcreatedAt%5D%5B%24gt%5D='+ago+'&sort=-createdAt&query%5Baction%5D=sendSms',//&query%5BcreatedAt%5D%5B%24lt%5D='+now+'
+						//url: 'https://m2mdata03.sinopacific.com.ua/api/v3/nomad/orders?query%5Bimsi%5D=' + self.IMSI + '&query%5BcreatedAt%5D%5B%24gt%5D='+ago+'&sort=-createdAt&query%5Baction%5D=sendSms',//&query%5BcreatedAt%5D%5B%24lt%5D='+now+'
 						dataType: "json",	
 						async: true,
 						//cache: false,
@@ -639,7 +658,7 @@
 						html += '</div>';
 						html += '</li>';		
 						$$('.commandsHistoryList ul').prepend(html);	
-						self.getCallbackList(datetime, index, value._id);
+						//self.getCallbackList(datetime, index, value._id);
 				});
 				
 			},	
@@ -653,23 +672,21 @@
                         allowInfinite: false
                     });
 					
+					
+					let userInfo = self.$app.methods.getFromStorage('userInfo');
+					let accessToken = userInfo.accessToken;
+					
 					var nowFull = moment(); 
-					/*var datetime = moment.utc(value.createdAt).toDate();
-						datetime = moment(datetime).format(window.COM_TIMEFORMAT);*/
 					var start = nowFull.add(-n, 'days');
 					var ago = start.toISOString();
-					//console.log('https://m2mdata03.sinopacific.com.ua/m2mdata/v3/nomad/messages?query%5Bimsi%5D=' + self.IMSI + '&query%5BcreatedAt%5D%5B%24gt%5D=' + ago + '&pageSize=10&sort=-createdAt');
-					//self.$app.preloader.show();start.format(window.COM_TIMEFORMAT)
 					$.ajax({
-						type: "GET",		        
-						//url: 'https://m2mdata03.sinopacific.com.ua/em/v3/sims?page=' + self.page + '&pageSize=10&query%5Binfo.imsi%5D%5B%24regex%5D=',234500003096631 
-						//url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/nomad/orders?query%5Bimsi%5D=' + self.IMSI + '&query%5BcreatedAt%5D%5B%24gt%5D='+ago+'&sort=-createdAt&query%5Baction%5D=sendSms',//&query%5BcreatedAt%5D%5B%24lt%5D='+now+'
-						url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/nomad/messages?query%5Bimsi%5D=' + self.IMSI + '&query%5BcreatedAt%5D%5B%24gt%5D=' + ago + '&pageSize=10&sort=-createdAt',
+						type: "GET",		  
+						//url: 'https://m2mdata03.sinopacific.com.ua/api/v3/nomad/messages?query%5Bimsi%5D=' + self.IMSI + '&query%5BcreatedAt%5D%5B%24gt%5D=' + ago + '&pageSize=10&sort=-createdAt',
 						dataType: "json",	
 						async: true,
 						//cache: false,
 						headers: { 
-							Authorization: "12345"
+							Authorization: "Bearer " + accessToken,
 						},
 						success: function (result) {//console.log(result);
 							if (result.rows.length) {

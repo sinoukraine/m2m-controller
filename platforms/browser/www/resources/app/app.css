@@ -290,11 +290,22 @@
 }
 
 .location-div{
-	bottom: 0px;
+	bottom: 50px;
 	position: absolute;
 	padding: 10px;
+	padding-bottom: 0;
 	width: calc(100% - 20px);
 	height: 50px;
+}
+
+.cells-div{
+	bottom: 0px;	
+	position: absolute;
+	padding: 10px;
+	padding-bottom: 0;
+	width: calc(100% - 20px);
+	height: 50px;
+	z-index: 11;
 }
 
 .command-list-icons li i{
@@ -530,4 +541,173 @@
 .smart-select-page .list:before{
 	display: none;
 	
+}
+
+.text-editor-content{
+	margin-right: 0 !important;
+}
+.name-editor{
+    border-bottom: 1px solid #e3e3e3;
+}
+
+.sim-name-page .item-inner-wrap {
+    width: 100%;
+}
+
+.sim-name .item-inner-wrap .caption-cs {
+    text-align: center;
+    padding: 0;
+    margin: 0;
+}
+
+
+.sim-name .md .input:not(.input-outline):after,
+.md .item-input:not(.item-input-outline) .item-input-wrap:after {
+    display: none;
+}
+
+.sim-page input {
+    border-bottom: 1px solid #ccc;
+}
+
+.sim-page input[name="sim-name"] {
+    color: #6F86D6;
+}
+
+.sim-name input[name="wifiPassword"] {
+    color: #6F86D6;
+}
+
+.sim-name .list .item-media {
+    height: 52px;
+}
+
+
+.btn-cs {
+    width: 100%;
+    max-width: 300px;
+    height: 50px;
+    background: #27a6e1;
+    color: white;
+    font-size: 18px;
+	font-weight: 500;
+    text-transform: uppercase;
+    text-align: center;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    -webkit-box-shadow: 0px 0px 20px -9px rgba(111, 134, 214, 1);
+    -moz-box-shadow: 0px 0px 20px -9px rgba(111, 134, 214, 1);
+    box-shadow: 0px 0px 20px -9px rgba(111, 134, 214, 1);
+    /*font-family: 'product_sansbold';*/
+}
+
+
+.toolbar-bottom {
+    height: 90px;
+    background-color: transparent;
+}
+
+.toolbar-bottom::after {
+    display: none;
+}
+
+.toolbar-bottom::before {
+    display: none;
+}
+
+.toolbar-bottom .toolbar-inner {
+    padding: 15px;
+}
+
+.toolbar-bottom .btn-cs {
+    color: white;
+}
+
+
+
+
+.setting-page .icon-right {
+    font-size: 16px;
+    color: #6F86D6;
+    margin-top: 6px;
+}
+
+.setting-page .navbar .icon-left {
+    font-size: 16px;
+    color: white !important;
+}
+
+.setting-list ul {
+    padding: 15px;
+    margin: 0;
+}
+
+.setting-list ul li {
+    list-style-type: none;
+}
+
+.setting-page .item-content .item-inner {
+    padding: 15px 0;
+}
+
+.setting-page .item-content .item-inner.border-bottom {
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+
+.item-bottom-text {
+    width: 100%;
+}
+
+.setting-page .item-content a {
+    color: #333;
+    font-size: 18px;
+    line-height: 25px;
+}
+
+.setting-page .item-caption {
+    color: #333;
+    font-size: 19px;
+    line-height: 34px;
+    margin-right: 15px;
+}
+
+.setting-page .item-bottom-text {
+    color: #808080;
+    font-size: 16px;
+    line-height: 25px;
+    margin-top: 5px;
+    margin-bottom: 0px;
+}
+
+.list-block .item-inner:after{
+    content: '';
+    position: relative;
+    background-color: var(--f7-list-item-border-color);
+    display: block;
+    z-index: 15;
+    top: 15px;
+    right: auto;
+    bottom: 0;
+    left: 0;
+    height: 1px;
+    width: 100%;
+    transform-origin: 50% 100%;
+    transform: scaleY(calc(1 / var(--f7-device-pixel-ratio)));
+}
+
+.sim-threshold-page .item-media{
+	width: 50%;
+}
+
+.sim-threshold-page .item-link{
+	width: inherit;
+}
+
+.sim-status-page .page-content{
+	height: calc(100vh - 100px);
 }
