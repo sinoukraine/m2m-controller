@@ -148,7 +148,9 @@ var app = new Framework7({
 					url: 'https://m2mdata03.sinopacific.com.ua/api/v3/consumers/tokens',
 					method: "POST",
 					headers: {
-						"content-type": "application/json"
+						"content-type": "application/json",
+						"Access-Control-Allow-Origin": "*",
+						"Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"
 					},
 					processData: false,
 					success: function (result) {	
@@ -167,7 +169,7 @@ var app = new Framework7({
 						console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
 						self.utils.nextFrame(()=>{
 							app.preloader.hide();
-							app.dialog.alert('Please try again');
+							app.dialog.alert('Please try again',XMLHttpRequest,textStatus,errorThrown);
 							app.loginScreen.open('.login-screen');
 						});
 					}
