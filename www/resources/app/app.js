@@ -149,8 +149,7 @@ var app = new Framework7({
 					method: "POST",
 					headers: {
 						"content-type": "application/json",
-						"Access-Control-Allow-Origin": "*",
-						"Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"
+						"Origin": "http://android.app.quiktrak.eu",
 					},
 					processData: false,
 					success: function (result) {	
