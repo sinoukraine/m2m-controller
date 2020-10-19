@@ -1,0 +1,321 @@
+<!--suppress JSAnnotator -->
+<template>
+	<div data-name="commands-list" class="page"> <!-- page-with-subnavbar -->
+		<!-- Top Navbar -->
+		<div class="navbar">
+            <div class="navbar-bg"></div>
+            <div class="navbar-inner">
+                <div class="left">
+                    <a href="#" class="back link icon-only " >
+                        <i class="icon material-icons">arrow_back</i>
+                    </a>
+                </div>
+                <div class="right">
+                    <a href="#" class="link icon-only add-cmd">
+                        <i class="material-icons md-36">add</i>
+                    </a>
+                </div>
+            </div>
+        </div>		
+		<div class="page-content ptr-content infinite-scroll-commands-list-content infinite-scroll-bottom data-infinite-distance">		
+			<div class="ptr-preloader">
+				<div class="preloader"></div>
+				<div class="ptr-arrow"></div>
+			</div>
+			<div class="block searchbar-hide-on-search">
+				<h3>Commands List</h3>
+				<p>In this screen, you can send different commands to test this device</p>				
+			</div>
+				
+			<div class="list">
+				<ul>
+					<li class="accordion-item">
+						<a href="#" class="item-content item-link">
+							<div class="item-inner">
+							  <div class="item-title">Demo list</div>
+							</div>
+						</a>
+						<div class="accordion-item-content accordion-item-opened ">		
+							<div class="list command-list-icons commandsList ">
+							  <ul>
+								
+							  </ul>
+							</div>
+							<div class="preloader infinite-scroll-preloader infinite-scroll-commands-list-preloader"></div>
+						</div>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</template>
+
+<script>
+  // script must return component object
+    return { 
+        data: function () {
+            var self = this;
+            var ret = {
+				allowInfinite: true,
+				page: 1,
+				lastItemIndex: 0,
+				maxItems: 0,
+				
+			};            
+            
+			/*console.log(self.$route.query.code);*/
+			if (self.$route.query.imsi) {
+				ret.imsi = self.$route.query.imsi;
+            }
+
+            return ret;
+        },
+        methods: {
+			showCommandsList: function () {
+                let self = this;
+				
+					$$('.commandsList ul').html('');
+					
+					self.$setState({
+						page: 1
+					});
+					
+					self.getCommandsList();
+					self.$app.infiniteScroll.create('.infinite-scroll-commands-list-content');	
+					
+				//} else {
+					/*App.addNotification({
+						hold: 3000,
+						message: LANGUAGE.PROMPT_MSG008
+					});*/
+				//}		
+			},						
+			getCommandsList: function () {
+                
+                let self = this;
+					if (!self.allowInfinite) return;					
+					
+					// Set loading flag
+					self.$setState({
+                        allowInfinite: false
+                    });
+
+					//self.$app.preloader.show();
+	                self.$app.request.promise.get('https://m2mdata03.sinopacific.com.ua/em/v3/sms?page=' + self.page + '&pageSize=10', {}, 'json')
+	                    .then(function (result) {
+	                    	console.log(result);
+	                        if (result.rows) {
+								//$$('.page-content').removeClass('first_login');
+																	
+								if(result.page == 1){
+									
+									self.$app.infiniteScroll.create('.infinite-scroll-commands-list-content');
+									// Loading flag
+
+									self.$setState({
+										maxItems: result.total,
+										lastItemIndex: $$('.commandsList li').length,										
+									});
+								}
+							
+									// Reset loading flag
+									self.$setState({
+										allowInfinite: true
+									});
+								
+								self.setCommandsList(result.rows);
+								
+								//if (self.lastItemIndex >= self.maxItems) {
+								if (result.page === result.totalPages) {
+								  self.$app.infiniteScroll.destroy('.infinite-scroll-commands-list-content');
+								  
+								  // Remove preloader
+								  $$('.infinite-scroll-commands-list-preloader').remove();
+								  return;
+								}
+																		
+								let incrList = self.lastItemIndex + 10;
+								
+								self.$setState({
+									lastItemIndex: incrList
+								});
+								
+								let incr = self.page + 1;
+								
+								self.$setState({
+									page: incr
+								});
+									
+								//$('.searchbar-hide-on-search').addClass('display-none');
+																
+								if(self.page == 2){
+									$$('.infinite-scroll-commands-list-content').on('infinite', self.getCommandsList);
+								}
+										
+								if (result.rows.length === 0) {
+									/*App.addNotification({
+										hold: 3000,
+										message: LANGUAGE.PROMPT_MSG006
+									});*/
+								}
+							} else {
+								self.$app.alert(LANGUAGE.PROMPT_MSG013);
+							}
+	                    })
+	                    .finally(function () {
+	                        //self.$app.preloader.hide();
+	                    })
+	                    .catch(function (err) {
+	                        console.log(err);
+	                        if (err && err.status === 404){
+	                            self.$app.dialog.alert('METHOD NOT FOUND');
+	                        }else{
+	                            self.$app.dialog.alert('Something not good. Try again later');
+	                        }
+	                });
+					
+					//self.$app.preloader.show();
+					/*$.ajax({
+						type: "GET",		        
+						//url: 'https://m2mdata03.sinopacific.com.ua/em/v3/sims?page=' + self.page + '&pageSize=10&query%5Binfo.' + self.type + '%5D%5B%24regex%5D=' + self.text,
+						url: 'http://m2mdata03.sinopacific.com.ua/em/v3/sms',
+						dataType: "json",	
+						async: true,
+						cache: false,
+						headers: { 
+							Authorization: "12345"
+						},
+						success: function (result) {console.log(result);
+							if (result.rows) {
+								//$$('.page-content').removeClass('first_login');
+																	
+								if(result.page == 1){
+									
+									self.$app.infiniteScroll.create('.infinite-scroll-content');
+									// Loading flag
+
+									self.$setState({
+										maxItems: result.total,
+										lastItemIndex: $$('.commandsList li').length,										
+									});
+								}
+							
+									// Reset loading flag
+									self.$setState({
+										allowInfinite: true
+									});
+								
+								self.setCommandsList(result.rows);
+								
+								//if (self.lastItemIndex >= self.maxItems) {
+								if (result.page === result.totalPages) {
+								  self.$app.infiniteScroll.destroy('.infinite-scroll-content');
+								  
+								  // Remove preloader
+								  $$('.infinite-scroll-preloader').remove();
+								  return;
+								}
+																		
+								let incrList = self.lastItemIndex + 10;
+								
+								self.$setState({
+									lastItemIndex: incrList
+								});
+								
+								let incr = self.page + 1;
+								
+								self.$setState({
+									page: incr
+								});
+									
+								//$('.searchbar-hide-on-search').addClass('display-none');
+																
+								if(self.page == 2){
+									$$('.infinite-scroll-content').on('infinite', self.getCommandsList);
+								}
+										
+								if (result.rows.length === 0) {
+									//App.addNotification({
+									//	hold: 3000,
+									//	message: LANGUAGE.PROMPT_MSG006
+									//});
+								}
+							} else {
+								App.alert(LANGUAGE.PROMPT_MSG013);
+							}
+							//self.$app.preloader.hide();
+							
+						},
+						error: function(XMLHttpRequest, textStatus, errorThrown){
+							console.log(XMLHttpRequest);
+							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
+						}
+					});	*/			
+			},
+			setCommandsList: function (commandsList) {
+                let self = this;
+				// Generate new items HTML
+				var html = '';
+				
+				$.each(commandsList, function(index, value){	
+					html += '<li class="li-cmd " data-command-content="'+value.content+'">';//<a href="#" class="link">
+					html += '	  <div class="item-content">';
+					html += '		<div class="item-inner">';
+					html += '		  <div class="item-title cmd-code" data-cmd-name="' + value.content + '">' + value.name + '</div>';
+					html += '		  <a href="/edit-command/?id=' + value._id + '"><div class="item-after"><i class="material-icons md-24">create</i></div></a>';
+					html += '		</div>';
+					html += '	  </div>';	//</a>				
+					html += '               </li>';
+				});
+								
+				// Append new items
+				$$('.commandsList ul').append(html);		
+			},	
+		},
+        on: {
+            pageInit: function (e, page) {
+                let self = this; 
+				
+				self.showCommandsList();
+				
+				$$('.page').find('.add-cmd').on('click', function () {console.log(self.imsi);
+					mainView.router.navigate('/add-command/?imsi=' + self.imsi);					
+				});
+				
+				page.$el.on('click', '.cmd-code', function () {					
+					let command = $$(this).closest('.cmd-code').data('cmd-name');
+					
+					myEvents.emit('cmdReceived', {
+					  	cmd: command
+					});
+					mainView.router.back();
+					//let cmd = $(this).find('.cmd').attr('cmd-name');
+					//self.$app.methods.setInStorage({cmd: cmd});
+					
+					// somewhere in the app send notification
+					//myEvents.emit('cmdReceived', {
+					  //cmd,
+					//});
+					//mainView.router.navigate('/add-command/?imsi=' + self.imsi);					
+				});
+				
+				
+				// Pull to refresh content
+				var $ptrContent = $$('.ptr-content');
+				// Add 'refresh' listener on it
+				$ptrContent.on('ptr:refresh', function (e) {
+				  // Emulate 2s loading
+				  setTimeout(function () { // Prepend new list element
+					
+					self.showCommandsList();	
+					//$ptrContent.find('ul').prepend(itemHTML);
+					// When loading done, we need to reset it
+					self.$app.ptr.done(); // or e.detail();
+				  }, 2000);
+				});
+				
+				}
+			}
+    };
+</script>
+    

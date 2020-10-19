@@ -1,0 +1,157 @@
+<!--suppress JSAnnotator -->
+<template>
+	<div data-name="add-command" class="page"> <!-- page-with-subnavbar -->
+		<!-- Top Navbar -->
+		<div class="navbar">
+            <div class="navbar-bg"></div>
+            <div class="navbar-inner">
+                <div class="left">
+                    <a href="#" class="back link icon-only " >
+                        <i class="icon material-icons">arrow_back</i>
+                    </a>
+                </div>
+                <div class="title sliding">
+                    Add Command
+                </div>
+            </div>
+        </div>
+		
+		<div class="page-content">			
+			
+			<div class="block-title">You can add new command here</div>
+			<div class="list inset">
+				<input type="hidden" name="imsi" value="{{imsi}}">
+				<input type="hidden" name="login" value="{{login}}">
+			  <ul>
+				<li class="item-content item-input">
+				  <div class="item-inner">
+					<div class="item-input-wrap">
+					  <input type="text" name="name" value="{{name}}" placeholder="Name">
+					  <span class="input-clear-button"></span>
+					</div>
+				  </div>
+				</li>
+				<li class="item-content item-input">
+				  <div class="item-inner">
+					<div class="item-input-wrap">
+					  <input type="text" name="content" value="{{content}}" placeholder="Command">
+					  <span class="input-clear-button"></span>
+					</div>
+				  </div>
+				</li>
+				<li class="item-content item-input">
+				  <div class="item-inner">
+					<div class="item-input-wrap">
+					  <input type="text" name="description" value="{{description}}" placeholder="Description">
+					  <span class="input-clear-button"></span>
+					</div>
+				  </div>
+				</li>
+				<li class="item-content item-input">
+				  <div class="item-inner">
+					<div class="item-input-wrap">
+					  <input type="text" name="path" value="{{path}}" placeholder="Group Name">
+					  <span class="input-clear-button"></span>
+					</div>
+				  </div>
+				</li>
+			  </ul>
+			</div>
+			
+			<div class="location-div">
+				<button class="col button button-outline saveData" >Save</button>
+			</div>
+		</div>
+	</div>
+</template>
+
+<script>
+  // script must return component object
+    return { 
+        data: function () {
+            var self = this;
+            var ret = {
+				name: '',
+				content: '',
+				description: '',
+				path: 'Demo list',
+				login: localStorage.ACCOUNT,
+			};   
+			
+			if (self.$route.query.imsi) {
+				ret.imsi = self.$route.query.imsi;
+            } 
+            return ret;
+        },					
+        methods: {
+			saveData: function () {
+                let self = this;
+					
+					var content = $$("input[name='content']").val();
+					var description = $$("input[name='description']").val();
+					var imsi = $$("input[name='imsi']").val();
+					var login = $$("input[name='login']").val();
+					var name = $$("input[name='name']").val();
+					var path = $$("input[name='path']").val();
+					
+					var data = {
+						content,
+						description,
+						imsi,
+						login: 'demo',
+						name,
+						path,
+					}
+					
+					
+					
+					if(content.length && description.length && imsi.length && name.length){
+						self.$app.preloader.show();
+					
+						$.ajax({
+							async: true,
+							crossDomain: true,
+							url: "http://m2mdata03.sinopacific.com.ua/em/v3/sms",
+							method: "POST",
+							headers: {
+								"authorization": "12345",
+								"content-type": "application/json"
+							},
+							processData: false,
+							data: JSON.stringify(data),
+							success: function (result) {							
+								self.$app.preloader.hide();
+								self.$setState({
+									content: ' ',
+									description: ' ',
+									name: ' ',
+									login: 'demo'
+								});
+								self.$app.dialog.alert('Command saved');
+								
+								
+							},
+							error: function(XMLHttpRequest, textStatus, errorThrown){
+								console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);					
+								self.$app.preloader.hide();
+								
+
+							}
+						});	
+					}else{
+						self.$app.dialog.alert('All fields are required');
+					}
+			}	
+		},
+        on: {
+            pageInit: function (e, page) {
+                let self = this;
+				
+				$('.saveData').on('click', function(){		
+					self.saveData();							
+				});
+			}
+		}
+    };
+</script>
+    

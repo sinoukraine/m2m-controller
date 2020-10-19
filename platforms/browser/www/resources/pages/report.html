@@ -1,0 +1,181 @@
+<!--suppress JSAnnotator -->
+<template>
+	<div data-name="report" class="page"> <!-- page-with-subnavbar -->
+		<!-- Top Navbar -->
+		<div class="navbar">
+            <div class="navbar-bg"></div>
+            <div class="navbar-inner">
+                <div class="left">
+                    <a href="#" class="back link icon-only " >
+                        <i class="icon material-icons">arrow_back</i>
+                    </a>
+                </div>
+                <div class="title sliding">
+                    IMSI Usage Report
+                </div>
+            </div>
+        </div>
+		
+		<div class="page-content ">
+			<div class="block searchbar-hide-on-search">
+				<h3>{{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG02}}</h3>
+                <p>{{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG03}}</p>				
+            </div>
+			<div class="imsi-usage-table data-table">
+			  <table>
+				<thead>
+				  <tr>
+					<th class="label-cell">IMSI</th>
+					<th class="numeric-cell">Data Usage(MB)</th>
+					<th class="numeric-cell">Flow Usage</th>
+					<th class="numeric-cell">SMS Usage</th>
+					<th class="numeric-cell">Days</th>
+				  </tr>
+				</thead>
+				<tbody>
+				{{#each IMSIUsageArray}}                        
+				  <tr>
+					<td class="label-cell">{{IMSI}}</td>
+					<td class="numeric-cell">{{IMSI}}</td>
+					<td class="numeric-cell">{{IMSI}}</td>
+					<td class="numeric-cell">{{IMSI}}</td>
+					<td class="numeric-cell">{{IMSI}}</td>
+				  </tr>				  
+                {{/each}}
+				</tbody>
+			  </table>
+			  <div class="data-table-footer">
+				<div class="data-table-rows-select">
+				  Per page:
+				  <div class="input input-dropdown">
+					<select>
+					  <option value="5">5</option>
+					  <option value="10">10</option>
+					  <option value="25">25</option>
+					  <option value="all">All</option>
+					</select>
+				  </div>
+				</div>
+				<div class="data-table-pagination">
+				  <span class="data-table-pagination-label">1-5 of 10</span>
+				  <a href="#" class="link disabled">
+					<i class="icon icon-prev color-gray"></i>
+				  </a>
+				  <a href="#" class="link">
+					<i class="icon icon-next color-gray"></i>
+				  </a>
+				</div>
+			  </div>
+			</div>
+			<!--<div class="list">
+				<input type="hidden" name="IMSI" value="{{IMSI}}">
+				<input type="hidden" name="LastDay" value="1">
+			  <ul>
+            
+                <li class="item-content border_bottom">
+                    <div class="item-inner display-block">
+                        <div class="item-title label">{{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG06}}</div>
+                        <div class="item-input">
+                            <select name="LastDaySelect" data-set="{{LastDay}}">                 
+								<option value="1">1 day</option>
+								<option value="2">3 days</option>
+								<option value="7">1 week</option>
+								<option value="14">2 weeks</option>
+								<option value="30">1 month</option>
+								<option value="60">2 months</option>
+								<option value="3000">all time</option>
+                                <option value="1">1 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG04}}</option>
+                                <option value="2">2 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option>
+                                <option value="3">3 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option>
+                                <option value="4">4 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option>
+                                <option value="5">5 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option> 
+                                <option value="6">6 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option>                                
+                                <option value="7">7 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option> 
+                                <option value="8">8 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option> 
+                                <option value="9">9 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option> 
+                                <option value="10">10 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option> 
+                                <option value="11">11 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option> 
+                                <option value="12">12 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option> 
+                                <option value="13">13 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option> 
+                                <option value="14">14 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option>
+                            </select>
+                            <i class="f7-icons icon-arrow-drop-down select_arrow"></i>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>-->
+    </div>
+</div>
+</template>
+
+<script>
+  // script must return component object
+    return { 
+        data: function () {
+            var self = this;
+            var ret = {
+				IMSIUsageArray: [],
+			};            
+            
+            if (self.$route.query.id) {
+				ret.ID = self.$route.query.id;
+            } 
+			
+			if (self.$route.query.imsi) {
+				ret.IMSI = self.$route.query.imsi;
+            }  			
+            
+            return ret;
+        },
+		methods: {
+			initReport: function(){
+				var self = this;    
+			
+				let userInfo = self.$app.methods.getFromStorage('userInfo');
+				let accessToken = userInfo.accessToken;		
+				
+				let params = 'startDate=2020-09-15T00:00:00.000Z&endDate=2020-10-01T00:00:00.000Z&limit=25';
+				
+					$.ajax({
+						type: "GET",		        
+						url: 'https://m2mdata03.sinopacific.com.ua/api/v3/sims/cdrs?' + params,  
+						dataType: "json",	
+						async: true,
+						//cache: false,
+						headers: { 
+							Authorization: "Bearer " + accessToken,
+						},
+						success: function (result) {
+							if(result){
+								console.log('report',result);
+								//self.IMSIUsageArray.push();
+								/*self.$setState({
+									messagesInfo: result.length,
+								});*/
+							}else{
+								console.log('something wrong');
+							}
+						},
+						error: function(XMLHttpRequest, textStatus, errorThrown){
+							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
+						}
+					});
+			}
+		},
+        on: {
+            pageInit: function (e, page) {  
+				var self = this;        
+				var thisPage = page.$el.find('.page-content'); 
+				
+				self.initReport()
+				var imsiUsageTable = self.$el.find('.imsi-usage-table');
+				
+				app.dataTable.create({
+					el: imsiUsageTable,
+				});
+			}
+		}
+    };
+</script>
+    
