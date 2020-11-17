@@ -56,14 +56,14 @@
     
 	<plugin name="kaiquecruz-phonegap-plugin-barcodescanner-custom" source="npm" />                    <!--  working , portatrait orientation --> 
     <!--ios<plugin name="cordova-plugin-console" source="npm" spec="1.0.7" />--><!-- needed -->  
-	<plugin name="cordova-plugin-file" source="npm" />  
-	<plugin name="cordova-plugin-file-opener2" source="npm" />
+	<!--<plugin name="cordova-plugin-file" source="npm" />  
+	<plugin name="cordova-plugin-file-opener2" source="npm" />-->
     <plugin name="cordova-plugin-device" source="npm" spec="2.0.2" /><!-- needed -->  
     <plugin name="cordova-plugin-buildinfo" source="npm" spec="2.0.2" />    <!-- needed -->  
     <plugin name="cordova-plugin-dialogs" source="npm" spec="1.2.1" /><!-- needed -->  
     <plugin name="cordova-plugin-whitelist" source="npm" spec="1.2.1" /><!-- needed -->  
     <plugin name="cordova-plugin-splashscreen" source="npm" spec="5.0.2" /><!-- needed -->  
-    <plugin name="cordova-plugin-camera" source="npm" spec="4.0.3"  /><!-- needed -->  
+    <!--<plugin name="cordova-plugin-camera" source="npm" spec="4.0.3"  />--><!-- needed -->  
     <plugin spec="https://github.com/phonegap/phonegap-mobile-accessibility.git" source="git" /><!-- needed -->  
     <plugin name="cordova-launch-review" source="npm" spec="3.1.1" />
 	<plugin name="cordova-plugin-advanced-http" source="npm" spec="2.0.9" />
