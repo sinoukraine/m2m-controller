@@ -711,3 +711,192 @@
 .sim-status-page .page-content{
 	height: calc(100vh - 100px);
 }
+
+
+/* DATA  TABLE */
+
+.mdl-button{
+    width: auto;
+}
+.mdl-button.mdl-button.mdl-button--colored,
+.mdl-button--colored{
+    background: #27a6e1;
+    color: #fff;
+}
+.mdl-button.mdl-button--colored,
+.mdl-button.mdl-button--colored:hover,
+.mdl-button.mdl-button--colored:active,
+.mdl-button.mdl-button--colored:focus{
+    /* background: #f44336; */
+    background: #27a6e1;
+}
+.mdl-button--raised.mdl-button--colored,
+.mdl-button--raised.mdl-button--colored:hover,
+.mdl-button--raised.mdl-button--colored:active,
+.mdl-button--raised.mdl-button--colored:focus{
+    /* background: #f44336; */
+    background: #27a6e1;
+}
+
+table.dataTable thead>tr>th.sorting_asc, table.dataTable thead>tr>th.sorting_desc, table.dataTable thead>tr>th.sorting, table.dataTable thead>tr>td.sorting_asc, table.dataTable thead>tr>td.sorting_desc, table.dataTable thead>tr>td.sorting{
+    padding-right: 18px;
+    padding-left: 40px;
+}
+table.dataTable thead .sorting:before, table.dataTable thead .sorting_asc:before, table.dataTable thead .sorting_desc:before, table.dataTable thead .sorting_asc_disabled:before, table.dataTable thead .sorting_desc_disabled:before{
+    /* right: 1em; */
+    right: auto;
+    left: 18px;
+}
+table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:after, table.dataTable thead .sorting_desc:after, table.dataTable thead .sorting_asc_disabled:after, table.dataTable thead .sorting_desc_disabled:after{
+    /* right: 0.5em; */
+    right: auto;
+    left: 25px;
+}
+.theme-dealer .mdl-data-table .button-table{
+        display: inline-block;
+    padding: 0 16px;
+}
+.dataTables_filter input[type="search"]{
+    border: 1px solid #CCCCCC;
+    border-radius: 4px;
+    /* color: #000 !important; */
+    padding-left: 16px;
+    padding-right: 40px;
+    transition: all .3s;
+    background-color: #fff;
+    background-color: rgba(255,255,255,.8);
+    height: 30px;
+    display: inline-block;
+}
+.dataTables_length select{
+    display: inline-block;
+    padding: 0px 8px;
+    cursor: pointer;
+}
+/* div.dataTables_wrapper div.mdl-grid.dt-table {
+    padding: 0;
+} */
+.table-no-padding .mdl-grid.dt-table{
+    padding: 0;
+}
+.table-no-padding .mdl-cell.mdl-cell--12-col{
+    margin: 0;
+    width: 100%;
+}
+.mdl-data-table td{
+    overflow: hidden;
+}
+.mdl-data-table td.dataTables_empty{
+    text-align: center;
+}
+.mdl-data-table td, .mdl-data-table th{
+    text-align: left;
+}
+
+.datatable-additional-buttons{
+    text-align: right;
+    /* padding: 0 8px; */
+}
+    .datatable-additional-buttons button{
+        margin: 8px;
+    }
+    .datatable-additional-buttons button:last-child{
+        margin-right: 0;
+    }
+    .datatable-additional-buttons{
+       /*  width: auto; */
+
+    }
+table.dataTable tbody>tr.selected, table.dataTable tbody>tr>.selected{
+    background-color: #ddd;
+}
+table.dataTable tbody td.select-checkbox:before, table.dataTable tbody th.select-checkbox:before{
+    margin-top: 0;
+    margin-left: 0;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+}
+table.dataTable tr.selected td.select-checkbox:after, table.dataTable tr.selected th.select-checkbox:after{
+    margin-top: -5px;
+    text-shadow: 1px 1px #ddd, -1px -1px #ddd, 1px -1px #ddd, -1px 1px #ddd;
+    margin-left: 1px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+}
+table.dataTable tbody td .user-icon{
+    width: 25px;
+    height: 25px;
+    margin-right: 4px;
+}
+
+
+.custom-dropdown-wrapper .dataTables_filter,
+.custom-dropdown-wrapper .trip-purpose-dropdown{
+    display: inline-block;
+    vertical-align: middle;
+}
+.custom-dropdown-wrapper .trip-purpose-dropdown{
+
+}
+    .custom-dropdown-wrapper .trip-purpose-dropdown .list{
+        width: 260px;
+        border-radius: 2px;
+        margin: 0 0 0 16px;
+    }
+        .custom-dropdown-wrapper .trip-purpose-dropdown .list .item-content,
+        .custom-dropdown-wrapper .trip-purpose-dropdown .list .item-inner{
+            min-height: 36px;
+        }
+
+
+/* C3 GRAPHIC CHARTS */
+
+.c3-xgrid-focus { display: none; }
+
+.overflow-scroll-hor{
+	overflow-x: scroll;
+}
+
+.mt-5{
+	margin-top:10px;
+}
+
+.mdl-data-table td, .mdl-data-table th {
+    text-align: left !important;
+}
+
+.mdl-grid, .dt-table .mdl-cell{
+	padding: 0 !important;
+	margin: 0 !important;
+}
+
+
+.absolute-center{
+	text-align: center;
+}
+
+h3{
+    font-size: 16px;
+    line-height: 20px;
+	font-weight: 600;
+}
+
+.h-100{
+	height: 100%;
+}
+
+.w-100{
+	width: 100%;
+}
+
+.px-3{
+	padding: 0 10px;
+}
+.display-flex{
+	display: flex;
+}
+.table-cells-sim_ellipsis{
+	color: #191919 !important;
+}

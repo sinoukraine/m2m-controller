@@ -1,13 +1,13 @@
 var routes = [
     {
         path: '/',
-        componentUrl: './resources/pages/home.html?v=2.1',
+        componentUrl: './resources/pages/home.html?v=2.3',
         name: 'home',
     },
     {
         path: '/panel-left/',
         panel: {
-            componentUrl: './resources/pages/panel-left.html?v=1.9',
+            componentUrl: './resources/pages/panel-left.html?v=2.0',
         },
         name: 'panel-left'
     },
@@ -33,7 +33,7 @@ var routes = [
     },
     {
         path: '/sim-status/',
-        componentUrl: './resources/pages/sim-status.html?v=1.4',
+        componentUrl: './resources/pages/sim-status.html?v=1.5',
         name: 'sim-status'
     },
     {
@@ -75,13 +75,23 @@ var routes = [
 
     {
         path: '/report/',
-        componentUrl: './resources/pages/report.html?v=1.7',
+        componentUrl: './resources/pages/report.html?v=2.0',
         name: 'report'
     },
 	{
         path: '/my-sim-expired/',
         componentUrl: './resources/pages/my-sim-expired.html?v=1.7',
         name: 'my-sim-expired'
+    },
+	{
+        path: '/sessions/',
+        componentUrl: './resources/pages/sessions.html?v=1.8',
+        name: 'sessions'
+    },
+	{
+        path: '/cells/',
+        componentUrl: './resources/pages/cells.html?v=1.9',
+        name: 'cells'
     },
 
 

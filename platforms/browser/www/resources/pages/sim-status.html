@@ -52,8 +52,8 @@
 				</div>
 				
 				
-				
 				<div class="list no-y-margin mb-5" >
+				
 					<ul>
 						<!-- Default Setup -->
 						<li class="state-block display-none">
@@ -106,7 +106,20 @@
 							<div class="text-editor-content desc-editor" style="margin: 15px;padding-bottom: 15px; " contenteditable></div>
 						</li>-->
 					</ul>
+					
+				
+						{{#if loading }}
+						
+								<div key="KeyChartGOverviewLoader" class="absolute-center" style="padding-top:10px">
+									<div class="preloader color-blue"></div>
+								</div>
+							
+							
+							{{/if}} 
 				</div>
+				
+				
+				
 			</div>
 		</div>
 		<div class="location-div display-none">
@@ -124,6 +137,7 @@
         data: function () {
             var self = this;
             var ret = {
+				loading: true,
 				onstockTitle: 'OnStock',
 				productiveTitle: 'Productive',
 				suspendedTitle: 'Suspended',
@@ -133,6 +147,7 @@
 				Description: '',
 				lat: '0',
 				lng: '0',
+				towerArr: [],
 				dataInfo: 0,
 				dateInfo: 0,
 				virtualCustomerList: false,
@@ -193,7 +208,7 @@
 				
 				$.ajax({
 						type: "GET",		        
-						url: 'https://m2mdata03.sinopacific.com.ua/api/v3/sims/' + self.ID + '?populate[]=ancestors&extra[]=cdrs&extra[]=states',
+						url: 'https://m2mdata03.sinopacific.com.ua/api/v3/sims/' + self.ID + '?populate[]=ancestors&extra[]=origin&extra[]=states',//&extra[]=activity&extra[]=cells
 						//imsi 234500003041558
 						dataType: "json",	
 						async: true,
@@ -207,15 +222,20 @@
 								
 								self.obj = result;
 																
-								var inputDesc = $('body').find('.desc-editor');
-								inputDesc.html(result.info.description);									
+								/*var inputDesc = $('body').find('.desc-editor');
+								inputDesc.html(result.info.description);*/									
+							console.log(result.extra.states.current,result.extra.states.csp)
+							var setStatus = '', setCSP = '';
+							if(result.extra.states.current){
+								setStatus = result.extra.states.current;								
+								self.smartSelect.setValue(setStatus);		
+							}
 							
-								var setStatus = result.extra.states.current;
-								var setCSP = result.extra.states.csp;
-								
-								self.smartSelect.setValue(setStatus);								
+							if(result.extra.states.csp){
+								setCSP = result.extra.states.csp;
 								self.smartSelect1.setValue(setCSP);
-								
+							}
+							
 								$('.state-block').removeClass('display-none');
 								
 								self.$setState({
@@ -229,8 +249,11 @@
 								self.$setState({
 									CustomerName: result.ancestors[0].info.name,
 									SIMName: result.info.name,
-									Description: result.info.description
+									Description: result.info.description,
+									loading: false
 								});
+								
+								
 							}else{
 								console.log('something wrong');
 							}
@@ -251,7 +274,40 @@
 				
 				$.ajax({
 						type: "GET",		        
-						url: API_URL.URL_GET_COMMAND_HISTORY + self.ID + '/coordinates?formula=centerOfMass', 
+						url: API_URL.URL_GET_COMMAND_HISTORY + self.ID + '/coordinates', //?formula[]=center&formula[]=centroid&formula[]=centerOfMass
+						dataType: "json",	
+						async: true,
+						//cache: false,
+						headers: { 
+							Authorization: "Bearer " + accessToken,
+						},
+						success: function (result) {
+							if(result){							
+								//console.log(result);
+								var  lng = result.geometry.coordinates[0], lat= result.geometry.coordinates[1];
+								
+								self.$setState({
+									lat: result.geometry.coordinates[1],
+									lng: result.geometry.coordinates[0],
+								});		
+								
+								$('.location-div').removeClass('display-none');
+								//$$('.location-div .currentLocation').removeAttr('disabled');								 
+								
+							}
+						},
+						error: function(XMLHttpRequest, textStatus, errorThrown){
+							console.log('can not connect1: txt = '+textStatus+' err = '+errorThrown);
+							
+								
+						}
+					});
+					
+					//sim towers
+					
+					/*$.ajax({
+						type: "GET",		        
+						url: 'https://m2mdata03.sinopacific.com.ua/api/v3/sims/'+self.ID+'/cells', 
 						dataType: "json",	
 						async: true,
 						//cache: false,
@@ -261,15 +317,21 @@
 						success: function (result) {
 							if(result){
 							
-								//console.log(result);
-								var lat = result.geometry.coordinates[0], lng = result.geometry.coordinates[1];
+								console.log(result);
+								let towerArr = [];
+								
+								$.each(result, function(index, value){
+									if(typeof value.lat != 'undefined' && typeof value.lon != 'undefined')
+									towerArr.push({
+										lat: value.lat,
+										lng: value.lon,
+									});
+								});
 								
 								self.$setState({
-									lat: result.geometry.coordinates[0],
-									lng: result.geometry.coordinates[1],
+									towerArr: towerArr,
 								});		
 								
-								$('.location-div').removeClass('display-none');
 								//$$('.location-div .currentLocation').removeAttr('disabled');								 
 								
 							}else{
@@ -279,7 +341,7 @@
 						error: function(XMLHttpRequest, textStatus, errorThrown){
 							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
 						}
-					});
+					});*/
 					
 			},
 			initSimInfo: function () {
@@ -713,7 +775,7 @@
 				});*/
 															
 				var boatMarker = L.icon({
-					iconUrl: 'resources/images/marker.svg',                       
+					iconUrl: 'resources/images/pin.svg',                       
 					//iconSize:     [50, 50], // size of the icon                        
 					//iconAnchor:   [50, 99], // point of the icon which will correspond to marker's location                        
 					//popupAnchor:  [0, -50] // point from which the popup should open relative to the iconAnchor    
@@ -721,7 +783,18 @@
 					//iconAnchor:   [50, 99], // point of the icon which will correspond to marker's location    
 					iconAnchor:   [17, 55],
 					popupAnchor:  [0, -50] // point from which the popup should open relative to the iconAnchor   
-				});				
+				});		
+
+				var towerMarker = L.icon({
+					iconUrl: 'resources/images/tower-map.svg',                       
+					//iconSize:     [50, 50], // size of the icon                        
+					//iconAnchor:   [50, 99], // point of the icon which will correspond to marker's location                        
+					//popupAnchor:  [0, -50] // point from which the popup should open relative to the iconAnchor    
+					iconSize:     [50, 50], // size of the icon                        
+					//iconAnchor:   [50, 99], // point of the icon which will correspond to marker's location    
+					iconAnchor:   [17, 55],
+					popupAnchor:  [0, -50] // point from which the popup should open relative to the iconAnchor   
+				});		
 
 				self.loadTrackPage();
 				
@@ -745,6 +818,12 @@
 											marker.setLatLng([self.lat, self.lng]);
 											MapTrack = Protocol.Helper.createMap({ target: 'map', latLng: [self.lat,self.lng], zoom: 14 });        
 											marker.addTo(MapTrack);
+											
+											$.each(self.towerArr, function(index, value){										
+												var tower = L.marker([value.lat, value.lng], {icon: towerMarker}); 
+												tower.setLatLng([value.lat, value.lng]);        
+												tower.addTo(MapTrack);
+											});
 											
 											//self.$app.preloader.hide();
 										}else{
@@ -840,7 +919,7 @@
 								  title: 'M2M Data Controller',
 								  //titleRightText: 'now',
 								  subtitle: 'SIM State Notification',
-								  text: 'Refresh Sim Actioned',
+								  text: 'Sim connection refreshed',
 								  closeTimeout: 3000,
 								});
 				

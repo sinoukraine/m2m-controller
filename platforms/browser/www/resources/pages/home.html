@@ -269,54 +269,107 @@
 						success: function (result) {
 							console.log('list',result);
 							if (result.total) {																	
-								if(result.page == 1){
+								
+								/*0*/
+								
+								var newArr = [];
+								
+								$.each(result.rows, function(index, value){
+									var newObj = value;
 									
-									self.$app.infiniteScroll.create('.infinite-scroll-home-content');
-									// Loading flag
+									$.ajax({
+										type: "GET",		        
+										url: 'https://m2mdata03.sinopacific.com.ua/api/v3/sims/' + value._id + '?extra[]=activity',
+										//imsi 234500003041558
+										dataType: "json",	
+										async: true,
+										headers: { 
+											Authorization: "Bearer " + accessToken,
+										},
+										success: function (result1) {
+											if(result1){		
+												var currentTime = moment();
+												var oneDayAgo = moment(currentTime, 'YYYY-MM-DD').add(-1, 'days').format('YYYY-MM-DD'); 
+												var threeDayAgo = moment(currentTime, 'YYYY-MM-DD').add(-3, 'days').format('YYYY-MM-DD');
+													
+												const activityArr = result1.extra.activity.samples;
+												if(typeof activityArr == 'undefined'){					
+														newObj.rag = 'rgb(204,204,204)';												
+												}else{														
+													var simActivityTime = moment(activityArr[activityArr.length - 1].endTime, 'YYYY-MM-DD').format('YYYY-MM-DD');													
+													//console.log('sim',simActivityTime >= oneDayAgo);
+													if(simActivityTime >= oneDayAgo){														
+														newObj.rag = 'rgb(57,181,74)';
+													}else if(simActivityTime >= threeDayAgo){														
+														newObj.rag = '#ff8c00';															
+													}else{								
+														newObj.rag = '#CD3333';	
+													}													
+												}
+												newArr.push(newObj);
+												//console.log('sim',newObj);//activityArr[activityArr.length - 1].endTime
+												if(index === (result.rows.length-1)){
+													if(result.page == 1){
+									
+														self.$app.infiniteScroll.create('.infinite-scroll-home-content');
+														// Loading flag
 
-									self.$setState({
-										maxItems: result.total,
-										lastItemIndex: $$('.simList li').length,										
+														self.$setState({
+															maxItems: result.total,
+															lastItemIndex: $$('.simList li').length,										
+														});
+													}
+												
+														// Reset loading flag
+														self.$setState({
+															allowInfinite: true
+														});
+													
+													self.setSimList(newArr);
+													
+													//if (self.lastItemIndex >= self.maxItems) {
+													if (result.page === result.totalPages) {
+													  self.$app.infiniteScroll.destroy('.infinite-scroll-home-content');
+													  
+													  // Remove preloader
+													if(!$('.infinite-scroll-home-preloader').hasClass('display-none')){
+														$('.infinite-scroll-home-preloader').addClass('display-none')
+													}
+													  return;
+													}
+															
+													
+													
+													let incrList = self.lastItemIndex + 10;
+													
+													self.$setState({
+														lastItemIndex: incrList
+													});
+													
+													let incr = self.page + 1;
+													
+													self.$setState({
+														page: incr
+													});
+														
+													$('.searchbar-hide-on-search').addClass('display-none');
+																					
+													if(self.page == 2){
+														$$('.infinite-scroll-home-content').on('infinite', self.getSimList);
+													}
+												}
+											}
+										},
+										error: function(XMLHttpRequest, textStatus, errorThrown){
+											console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
+										}
 									});
-								}
-							
-									// Reset loading flag
-									self.$setState({
-										allowInfinite: true
-									});
-								
-								self.setSimList(result.rows);
-								
-								//if (self.lastItemIndex >= self.maxItems) {
-								if (result.page === result.totalPages) {
-								  self.$app.infiniteScroll.destroy('.infinite-scroll-home-content');
-								  
-								  // Remove preloader
-								if(!$('.infinite-scroll-home-preloader').hasClass('display-none')){
-									$('.infinite-scroll-home-preloader').addClass('display-none')
-								}
-								  return;
-								}
-										
-								
-								
-								let incrList = self.lastItemIndex + 10;
-								
-								self.$setState({
-									lastItemIndex: incrList
-								});
-								
-								let incr = self.page + 1;
-								
-								self.$setState({
-									page: incr
-								});
 									
-								$('.searchbar-hide-on-search').addClass('display-none');
-																
-								if(self.page == 2){
-									$$('.infinite-scroll-home-content').on('infinite', self.getSimList);
-								}
+								});
+								
+								//self.setSimList(result.rows);
+								
+								
 							} else {
 								// Reset loading flag
 									self.$setState({
@@ -387,6 +440,7 @@
 						simMSISDN = value.info.msisdn;
 						//console.log('simname',value.info.name);
 					}
+					var simRAG = value.rag;
 					
 					html += '<li>';
                     html += '<a href="#" data-id="'+simID+'" data-imsi="'+simIMSI+'" data-iccid="'+simICCID+'" class="ac-5 item-link item-content">';
@@ -424,7 +478,7 @@
                     html += '                    </div>';*/
                     html += '                   <div class="display-flex">';
                     html += '                      <div class="prop-name">State:</div>';
-					html += '						<div style="font-size: 14px;color: #CD3333;">&#11044;</div>';
+					html += '						<div style="font-size: 14px;color: '+simRAG+';">&#11044;</div>';//#CD3333
                     html += '          			</div>';
                     html += '            </div>';
                     html += '             </div>';
@@ -518,7 +572,7 @@
 						'<i class="material-icons md-36 color-m2m-blue">watch_later</i>' +
 						'</div>' +
 						'<div class="action_button_block action_button_text color-m2m-grey">' +
-						'History' +
+						'Commands History' +
 						'</div>' +
 						'</div>';
 
@@ -537,7 +591,25 @@
 						'<i class="material-icons md-36 color-m2m-blue">assessment</i>' +
 						'</div>' +
 						'<div class="action_button_block action_button_text color-m2m-grey">' +
-						'IMSI Usage Report' +
+						'Data Usage ' +
+						'</div>' +
+						'</div>';
+						
+					var SIMSessions = '<div class="action_button_wrapper">' +
+						'<div class="action_button_block action_button_media">' +
+						'<i class="material-icons md-36 color-m2m-blue">sim_card</i>' +
+						'</div>' +
+						'<div class="action_button_block action_button_text color-m2m-grey">' +
+						'SIM Sessions ' +
+						'</div>' +
+						'</div>';
+						
+					var SIMCells = '<div class="action_button_wrapper">' +
+						'<div class="action_button_block action_button_media">' +
+						'<i class="material-icons md-36 color-m2m-blue">wifi</i>' +
+						'</div>' +
+						'<div class="action_button_block action_button_text color-m2m-grey">' +
+						'SIM Cells ' +
 						'</div>' +
 						'</div>';
 
@@ -564,13 +636,25 @@
 							onClick: function() {
 								mainView.router.navigate('/sim-status/?id='+id.toString()+'&imsi='+imsi.toString()+'&iccid='+iccid.toString());
 							},
-						},/*
+						},
 						{
 							text: SIMReport,
 							onClick: function() {
 								mainView.router.navigate('/report/?id='+id.toString()+'&imsi='+imsi.toString()+'&iccid='+iccid.toString());
 							},
+						},/*
+						{
+							text: SIMSessions,
+							onClick: function() {
+								mainView.router.navigate('/sessions/?id='+id.toString()+'&imsi='+imsi.toString()+'&iccid='+iccid.toString());
+							},
 						},*/
+						{
+							text: SIMCells,
+							onClick: function() {
+								mainView.router.navigate('/cells/?id='+id.toString()+'&imsi='+imsi.toString()+'&iccid='+iccid.toString());
+							},
+						},
 					];
 
 					self.$app.actions.create({buttons}).open();

@@ -1,6 +1,6 @@
 <!--suppress JSAnnotator -->
 <template>
-	<div data-name="report" class="page report-page"> <!-- page-with-subnavbar -->
+	<div data-name="sessions" class="page sessions-page"> <!-- page-with-subnavbar -->
 		<!-- Top Navbar -->
 		<div class="navbar">
             <div class="navbar-bg"></div>
@@ -11,101 +11,13 @@
                     </a>
                 </div>
                 <div class="title sliding">
-                    Data Usage
+                    SIM Sessions
                 </div>
             </div>
         </div>
 		
 		<div class="page-content ">
-			<!--<div class="block searchbar-hide-on-search">
-				<h3>{{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG02}}</h3>
-                <p>{{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG03}}</p>				
-            </div>
-			<div class="imsi-usage-table data-table">
-			  <table>
-				<thead>
-				  <tr>
-					<th class="label-cell">IMSI</th>
-					<th class="numeric-cell">Data Usage(MB)</th>
-					<th class="numeric-cell">Flow Usage</th>
-					<th class="numeric-cell">SMS Usage</th>
-					<th class="numeric-cell">Days</th>
-				  </tr>
-				</thead>
-				<tbody>
-				{{#each IMSIUsageArray}}                        
-				  <tr>
-					<td class="label-cell">{{IMSI}}</td>
-					<td class="numeric-cell">{{IMSI}}</td>
-					<td class="numeric-cell">{{IMSI}}</td>
-					<td class="numeric-cell">{{IMSI}}</td>
-					<td class="numeric-cell">{{IMSI}}</td>
-				  </tr>				  
-                {{/each}}
-				</tbody>
-			  </table>
-			  <div class="data-table-footer">
-				<div class="data-table-rows-select">
-				  Per page:
-				  <div class="input input-dropdown">
-					<select>
-					  <option value="5">5</option>
-					  <option value="10">10</option>
-					  <option value="25">25</option>
-					  <option value="all">All</option>
-					</select>
-				  </div>
-				</div>
-				<div class="data-table-pagination">
-				  <span class="data-table-pagination-label">1-5 of 10</span>
-				  <a href="#" class="link disabled">
-					<i class="icon icon-prev color-gray"></i>
-				  </a>
-				  <a href="#" class="link">
-					<i class="icon icon-next color-gray"></i>
-				  </a>
-				</div>
-			  </div>
-			</div>-->
 			
-			<!--<div class="list">
-				<input type="hidden" name="IMSI" value="{{IMSI}}">
-				<input type="hidden" name="LastDay" value="1">
-			  <ul>
-            
-                <li class="item-content border_bottom">
-                    <div class="item-inner display-block">
-                        <div class="item-title label">{{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG06}}</div>
-                        <div class="item-input">
-                            <select name="LastDaySelect" data-set="{{LastDay}}">                 
-								<option value="1">1 day</option>
-								<option value="2">3 days</option>
-								<option value="7">1 week</option>
-								<option value="14">2 weeks</option>
-								<option value="30">1 month</option>
-								<option value="60">2 months</option>
-								<option value="3000">all time</option>
-                                <option value="1">1 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG04}}</option>
-                                <option value="2">2 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option>
-                                <option value="3">3 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option>
-                                <option value="4">4 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option>
-                                <option value="5">5 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option> 
-                                <option value="6">6 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option>                                
-                                <option value="7">7 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option> 
-                                <option value="8">8 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option> 
-                                <option value="9">9 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option> 
-                                <option value="10">10 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option> 
-                                <option value="11">11 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option> 
-                                <option value="12">12 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option> 
-                                <option value="13">13 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option> 
-                                <option value="14">14 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option>
-                            </select>
-                            <i class="f7-icons icon-arrow-drop-down select_arrow"></i>
-                        </div>
-                    </div>
-                </li>
-            </ul>
-        </div>-->
 		
 		<div key="KeyCOverview" class="col-50 tablet-20  ">
 				<div class="card dashboard-card-type1 elevation-6 elevation-hover-9 elevation-transition overflow-scroll-hor  mt-5">
@@ -118,10 +30,10 @@
 								<li class="display-flex">
 									
 											<div class="item-media">	
-												<label for="date-to" class=" px-3">Till</label>
-												<input type="text" placeholder="Date" class="pl-3" disabled id = "date-to" value="{{DateTo}}">
+												<label for="date-to" class=" px-3">Date</label>
+												<input type="text" placeholder="Date" class="pl-3"  id = "date-to" value="{{DateTo}}">
 											</div>
-											<a class="item-link smart-select smart-select-init  w-100 text-color-black" data-open-in="popover" data-close-on-select="true">
+											<!--<a class="item-link smart-select smart-select-init  w-100 text-color-black" data-open-in="popover" data-close-on-select="true">
 										<select name="dashboard-overview-filter" >
 											<option value="1" selected>this month</option>     
 											<option value="2" >7 days</option>   
@@ -134,12 +46,12 @@
 												<div class="item-after  text-color-black"></div>
 											</div>
 										</div>
-									</a>
+									</a>-->
 								</li> 
 							</ul>
 						</div>     
 					</div>
-					<div class="card-content card-content-padding">
+					<!--<div class="card-content card-content-padding">
 						{{#if DashboardDataLoadedEndUserOverview}}
 						<div key="KeyChartGOverview" id="chart-GOverview"></div>      
 						{{else}}
@@ -147,27 +59,36 @@
 							<div class="preloader color-blue"></div>
 						</div>
 						{{/if}}   
-					</div> 
-						<table id="table-report-sim" class="mdl-data-table " style="width:100%">
+					</div> -->
+						{{#if DashboardDataTable.length}}
+						<table id="table-sessions-sim" class="mdl-data-table " style="width:100%">
 							<thead>
 								<tr>
-									<th> Date </th>	
-									<th> Data(MB) </th> 
-									<th> SMS </th> 		
-									<th> Flow </th>							
+									<th> Start Time </th>	
+									<th> End Time </th> 
+									<th> Total Bytes </th> 		
+									<th> Service </th>	
+									<th> Operator </th> 		
+									<th> Cell Info </th>							
 								</tr>
 							</thead>
 							<tbody> 
 								{{#DashboardDataTable}}
 									<tr data-item-index="{{@index}}" >
-										<td>{{date}}</td>	  
-										<td>{{totalfield}}</td>	
-										<td>{{smsfield}}</td>	
-										<td>{{flowfield}}</td>									
+										<td>{{start}}</td>	  
+										<td>{{end}}</td>	
+										<td>{{units}}</td>	
+										<td>{{service}}</td>	
+										<td>{{net}}</td>	
+										<td>{{info}}</td>									
 									</tr>
 								{{/DashboardDataTable}}  
 							</tbody>
-						</table>
+						</table>{{else}}
+						<div key="KeyChartGOverviewLoader" class="absolute-center">
+							<div class="preloader color-blue"></div>
+						</div>
+						{{/if}} 
 					</div>                                                                                                
 			</div>
 		
@@ -209,10 +130,10 @@
             return ret;
         },
 		methods: {
-			initReport: function(){
+			initSessions: function(){
 				var self = this;			
 				
-				var nowFull = moment(); 
+				/*var nowFull = moment(); 
 				var now = nowFull.clone().startOf('day');
 				//var threDaysBeforeFull = nowFull.add(-10, 'days');		
 				var threDaysBeforeFull = nowFull.clone().startOf('month');	
@@ -224,17 +145,23 @@
 					startDate: start,//+'T00:00:00.000Z',
 					endDate: end,//+'T00:00:00.000Z',
 					Iccid: self.IMSI,
-				};					
-				//getActivityData(params, url, '.dataImnsFilters', '#chartSMS', payload);
+				};	*/				
+				var nowFull = moment(); 
+				var nowD = nowFull.clone().startOf('day');				
+				var nextD = moment().add(-1,'days');	
 				
-				let urlparams = 'startDate='+ params.startDate + 'T00:00:00.000Z&endDate='+ params.endDate + 'T00:00:00.000Z';
+				/*var nowD = moment(data.date); 
+				var nextD = nowD.add(-1, 'days');	
+				console.log(data.date, nowD.format('YYYY-MM-DD'), nextD.format('YYYY-MM-DD'));
+				*/
+				let urlparams = 'startDate='+ nextD.format('YYYY-MM-DD') + 'T00:00:00.000Z&endDate='+ nowD.format('YYYY-MM-DD') + 'T00:00:00.000Z&includeSessions=true';
 											
 				let userInfo = self.$app.methods.getFromStorage('userInfo');
 				let accessToken = userInfo.accessToken;		
 			
 				$.ajax({
 					type: "GET",	        
-					url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/cdrs/'+ params.Iccid +'?' + urlparams,
+					url: 'https://m2mdata03.sinopacific.com.ua/api/v3/sims/'+self.ID+'/cdrs?'+urlparams,
 					dataType: "json",	
 					async: true,
 					headers: { 
@@ -242,43 +169,30 @@
 					},
 					//cache: false,
 					success: function (result) {
+					console.log('ses', result);
 						//hidePreloader(fromClass);	  
 						if(result){		
 						let arr = [];
-						let chartArr = [];
-						$.each(result, function(index, value1){
-							var flowField = 0;
-							var smsField = 0;
-							var totalField = 0;
-							
-							if(value1.totals != null  && value1.totals.flow != null){
-								var flowField = typeof value1.totals.flow.originalUnits == 'undefined'?0:+value1.totals.flow.originalUnits;
-							}
-							if(value1.totals != null && value1.totals.sms != null){					
-								var smsField = typeof value1.totals.sms.originalUnits == 'undefined'?0:+value1.totals.sms.originalUnits;
-							}
-							if(value1.totals != null && value1.totals.data != null && value1.totals.data.originalUnits != null){
-								var totalField = +(value1.totals.data.originalUnits/1000000).toFixed(3);
-							}
-							objTemp={'date':value1.date.slice(0, 10),'totalfield':totalField, 'flowfield':flowField, 'smsfield':smsField};
-							chartArr.push([value1.date.slice(0, 10), totalField]);
-							
+						$.each(result[0].samples, function( index, value ) {
+							var net = ''; if(typeof value.network != 'undefined') net=value.network;						
 												
+							objTemp={'start':value.startTime.slice(0,19).replace('T', ' '),'end':value.endTime.slice(0,19).replace('T', ' '), 'units':value.originalUnits, 'service':value.service, 'net':net, 'info':value.originId};
+							//chartArr.push([value1.date.slice(0, 10), totalField]);
+																			
 							arr.push(objTemp);
-						});	
-							
+							});
 						
 			
 							self.$setState({
 								DashboardDataTable: arr,
-								totalMB: chartArr
+								//totalMB: chartArr
 							});
 									
-							self.DashboardDataTableEl = $('body').find('#table-report-sim').DataTable({                    
+							/*self.DashboardDataTableEl = $('body').find('#table-sessions-sim').DataTable({                    
 								columnDefs: [
 									{ // remove orederable arrows from column with pin
 										targets: [ 0 ], 
-										orderable: true,  
+										orderable: false,  
 									},
 									{ // hide group codes, which will be used for filtering
 										targets: [ 1 ],
@@ -291,14 +205,22 @@
 									{ // hide group codes, which will be used for filtering
 										targets: [ 3 ],
 										visible: true
+									},
+									{ // hide group codes, which will be used for filtering
+										targets: [ 4 ],
+										visible: true
+									},
+									{ // hide group codes, which will be used for filtering
+										targets: [ 5 ],
+										visible: true
 									}
 								],
-								"order": [[ 0, "desc" ]],
 								lengthMenu: [5, 10, 25],
-								pageLength: 5   
-							});
+								pageLength: 5,
+								retrieve: true,
+							});*/
 							
-							
+							/*
 								self.$app.utils.nextFrame(()=>{
 									let wasDataAlreadyLoaded = self.DashboardDataLoadedEndUserOverview;
 									self.$setState({
@@ -312,7 +234,7 @@
 										self.initGraphics();
 									}
 								});
-								
+								*/
 						}else{
 							console.log('something wrong');
 						}
@@ -472,10 +394,10 @@
 			
 			getOverviewDetails: function(days = 1){
 				let self = this;
-				self.DashboardDataTableEl.destroy();
-				self.DashboardDataTableEl = false;
 				
-				self.Charts.Overview = false;
+				//self.DashboardDataTableEl = false;
+				//self.DashboardDataTable = [];
+				//self.Charts.Overview = false;
 								
 				let urlparams = '';				
 				var nowFull = moment(); 
@@ -497,34 +419,30 @@
 						endTime = now;
 					break;
 					default:								
-						var newDateTo = $('.report-page').find('#date-to').val();
-						var newFull = moment(newDateTo); 			
-						startTime = moment(newDateTo).add(-30, 'days');	
-						endTime = newFull;					
-						console.log(startTime, endTime);
+						var newDateTo = $('.sessions-page').find('#date-to').val();									
+						var currentTime = moment();	
+						startTime = moment(newDateTo, 'YYYY-MM-DD');
+						endTime = moment(newDateTo, 'YYYY-MM-DD').add(1, 'days'); 			
+						//startTime = currentTime.clone().startOf('day');		
 				}
 				
 				var start = moment(startTime,timeFormat).format('YYYY-MM-DD');
 				var end = moment(endTime,timeFormat).format('YYYY-MM-DD');
 				
 				self.$setState({
-					DateTo: end
+					DateTo: start
 				});
 				
 				
-				var params = {		
-					startDate: start,//+'T00:00:00.000Z',
-					endDate: end,//+'T00:00:00.000Z',
-					Iccid: self.IMSI,
-				};	
-				urlparams = 'startDate='+ params.startDate + 'T00:00:00.000Z&endDate='+ params.endDate + 'T00:00:00.000Z';	
-				
+						console.log(start, end);
+				urlparams = 'startDate='+ start + 'T00:00:00.000Z&endDate='+ end + 'T00:00:00.000Z&includeSessions=true';
+											
 				let userInfo = self.$app.methods.getFromStorage('userInfo');
 				let accessToken = userInfo.accessToken;		
 			
 				$.ajax({
 					type: "GET",	        
-					url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/cdrs/'+ params.Iccid +'?' + urlparams,
+					url: 'https://m2mdata03.sinopacific.com.ua/api/v3/sims/'+self.ID+'/cdrs?'+urlparams,
 					dataType: "json",	
 					async: true,
 					headers: { 
@@ -533,143 +451,32 @@
 					//cache: false,
 					success: function (result) {
 						//hidePreloader(fromClass);	  
-						if(result){		
+						if(result.length){		
+					console.log('ses?', result[0].samples);
 						let arr = [];
-						let chartArr = [];
-						$.each(result, function(index, value1){
-							var flowField = 0;
-							var smsField = 0;
-							var totalField = 0;
-							
-							if(value1.totals != null  && value1.totals.flow != null){
-								var flowField = typeof value1.totals.flow.originalUnits == 'undefined'?0:+value1.totals.flow.originalUnits;
-							}
-							if(value1.totals != null && value1.totals.sms != null){					
-								var smsField = typeof value1.totals.sms.originalUnits == 'undefined'?0:+value1.totals.sms.originalUnits;
-							}
-							if(value1.totals != null && value1.totals.data != null && value1.totals.data.originalUnits != null){
-								var totalField = +(value1.totals.data.originalUnits/1000000).toFixed(3);
-							}
-							objTemp={'date':value1.date.slice(0, 10),'totalfield':totalField, 'flowfield':flowField, 'smsfield':smsField};
-							chartArr.push([value1.date.slice(0, 10), totalField]);
-							
+						$.each(result[0].samples, function( index, value ) {
+							var net = ''; if(typeof value.network != 'undefined') net=value.network;						
 												
+							objTemp={'start':value.startTime.slice(0,19).replace('T', ' '),'end':value.endTime.slice(0,19).replace('T', ' '), 'units':value.originalUnits, 'service':value.service, 'net':net, 'info':value.originId};
+							//chartArr.push([value1.date.slice(0, 10), totalField]);
+																			
 							arr.push(objTemp);
-						});	
-							
+							});
 						
-			/*let fomattedValues = self.formatGOverviewValues(data);
-
-							self.Charts.Overview.load({
-						        columns: [
-									[LANGUAGE.DASHBOARD_PANEL_MSG54, fomattedValues.move],
-									[LANGUAGE.DASHBOARD_PANEL_MSG52, fomattedValues.stop],
-									[LANGUAGE.DASHBOARD_PANEL_MSG53, fomattedValues.idle],
-								]
-						    });*/
+						//self.DashboardDataTable.length = 0;
+								
+								
+									self.DashboardDataTable = arr;
+								
+								console.log(self.DashboardDataTable);
+								//self.$app.utils.nextFrame(()=>{
+								//self.DashboardDataTableEl = $('body').find('#table-sessions-sim').DataTable();});
+								
+								
+								//totalMB: chartArr
+									
 							
-							
-							self.$setState({
-								DashboardDataTable: arr,
-								totalMB: chartArr
-							});
-							
-							self.DashboardDataTableEl = $('body').find('#table-report-sim').DataTable({                    
-								columnDefs: [
-									{ // remove orederable arrows from column with pin
-										targets: [ 0 ], 
-										orderable: true,  
-									},
-									{ // hide group codes, which will be used for filtering
-										targets: [ 1 ],
-										visible: true
-									},
-									{ // hide group codes, which will be used for filtering
-										targets: [ 2 ],
-										visible: true
-									},
-									{ // hide group codes, which will be used for filtering
-										targets: [ 3 ],
-										visible: true
-									}
-								],
-								"order": [[ 0, "desc" ]],
-								lengthMenu: [5, 10, 25],
-								pageLength: 5   
-							});
-							
-							self.Charts.Overview = c3.generate({
-							bindto: '#chart-GOverview',
-							size: {                                
-								height: 180,                       
-							},
-							color: {
-								pattern: ['#4dc08e']//, 10aef8'#f96868', '#f9b256'
-							},	
-							data: {                                
-                                columns: self.totalMB,//params.GOverview.columns,                        
-                                type : 'bar',   
-                                labels: false                             
-                            },
-                            bar: {
-                                width: {
-                                    ratio: 1 // this makes bar width 50% of length between ticks
-                                },
-                                space: 0.25
-                            },
-                            axis: {
-                                x: { 
-                                    show: false,
-                                    type: 'category',
-                                    categories: ['mb/day'],//params.GTotalMileage.name
-                                },
-                                y: { show: false }
-                            },
-                            legend: {
-                                show: false
-                            },
-							
-							tooltip: {
-						        /*format: {
-						            //title: function (d) { return 'Data ' + d; },
-						            value: function (value, ratio, id) {
-						                return TimeSpan(value*1000).format("^hh:mm:ss");
-						            }
-							
-						        }*/
-						    }							
-						});
-/*						
-							self.$app.utils.nextFrame(()=>{
-								self.Charts.Overview.load({
-									columns:  self.totalMB
-								});
-							});*/
 							/*
-							self.DashboardDataTableEl = $('body').find('#table-report-sim').DataTable({                    
-								columnDefs: [
-									{ // remove orederable arrows from column with pin
-										targets: [ 0 ], 
-										orderable: false,  
-									},
-									{ // hide group codes, which will be used for filtering
-										targets: [ 1 ],
-										visible: true
-									},
-									{ // hide group codes, which will be used for filtering
-										targets: [ 2 ],
-										visible: true
-									},
-									{ // hide group codes, which will be used for filtering
-										targets: [ 3 ],
-										visible: true
-									}
-								],
-								lengthMenu: [5, 10, 25],
-								pageLength: 5   
-							});
-							
-							
 								self.$app.utils.nextFrame(()=>{
 									let wasDataAlreadyLoaded = self.DashboardDataLoadedEndUserOverview;
 									self.$setState({
@@ -678,11 +485,9 @@
 									});
 									
 									if (wasDataAlreadyLoaded){
-										console.log('111');
-										//self.updateGraphicsOverviewAndRealTime();
+										self.updateGraphicsOverviewAndRealTime();
 									}else{
-										console.log('222');
-										//self.initGraphics();
+										self.initGraphics();
 									}
 								});
 								*/
@@ -694,31 +499,10 @@
 						console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
 					}
 				});
-				
-				//self.changeGraphicData('', selectName);
-				/*let userInfo = self.$app.methods.getFromStorage('userInfo'); 
-				let data = {
-					MajorToken: userInfo.MajorToken,
-					MinorToken: userInfo.MinorToken,	
-					Days: days	
-				};
-				let progressbarContainer = self.$el.find('select[name = '+selectName+']').closest('.card').find('.progressbar-container');				
-				
-				self.$app.progressbar.show(progressbarContainer, 'red');
-				self.$app.request.post(API_URL.GET_DASHBOARD_OVERVIEW_INFO, data, function (result, xhr, status) {
-					self.$app.progressbar.hide(progressbarContainer); 
-                                   
-                    console.log(result);
-                    if (result && result.MajorCode == '000' && selectName) {
-                    	self.changeGraphicData(result.Data, selectName);	                    
-                    }                    
-                },
-                function (xhr, status) {            
-                    self.$app.progressbar.hide(progressbarContainer); 
-                    self.$app.dialog.alert('Error occured at getOverviewDetails');                
-                },
-                'json');  */
-			},
+						
+						
+					
+				},
 			
 			changeGraphicData: function(data=[], selectName){
 				let self = this;
@@ -768,15 +552,16 @@
 				var thisPage = page.$el.find('.page-content'); 					
 				let overviewFiletrEl = self.$el.find('[name="dashboard-overview-filter"]');
 				
-				var current = moment(); 
-				var currentDay = current.clone().startOf('day');
-				currentDay = moment(currentDay).format('YYYY-MM-DD');
+				
+				var nowFull = moment(); 
+				var nowD = nowFull.clone().startOf('day');				
+				var nextD = moment().add(-1,'days').format('YYYY-MM-DD');	
 				
 				self.$setState({
-					DateTo: currentDay
+					DateTo: nextD
 				});
 				
-				self.initReport();
+				self.initSessions();
 				
 				self.myCalendar = self.$app.calendar.create({
 					inputEl: '#date-to',
@@ -790,11 +575,11 @@
 				overviewFiletrEl.on('change', function(e){ console.log(e)
 					if(e.target.value == '4'){
 						self.$app.utils.nextFrame(()=>{							
-							$('.report-page').find('#date-to').attr('disabled', false);
+							//$('.sessions-page').find('#date-to').attr('disabled', false);
 							self.myCalendar.open();
 						});
 					}else{
-						$('.report-page').find('#date-to').attr('disabled', true);
+						//$('.sessions-page').find('#date-to').attr('disabled', true);
 						self.getOverviewDetails(e.target.value);
 					}
 				});

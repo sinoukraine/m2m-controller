@@ -1,6 +1,6 @@
 <!--suppress JSAnnotator -->
 <template>
-	<div data-name="report" class="page"> <!-- page-with-subnavbar -->
+	<div data-name="report" class="page report-page"> <!-- page-with-subnavbar -->
 		<!-- Top Navbar -->
 		<div class="navbar">
             <div class="navbar-bg"></div>
@@ -11,13 +11,13 @@
                     </a>
                 </div>
                 <div class="title sliding">
-                    IMSI Usage Report
+                    Data Usage
                 </div>
             </div>
         </div>
 		
 		<div class="page-content ">
-			<div class="block searchbar-hide-on-search">
+			<!--<div class="block searchbar-hide-on-search">
 				<h3>{{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG02}}</h3>
                 <p>{{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG03}}</p>				
             </div>
@@ -66,7 +66,8 @@
 				  </a>
 				</div>
 			  </div>
-			</div>
+			</div>-->
+			
 			<!--<div class="list">
 				<input type="hidden" name="IMSI" value="{{IMSI}}">
 				<input type="hidden" name="LastDay" value="1">
@@ -105,6 +106,73 @@
                 </li>
             </ul>
         </div>-->
+		
+		<div key="KeyCOverview" class="col-50 tablet-20  ">
+				<div class="card dashboard-card-type1 elevation-6 elevation-hover-9 elevation-transition overflow-scroll-hor  mt-5">
+					
+					<div class="card-header bg-color-darkgray overflow-hidden no-padding text-color-black">
+						<div class="progressbar-container"></div>
+						<!-- {{@global.LANGUAGE.DASHBOARD_PANEL_MSG43 }} -->						
+						<div class="list no-hairlines no-hairlines-between" style="width:100%;" >
+							<ul>
+								<li class="display-flex">
+									
+											<div class="item-media">	
+												<label for="date-to" class=" px-3">Till</label>
+												<input type="text" placeholder="Date" class="pl-3" disabled id = "date-to" value="{{DateTo}}">
+											</div>
+											<a class="item-link smart-select smart-select-init  w-100 text-color-black" data-open-in="popover" data-close-on-select="true">
+										<select name="dashboard-overview-filter" >
+											<option value="1" selected>this month</option>     
+											<option value="2" >7 days</option>   
+											<option value="3" >last month</option>   
+											<option value="4" >month to date</option>     
+										</select>
+										<div class="item-content h-100">
+											<div class="item-inner">
+												<div class="item-title text-color-black">{{@global.LANGUAGE.DASHBOARD_PANEL_MSG43 }}</div>
+												<div class="item-after  text-color-black"></div>
+											</div>
+										</div>
+									</a>
+								</li> 
+							</ul>
+						</div>     
+					</div>
+					<div class="card-content card-content-padding">
+						{{#if DashboardDataLoadedEndUserOverview}}
+						<div key="KeyChartGOverview" id="chart-GOverview"></div>      
+						{{else}}
+						<div key="KeyChartGOverviewLoader" class="absolute-center">
+							<div class="preloader color-blue"></div>
+						</div>
+						{{/if}}   
+					</div> 
+						<table id="table-report-sim" class="mdl-data-table " style="width:100%">
+							<thead>
+								<tr>
+									<th> Date </th>	
+									<th> Data(MB) </th> 
+									<th> SMS </th> 		
+									<th> Flow </th>							
+								</tr>
+							</thead>
+							<tbody> 
+								{{#DashboardDataTable}}
+									<tr data-item-index="{{@index}}" >
+										<td>{{date}}</td>	  
+										<td>{{totalfield}}</td>	
+										<td>{{smsfield}}</td>	
+										<td>{{flowfield}}</td>									
+									</tr>
+								{{/DashboardDataTable}}  
+							</tbody>
+						</table>
+					</div>                                                                                                
+			</div>
+		
+		
+					
     </div>
 </div>
 </template>
@@ -116,6 +184,9 @@
             var self = this;
             var ret = {
 				IMSIUsageArray: [],
+				totalMB: [],
+				DateTo: '',
+				myCalendar: false
 			};            
             
             if (self.$route.query.id) {
@@ -125,55 +196,610 @@
 			if (self.$route.query.imsi) {
 				ret.IMSI = self.$route.query.imsi;
             }  			
-            
+			
+			ret.DashboardDataTableEl = false; 
+			ret.DashboardDataTable = [];
+			//ret.DashboardDataTable = self.$app.methods.getDashboardDataTableArray();    
+            ret.Charts = {
+				RealTime: false,
+				Overview: false,
+				TotalMileage: false,
+				FuelUsed: false,
+			};
             return ret;
         },
 		methods: {
 			initReport: function(){
-				var self = this;    
-			
+				var self = this;			
+				
+				var nowFull = moment(); 
+				var now = nowFull.clone().startOf('day');
+				//var threDaysBeforeFull = nowFull.add(-10, 'days');		
+				var threDaysBeforeFull = nowFull.clone().startOf('month');	
+				var timeFormat = 'YYYY-MM-DD';
+				var start = moment(threDaysBeforeFull,timeFormat).format('YYYY-MM-DD');
+				var end = moment(now,timeFormat).format('YYYY-MM-DD');
+				console.log(start, end);
+				var params = {		
+					startDate: start,//+'T00:00:00.000Z',
+					endDate: end,//+'T00:00:00.000Z',
+					Iccid: self.IMSI,
+				};					
+				//getActivityData(params, url, '.dataImnsFilters', '#chartSMS', payload);
+				
+				let urlparams = 'startDate='+ params.startDate + 'T00:00:00.000Z&endDate='+ params.endDate + 'T00:00:00.000Z';
+											
 				let userInfo = self.$app.methods.getFromStorage('userInfo');
 				let accessToken = userInfo.accessToken;		
-				
-				let params = 'startDate=2020-09-15T00:00:00.000Z&endDate=2020-10-01T00:00:00.000Z&limit=25';
-				
-					$.ajax({
-						type: "GET",		        
-						url: 'https://m2mdata03.sinopacific.com.ua/api/v3/sims/cdrs?' + params,  
-						dataType: "json",	
-						async: true,
-						//cache: false,
-						headers: { 
-							Authorization: "Bearer " + accessToken,
-						},
-						success: function (result) {
-							if(result){
-								console.log('report',result);
-								//self.IMSIUsageArray.push();
-								/*self.$setState({
-									messagesInfo: result.length,
-								});*/
-							}else{
-								console.log('something wrong');
+			
+				$.ajax({
+					type: "GET",	        
+					url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/cdrs/'+ params.Iccid +'?' + urlparams,
+					dataType: "json",	
+					async: true,
+					headers: { 
+						Authorization: "Bearer " + accessToken,
+					},
+					//cache: false,
+					success: function (result) {
+						//hidePreloader(fromClass);	  
+						if(result){		
+						let arr = [];
+						let chartArr = [];
+						$.each(result, function(index, value1){
+							var flowField = 0;
+							var smsField = 0;
+							var totalField = 0;
+							
+							if(value1.totals != null  && value1.totals.flow != null){
+								var flowField = typeof value1.totals.flow.originalUnits == 'undefined'?0:+value1.totals.flow.originalUnits;
 							}
-						},
-						error: function(XMLHttpRequest, textStatus, errorThrown){
-							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
+							if(value1.totals != null && value1.totals.sms != null){					
+								var smsField = typeof value1.totals.sms.originalUnits == 'undefined'?0:+value1.totals.sms.originalUnits;
+							}
+							if(value1.totals != null && value1.totals.data != null && value1.totals.data.originalUnits != null){
+								var totalField = +(value1.totals.data.originalUnits/1000000).toFixed(3);
+							}
+							objTemp={'date':value1.date.slice(0, 10),'totalfield':totalField, 'flowfield':flowField, 'smsfield':smsField};
+							chartArr.push([value1.date.slice(0, 10), totalField]);
+							
+												
+							arr.push(objTemp);
+						});	
+							
+						
+			
+							self.$setState({
+								DashboardDataTable: arr,
+								totalMB: chartArr
+							});
+									
+							self.DashboardDataTableEl = $('body').find('#table-report-sim').DataTable({                    
+								columnDefs: [
+									{ // remove orederable arrows from column with pin
+										targets: [ 0 ], 
+										orderable: true,  
+									},
+									{ // hide group codes, which will be used for filtering
+										targets: [ 1 ],
+										visible: true
+									},
+									{ // hide group codes, which will be used for filtering
+										targets: [ 2 ],
+										visible: true
+									},
+									{ // hide group codes, which will be used for filtering
+										targets: [ 3 ],
+										visible: true
+									}
+								],
+								"order": [[ 0, "desc" ]],
+								lengthMenu: [5, 10, 25],
+								pageLength: 5   
+							});
+							
+							
+								self.$app.utils.nextFrame(()=>{
+									let wasDataAlreadyLoaded = self.DashboardDataLoadedEndUserOverview;
+									self.$setState({
+										DashboardDataLoadedEndUserOverview: true,
+										EndUser:{Overview: result}
+									});
+									
+									if (wasDataAlreadyLoaded){
+										self.updateGraphicsOverviewAndRealTime();
+									}else{
+										self.initGraphics();
+									}
+								});
+								
+						}else{
+							console.log('something wrong');
 						}
+					},
+					error: function(XMLHttpRequest, textStatus, errorThrown){
+						console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
+					}
+				});
+	
+			},			
+			updateGraphicsOverviewAndRealTime: function(){
+				let self = this;
+				if (self.Charts.Overview && self.EndUser.Overview) {
+					let overviewFiletrEl = self.$el.find('[name="dashboard-overview-filter"]');
+					
+					//update if overview selected for 1 day
+					if (overviewFiletrEl && overviewFiletrEl.length && overviewFiletrEl.val() == '1') {	
+						let fomattedValues = self.formatGOverviewValues(self.EndUser.Overview);
+
+						self.Charts.Overview.load({
+					        columns: [
+								['11', 6],
+								['22', 7],
+								['33', 7],
+								['11', 6],
+								['22', 7],
+								['33', 7],
+								['11', 6],
+							]
+					    });
+					}					
+				}
+				/*if (self.Charts.RealTime && self.RealtimeOnline) {									
+					self.Charts.RealTime.load({
+					    columns: [
+							[LANGUAGE.DASHBOARD_PANEL_MSG28, self.RealtimeOnline.Online],
+							[LANGUAGE.DASHBOARD_PANEL_MSG29, self.RealtimeOnline.Offline]
+						]
+					});					
+				}*/
+			},
+			
+			initGraphics: function(){
+				let self = this;
+				
+				let columnsOverview = [
+						['m', 0], //moving
+						['w', 0], //stoped
+						['e', 0], //idle,=
+						['m', 0], //moving
+						['w', 0], //stoped
+						['e', 0], //idle
+						['m', 0], //moving
+					];	
+					if (self.EndUser && self.EndUser.Overview) {
+						let fomattedValues = self.formatGOverviewValues(self.EndUser.Overview);
+						columnsOverview = [
+							['yy', 15],
+							['ii', 91],
+							['o', 24],
+							['d', 0.6],
+							['i', 9],
+							['oi', 0.6],
+							['y2', 0.10],
+						];
+
+						for (var i = self.EndUser.Overview.length - 1; i >= 0; i--) {
+							/*if (POSINFOASSETLIST[self.EndUser.Overview[i].IMEI]) {
+								columnsTotalMileage.push( [ POSINFOASSETLIST[self.EndUser.Overview[i].IMEI].Name, parseFloat(self.EndUser.Overview[i].Mileage).toFixed(2) ] );
+								columnsFuelUsed.push( [ POSINFOASSETLIST[self.EndUser.Overview[i].IMEI].Name, parseFloat(self.EndUser.Overview[i].Fuel).toFixed(2) ] );
+							}*/							
+						}
+					}					
+
+					self.buildGraphics({
+						GOverview: {
+							bindto: '#chart-GOverview',
+							columns: columnsOverview,
+						},												
 					});
-			}
+				
+			},
+			formatGOverviewValues: function(arr){
+				let ret = {
+					stop: 1,
+					move: 3,
+					idle: 7,
+					//mileage: 0,
+					//fuel: 0
+				}
+
+				if (arr && arr.length) {
+					for (var i = arr.length - 1; i >= 0; i--) {
+						ret.stop += arr[i].Stop;
+						ret.move += arr[i].Move;
+						ret.idle += arr[i].Idle;
+						//ret.fuel += arr[i].fuel;
+						//ret.mileage += arr[i].mileage;
+					}
+				}
+
+				return ret;
+			},
+			
+			buildGraphics: function(params){
+				//console.log(params.GRealTimeOnline);
+				var self = this;
+				if (params) {
+					
+
+					if (params.GOverview && params.GOverview.bindto) {
+						self.Charts.Overview = c3.generate({
+							bindto: params.GOverview.bindto,
+							size: {                                
+								height: 180,                       
+							},
+							color: {
+								pattern: ['#4dc08e']//, 10aef8'#f96868', '#f9b256'
+							},	
+							data: {                                
+                                columns: self.totalMB,//params.GOverview.columns,                        
+                                type : 'bar',   
+                                labels: false                             
+                            },
+                            bar: {
+                                width: {
+                                    ratio: 1 // this makes bar width 50% of length between ticks
+                                },
+                                space: 0.25
+                            },
+                            axis: {
+                                x: { 
+                                    show: false,
+                                    type: 'category',
+                                    categories: ['mb/day'],//params.GTotalMileage.name
+                                },
+                                y: { show: false }
+                            },
+                            legend: {
+                                show: false
+                            },
+							
+							tooltip: {
+						        /*format: {
+						            //title: function (d) { return 'Data ' + d; },
+						            value: function (value, ratio, id) {
+						                return TimeSpan(value*1000).format("^hh:mm:ss");
+						            }
+							
+						        }*/
+						    }							
+						});
+					}	
+			
+				}						
+			},
+			
+			getOverviewDetails: function(days = 1){
+				let self = this;
+				self.DashboardDataTableEl.destroy();
+				self.DashboardDataTableEl = false;
+				
+				self.Charts.Overview = false;
+								
+				let urlparams = '';				
+				var nowFull = moment(); 
+				var now = nowFull.clone().startOf('day');
+				var timeFormat = 'YYYY-MM-DD';
+				var startTime, endTime;
+				
+				switch(days){
+	                case '1':	 		
+						startTime = nowFull.clone().startOf('month');
+						endTime = now;
+					break;
+					case '2':					
+						startTime = nowFull.add(-7, 'days');	
+						endTime = now;
+					break;
+					case '3':						
+						startTime = nowFull.add(-30, 'days');	
+						endTime = now;
+					break;
+					default:								
+						var newDateTo = $('.report-page').find('#date-to').val();
+						var newFull = moment(newDateTo); 			
+						startTime = moment(newDateTo).add(-30, 'days');	
+						endTime = newFull;					
+						console.log(startTime, endTime);
+				}
+				
+				var start = moment(startTime,timeFormat).format('YYYY-MM-DD');
+				var end = moment(endTime,timeFormat).format('YYYY-MM-DD');
+				
+				self.$setState({
+					DateTo: end
+				});
+				
+				
+				var params = {		
+					startDate: start,//+'T00:00:00.000Z',
+					endDate: end,//+'T00:00:00.000Z',
+					Iccid: self.IMSI,
+				};	
+				urlparams = 'startDate='+ params.startDate + 'T00:00:00.000Z&endDate='+ params.endDate + 'T00:00:00.000Z';	
+				
+				let userInfo = self.$app.methods.getFromStorage('userInfo');
+				let accessToken = userInfo.accessToken;		
+			
+				$.ajax({
+					type: "GET",	        
+					url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/cdrs/'+ params.Iccid +'?' + urlparams,
+					dataType: "json",	
+					async: true,
+					headers: { 
+						Authorization: "Bearer " + accessToken,
+					},
+					//cache: false,
+					success: function (result) {
+						//hidePreloader(fromClass);	  
+						if(result){		
+						let arr = [];
+						let chartArr = [];
+						$.each(result, function(index, value1){
+							var flowField = 0;
+							var smsField = 0;
+							var totalField = 0;
+							
+							if(value1.totals != null  && value1.totals.flow != null){
+								var flowField = typeof value1.totals.flow.originalUnits == 'undefined'?0:+value1.totals.flow.originalUnits;
+							}
+							if(value1.totals != null && value1.totals.sms != null){					
+								var smsField = typeof value1.totals.sms.originalUnits == 'undefined'?0:+value1.totals.sms.originalUnits;
+							}
+							if(value1.totals != null && value1.totals.data != null && value1.totals.data.originalUnits != null){
+								var totalField = +(value1.totals.data.originalUnits/1000000).toFixed(3);
+							}
+							objTemp={'date':value1.date.slice(0, 10),'totalfield':totalField, 'flowfield':flowField, 'smsfield':smsField};
+							chartArr.push([value1.date.slice(0, 10), totalField]);
+							
+												
+							arr.push(objTemp);
+						});	
+							
+						
+			/*let fomattedValues = self.formatGOverviewValues(data);
+
+							self.Charts.Overview.load({
+						        columns: [
+									[LANGUAGE.DASHBOARD_PANEL_MSG54, fomattedValues.move],
+									[LANGUAGE.DASHBOARD_PANEL_MSG52, fomattedValues.stop],
+									[LANGUAGE.DASHBOARD_PANEL_MSG53, fomattedValues.idle],
+								]
+						    });*/
+							
+							
+							self.$setState({
+								DashboardDataTable: arr,
+								totalMB: chartArr
+							});
+							
+							self.DashboardDataTableEl = $('body').find('#table-report-sim').DataTable({                    
+								columnDefs: [
+									{ // remove orederable arrows from column with pin
+										targets: [ 0 ], 
+										orderable: true,  
+									},
+									{ // hide group codes, which will be used for filtering
+										targets: [ 1 ],
+										visible: true
+									},
+									{ // hide group codes, which will be used for filtering
+										targets: [ 2 ],
+										visible: true
+									},
+									{ // hide group codes, which will be used for filtering
+										targets: [ 3 ],
+										visible: true
+									}
+								],
+								"order": [[ 0, "desc" ]],
+								lengthMenu: [5, 10, 25],
+								pageLength: 5   
+							});
+							
+							self.Charts.Overview = c3.generate({
+							bindto: '#chart-GOverview',
+							size: {                                
+								height: 180,                       
+							},
+							color: {
+								pattern: ['#4dc08e']//, 10aef8'#f96868', '#f9b256'
+							},	
+							data: {                                
+                                columns: self.totalMB,//params.GOverview.columns,                        
+                                type : 'bar',   
+                                labels: false                             
+                            },
+                            bar: {
+                                width: {
+                                    ratio: 1 // this makes bar width 50% of length between ticks
+                                },
+                                space: 0.25
+                            },
+                            axis: {
+                                x: { 
+                                    show: false,
+                                    type: 'category',
+                                    categories: ['mb/day'],//params.GTotalMileage.name
+                                },
+                                y: { show: false }
+                            },
+                            legend: {
+                                show: false
+                            },
+							
+							tooltip: {
+						        /*format: {
+						            //title: function (d) { return 'Data ' + d; },
+						            value: function (value, ratio, id) {
+						                return TimeSpan(value*1000).format("^hh:mm:ss");
+						            }
+							
+						        }*/
+						    }							
+						});
+/*						
+							self.$app.utils.nextFrame(()=>{
+								self.Charts.Overview.load({
+									columns:  self.totalMB
+								});
+							});*/
+							/*
+							self.DashboardDataTableEl = $('body').find('#table-report-sim').DataTable({                    
+								columnDefs: [
+									{ // remove orederable arrows from column with pin
+										targets: [ 0 ], 
+										orderable: false,  
+									},
+									{ // hide group codes, which will be used for filtering
+										targets: [ 1 ],
+										visible: true
+									},
+									{ // hide group codes, which will be used for filtering
+										targets: [ 2 ],
+										visible: true
+									},
+									{ // hide group codes, which will be used for filtering
+										targets: [ 3 ],
+										visible: true
+									}
+								],
+								lengthMenu: [5, 10, 25],
+								pageLength: 5   
+							});
+							
+							
+								self.$app.utils.nextFrame(()=>{
+									let wasDataAlreadyLoaded = self.DashboardDataLoadedEndUserOverview;
+									self.$setState({
+										DashboardDataLoadedEndUserOverview: true,
+										EndUser:{Overview: result}
+									});
+									
+									if (wasDataAlreadyLoaded){
+										console.log('111');
+										//self.updateGraphicsOverviewAndRealTime();
+									}else{
+										console.log('222');
+										//self.initGraphics();
+									}
+								});
+								*/
+						}else{
+							console.log('something wrong');
+						}
+					},
+					error: function(XMLHttpRequest, textStatus, errorThrown){
+						console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
+					}
+				});
+				
+				//self.changeGraphicData('', selectName);
+				/*let userInfo = self.$app.methods.getFromStorage('userInfo'); 
+				let data = {
+					MajorToken: userInfo.MajorToken,
+					MinorToken: userInfo.MinorToken,	
+					Days: days	
+				};
+				let progressbarContainer = self.$el.find('select[name = '+selectName+']').closest('.card').find('.progressbar-container');				
+				
+				self.$app.progressbar.show(progressbarContainer, 'red');
+				self.$app.request.post(API_URL.GET_DASHBOARD_OVERVIEW_INFO, data, function (result, xhr, status) {
+					self.$app.progressbar.hide(progressbarContainer); 
+                                   
+                    console.log(result);
+                    if (result && result.MajorCode == '000' && selectName) {
+                    	self.changeGraphicData(result.Data, selectName);	                    
+                    }                    
+                },
+                function (xhr, status) {            
+                    self.$app.progressbar.hide(progressbarContainer); 
+                    self.$app.dialog.alert('Error occured at getOverviewDetails');                
+                },
+                'json');  */
+			},
+			
+			changeGraphicData: function(data=[], selectName){
+				let self = this;
+				
+				if (data.length && selectName) {
+					let columns = [];
+					switch(selectName){
+	                    case 'dashboard-total-mileage-filter':							
+							for (var i = data.length - 1; i >= 0; i--) {
+								columns.push( [ POSINFOASSETLIST[data[i].IMEI].Name, parseFloat(data[i].Mileage).toFixed(2) ] );
+							}
+							self.Charts.TotalMileage.load({
+							    columns: columns
+							});			
+
+	                    	break;
+
+	                    case 'dashboard-total-fuel-filter':
+	                    	for (var i = data.length - 1; i >= 0; i--) {								
+								columns.push( [  POSINFOASSETLIST[data[i].IMEI].Name, parseFloat(data[i].Fuel).toFixed(2) ] );
+							}
+							self.Charts.FuelUsed.load({
+							    columns: columns
+							});
+	                    	break;
+
+	                    case 'dashboard-overview-filter':
+	                    	let fomattedValues = self.formatGOverviewValues(data);
+
+							self.Charts.Overview.load({
+						        columns: [
+									[LANGUAGE.DASHBOARD_PANEL_MSG54, fomattedValues.move],
+									[LANGUAGE.DASHBOARD_PANEL_MSG52, fomattedValues.stop],
+									[LANGUAGE.DASHBOARD_PANEL_MSG53, fomattedValues.idle],
+								]
+						    });
+	                    	break;
+	                }   
+				}else{
+}				
+			},
+
 		},
         on: {
             pageInit: function (e, page) {  
 				var self = this;        
-				var thisPage = page.$el.find('.page-content'); 
+				var thisPage = page.$el.find('.page-content'); 					
+				let overviewFiletrEl = self.$el.find('[name="dashboard-overview-filter"]');
 				
-				self.initReport()
-				var imsiUsageTable = self.$el.find('.imsi-usage-table');
+				var current = moment(); 
+				var currentDay = current.clone().startOf('day');
+				currentDay = moment(currentDay).format('YYYY-MM-DD');
 				
-				app.dataTable.create({
-					el: imsiUsageTable,
+				self.$setState({
+					DateTo: currentDay
 				});
+				
+				self.initReport();
+				
+				self.myCalendar = self.$app.calendar.create({
+					inputEl: '#date-to',
+					on: {
+						closed: function () {
+							self.getOverviewDetails('4');
+						}
+					  }
+				});				
+				
+				overviewFiletrEl.on('change', function(e){ console.log(e)
+					if(e.target.value == '4'){
+						self.$app.utils.nextFrame(()=>{							
+							$('.report-page').find('#date-to').attr('disabled', false);
+							self.myCalendar.open();
+						});
+					}else{
+						$('.report-page').find('#date-to').attr('disabled', true);
+						self.getOverviewDetails(e.target.value);
+					}
+				});
+				
+				
 			}
 		}
     };

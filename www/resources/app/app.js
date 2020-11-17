@@ -149,7 +149,7 @@ var app = new Framework7({
 					method: "POST",
 					headers: {
 						"content-type": "application/json",
-						"Origin": "http://android.app.quiktrak.eu",
+						"origin": "http://android.app.quiktrak.eu",
 					},
 					processData: false,
 					success: function (result) {	
@@ -399,7 +399,7 @@ var app = new Framework7({
             }else{
                // App.dialog.alert('Wrong query parameters!');
             }
-        },
+        },		
     },
     routes: routes,
     popup: {
