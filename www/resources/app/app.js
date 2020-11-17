@@ -143,7 +143,7 @@ var app = new Framework7({
             				
 							
             this.preloader.show();
-	/*		
+	
 			app.request.setup({
 				headers: {
 					"content-type": "application/json",
@@ -155,12 +155,15 @@ var app = new Framework7({
 				console.log(result);
 			  if(result && result.consumerToken) {
 							let consumerToken = result.consumerToken
-							app.methods.login(consumerToken);
+							app.preloader.hide();
+							app.dialog.alert('SUCCESS');
+							//app.methods.login(consumerToken);
+							
 						}else {
 							self.utils.nextFrame(()=>{
 								app.preloader.hide();
-								//app.dialog.alert(LANGUAGE.LOGIN_MSG01);
-							app.dialog.alert('Not ok here');
+								
+								app.dialog.alert('ER_0');
 								app.loginScreen.open('.login-screen');
 							});
 						}	
@@ -168,14 +171,11 @@ var app = new Framework7({
 				console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
 						self.utils.nextFrame(()=>{
 							app.preloader.hide();
-							app.dialog.alert(XMLHttpRequest);
-							app.dialog.alert(textStatus);
-							app.dialog.alert(errorThrown);
-							app.dialog.alert('Not ok');
+							app.dialog.alert('ER_1');
 							app.loginScreen.open('.login-screen');
 						});
 			}, 'json');
-*/
+/*
 			$.ajax({
 					async: true,
 					crossDomain: true,
@@ -208,6 +208,7 @@ var app = new Framework7({
 						});
 					}
 				});	
+				*/
             /*app.request.get(API_URL.LOGIN, data, function (result, xhr, status) {
                     console.log(result);
                     if(result && result.MajorCode == '000') {
