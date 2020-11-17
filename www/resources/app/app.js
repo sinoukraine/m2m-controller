@@ -141,7 +141,41 @@ var app = new Framework7({
         preLogin: function(){
             let self = this;
             				
+							
             this.preloader.show();
+			
+			app.request.setup({
+				headers: {
+					"content-type": "application/json",
+					"Origin": "file://",
+				}
+			});
+			
+			app.request.post('https://m2mdata03.sinopacific.com.ua/api/v3/consumers/tokens', {}, function (result) {
+				console.log(result);
+			  if(result && result.consumerToken) {
+							let consumerToken = result.consumerToken
+							app.methods.login(consumerToken);
+						}else {
+							self.utils.nextFrame(()=>{
+								app.preloader.hide();
+								//app.dialog.alert(LANGUAGE.LOGIN_MSG01);
+							app.dialog.alert('Not ok here');
+								app.loginScreen.open('.login-screen');
+							});
+						}	
+			}, function(error){
+				console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
+						self.utils.nextFrame(()=>{
+							app.preloader.hide();
+							app.dialog.alert(XMLHttpRequest);
+							app.dialog.alert(textStatus);
+							app.dialog.alert(errorThrown);
+							app.dialog.alert('Not ok');
+							app.loginScreen.open('.login-screen');
+						});
+			}, 'json');
+/*
 			$.ajax({
 					async: true,
 					crossDomain: true,

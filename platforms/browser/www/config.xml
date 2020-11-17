@@ -20,7 +20,7 @@
         Sinopacific Co Limited
     </author>
     <content src="index.html" />
-    <access origin="http://android.app.quiktrak.eu" />
+    <access origin="*" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
     <allow-intent href="tel:*" />
