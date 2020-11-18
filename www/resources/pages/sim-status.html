@@ -223,35 +223,46 @@
 								self.obj = result;
 																
 								/*var inputDesc = $('body').find('.desc-editor');
-								inputDesc.html(result.info.description);*/									
-							console.log(result.extra.states.current,result.extra.states.csp)
+								inputDesc.html(result.info.description);*/						
 							var setStatus = '', setCSP = '';
-							if(result.extra.states.current){
-								setStatus = result.extra.states.current;								
-								self.smartSelect.setValue(setStatus);		
-							}
 							
-							if(result.extra.states.csp){
-								setCSP = result.extra.states.csp;
-								self.smartSelect1.setValue(setCSP);
-							}
 							
-								$('.state-block').removeClass('display-none');
+							
 								
+														
 								self.$setState({
-									statusInfo: setStatus
-								});								
-								
-								self.$setState({
-									cspInfo: setCSP
+									loading: false
+									
 								});
+								
 								
 								self.$setState({
 									CustomerName: result.ancestors[0].info.name,
 									SIMName: result.info.name,
 									Description: result.info.description,
-									loading: false
+									
 								});
+								
+								$('.state-block').removeClass('display-none');
+							if(result.extra.states.current){
+										
+							console.log(result.extra.states.current)
+								setStatus = result.extra.states.current;								
+								self.smartSelect.setValue(setStatus);	
+								self.$setState({
+									statusInfo: setStatus
+								});										
+							}
+							
+							if(typeof result.extra.states.csp != 'undefined'){
+										
+							console.log(result.extra.states.csp)
+								setCSP = result.extra.states.csp;
+								self.smartSelect1.setValue(setCSP);
+								self.$setState({
+									cspInfo: setCSP
+								});
+							}
 								
 								
 							}else{
@@ -698,6 +709,8 @@
 							self.$setState({
 								terminatedTitle: 'Deleted',
 							});
+										
+							console.log('eerr', oldState);
 							self.smartSelect.setValue(oldState);
 							
 						$('.sim-status-page').find('.smart-select-0').removeClass('disabled');	

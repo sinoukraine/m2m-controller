@@ -143,11 +143,11 @@ var app = new Framework7({
             				
 							
             this.preloader.show();
-			
+	/*
 			app.request.setup({
 				headers: {
 					"content-type": "application/json",
-					"Origin": "*",
+					"Origin": "file://",
 				}
 			});
 			
@@ -155,12 +155,15 @@ var app = new Framework7({
 				console.log(result);
 			  if(result && result.consumerToken) {
 							let consumerToken = result.consumerToken
-							app.methods.login(consumerToken);
+							app.preloader.hide();
+							app.dialog.alert('SUCCESS');
+							//app.methods.login(consumerToken);
+							
 						}else {
 							self.utils.nextFrame(()=>{
 								app.preloader.hide();
-								//app.dialog.alert(LANGUAGE.LOGIN_MSG01);
-							app.dialog.alert('Not ok here');
+								
+								app.dialog.alert('ER_0');
 								app.loginScreen.open('.login-screen');
 							});
 						}	
@@ -168,14 +171,11 @@ var app = new Framework7({
 				console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
 						self.utils.nextFrame(()=>{
 							app.preloader.hide();
-							app.dialog.alert(XMLHttpRequest);
-							app.dialog.alert(textStatus);
-							app.dialog.alert(errorThrown);
-							app.dialog.alert('Not ok');
+							app.dialog.alert('ER_1');
 							app.loginScreen.open('.login-screen');
 						});
 			}, 'json');
-/*
+*/
 			$.ajax({
 					async: true,
 					crossDomain: true,
@@ -183,7 +183,7 @@ var app = new Framework7({
 					method: "POST",
 					headers: {
 						"content-type": "application/json",
-						"origin": "http://android.app.quiktrak.eu",
+						"Origin": "file://",
 					},
 					processData: false,
 					success: function (result) {	
@@ -194,7 +194,7 @@ var app = new Framework7({
 							self.utils.nextFrame(()=>{
 								app.preloader.hide();
 								//app.dialog.alert(LANGUAGE.LOGIN_MSG01);
-							app.dialog.alert('Not ok here');
+							app.dialog.alert('Er0');
 								app.loginScreen.open('.login-screen');
 							});
 						}	
@@ -203,14 +203,12 @@ var app = new Framework7({
 						console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
 						self.utils.nextFrame(()=>{
 							app.preloader.hide();
-							app.dialog.alert(XMLHttpRequest);
-							app.dialog.alert(textStatus);
-							app.dialog.alert(errorThrown);
-							app.dialog.alert('Not ok');
+							app.dialog.alert('Er1');
 							app.loginScreen.open('.login-screen');
 						});
 					}
 				});	
+				
             /*app.request.get(API_URL.LOGIN, data, function (result, xhr, status) {
                     console.log(result);
                     if(result && result.MajorCode == '000') {
@@ -277,7 +275,8 @@ var app = new Framework7({
 					method: "POST",
 					headers: {
 						"authorization": "Bearer " + consumerToken,
-						"content-type": "application/json"
+						"content-type": "application/json",						
+						"Origin": "file://",
 					},
 					processData: false,
 					data: JSON.stringify(data),
@@ -312,6 +311,8 @@ var app = new Framework7({
 							self.utils.nextFrame(()=>{
 								app.preloader.hide();
 								app.dialog.alert(LANGUAGE.LOGIN_MSG01);
+								
+								app.dialog.alert('Er2');
 								app.loginScreen.open('.login-screen');
 							});
 						}					
@@ -320,7 +321,8 @@ var app = new Framework7({
 						console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
 						self.utils.nextFrame(()=>{
 							app.preloader.hide();
-							app.dialog.alert('Error occured during login');
+							app.dialog.alert('Error occured during login');							
+							app.dialog.alert('Er3');
 							app.loginScreen.open('.login-screen');
 						});
 					}

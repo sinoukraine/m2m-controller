@@ -143,7 +143,7 @@ var app = new Framework7({
             				
 							
             this.preloader.show();
-	
+	/*
 			app.request.setup({
 				headers: {
 					"content-type": "application/json",
@@ -175,7 +175,7 @@ var app = new Framework7({
 							app.loginScreen.open('.login-screen');
 						});
 			}, 'json');
-/*
+*/
 			$.ajax({
 					async: true,
 					crossDomain: true,
@@ -208,7 +208,7 @@ var app = new Framework7({
 						});
 					}
 				});	
-				*/
+				
             /*app.request.get(API_URL.LOGIN, data, function (result, xhr, status) {
                     console.log(result);
                     if(result && result.MajorCode == '000') {

@@ -33,7 +33,7 @@ var routes = [
     },
     {
         path: '/sim-status/',
-        componentUrl: './resources/pages/sim-status.html?v=1.5',
+        componentUrl: './resources/pages/sim-status.html?v=1.6',
         name: 'sim-status'
     },
     {
