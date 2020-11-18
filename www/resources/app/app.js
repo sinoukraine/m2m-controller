@@ -183,7 +183,7 @@ var app = new Framework7({
 					method: "POST",
 					headers: {
 						"content-type": "application/json",
-						"Origin": "file://",
+						"Origin": "*",
 					},
 					processData: false,
 					success: function (result) {	
@@ -276,7 +276,7 @@ var app = new Framework7({
 					headers: {
 						"authorization": "Bearer " + consumerToken,
 						"content-type": "application/json",						
-						"Origin": "file://",
+						"Origin": "*",
 					},
 					processData: false,
 					data: JSON.stringify(data),
