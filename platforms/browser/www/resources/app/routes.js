@@ -13,12 +13,12 @@ var routes = [
     },
     {
         path: '/commands/',
-        componentUrl: './resources/pages/commands.html?v=1.1',
+        componentUrl: './resources/pages/commands.html?v=1.2',
         name: 'commands'
     },
     {
         path: '/commands-list/',
-        componentUrl: './resources/pages/commands-list.html?v=1.2',
+        componentUrl: './resources/pages/commands-list.html?v=1.3',
         name: 'commands-list'
     },
     {

@@ -13,6 +13,11 @@ $$('#app').append(compiledTemplate());
 
 var API_URL = {};
 
+var API_IMNS_DOMIAN ="https://m2mdata.co/api/Service/";	
+var URL_LOGIN = API_IMNS_DOMIAN + "Auth";
+var URL_GET_COMMAND_LIST = API_IMNS_DOMIAN + "GetCommandList";
+var URL_GET_COMMAND_PARAMS = API_IMNS_DOMIAN +"GetCommand";
+
 var API_DOMIAN = "https://m2mdata03.sinopacific.com.ua/api/v3/";
 API_URL.PRE_LOGIN = API_DOMIAN + "consumers/tokens/";
 
@@ -183,7 +188,7 @@ var app = new Framework7({
 					method: "POST",
 					headers: {
 						"content-type": "application/json",
-						"Origin": "file://",
+						"Origin": "*",
 					},
 					processData: false,
 					success: function (result) {	
@@ -276,7 +281,7 @@ var app = new Framework7({
 					headers: {
 						"authorization": "Bearer " + consumerToken,
 						"content-type": "application/json",						
-						"Origin": "file://",
+						"Origin": "*",
 					},
 					processData: false,
 					data: JSON.stringify(data),

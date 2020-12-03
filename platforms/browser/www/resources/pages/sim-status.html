@@ -281,11 +281,10 @@
 				
 				let userInfo = self.$app.methods.getFromStorage('userInfo');
 				let accessToken = userInfo.accessToken;		
-				
-				
+								
 				$.ajax({
 						type: "GET",		        
-						url: API_URL.URL_GET_COMMAND_HISTORY + self.ID + '/coordinates', //?formula[]=center&formula[]=centroid&formula[]=centerOfMass
+						url: API_URL.URL_GET_COMMAND_HISTORY + self.ID + '/coordinates?formula=center', //?formula[]=center&formula[]=centroid&formula[]=centerOfMass
 						dataType: "json",	
 						async: true,
 						//cache: false,

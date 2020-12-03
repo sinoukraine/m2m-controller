@@ -900,3 +900,12 @@ h3{
 .table-cells-sim_ellipsis{
 	color: #191919 !important;
 }
+
+.li-cmd{
+	background-color: aliceblue;
+	cursor: pointer;
+}
+
+.py-5{
+	padding: 15px 0;
+}
