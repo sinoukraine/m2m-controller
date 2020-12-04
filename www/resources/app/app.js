@@ -1,3 +1,5 @@
+String.prototype.format = function (e) { var t = this; if($.isArray(e)) {for (var i = 0; i < e.length; i++) if (e[i] != undefined) { var r = new RegExp("({)" + i + "(})", "g"); t = t.replace(r, e[i]) } return t }else if (arguments.length == 1 && typeof e == "object") { for (var n in e) if (e[n] != undefined) { var r = new RegExp("({" + n + "})", "g"); t = t.replace(r, e[n]) } } else for (var i = 0; i < arguments.length; i++) if (arguments[i] != undefined) { var r = new RegExp("({)" + i + "(})", "g"); t = t.replace(r, arguments[i]) } return t };
+
 // Dom7
 var $$ = Dom7;
 

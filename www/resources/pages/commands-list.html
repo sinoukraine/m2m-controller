@@ -410,25 +410,33 @@
 							var obj=result.Data;		
 							var smsFormat=obj.CmdFormat;			    
 							var arry=eval(obj.Params);
-							var params=[];
-							for(var i=0;i<arry.length;i++){			    	
-								params.push(arry[i].Prams);
-							}			   
-							var count=arry.length;					    
-							if(count>0)
+							var params=[];							
+							var count=arry.length;
+							var j = 0;
+							
+							for(var i=0;i<arry.length;i++){		
+								  let curPar = self.$app.dialog.prompt(arry[i].Name, function (name) {
+										j++;
+										params.push(name);
+										console.log(j);
+										if(j == count){
+											smsFormat=smsFormat.format(params);
+											
+											myEvents.emit('cmdReceived', {
+												cmd: smsFormat
+											});
+											mainView.router.back();
+										}
+								  }, function (e) {}, arry[i].Prams);
+							}			   					    
+							if(count == 0)
 							{
-								smsFormat=smsFormat.format(params);		    	
+								myEvents.emit('cmdReceived', {
+									cmd: smsFormat
+								});
+								mainView.router.back();
 							}	
 							
-							/*var sendCommandMessage=$("#sendCommand_Message");
-							if(sendCommandMessage.length>0){			    				 	
-								sendCommandMessage.val(smsFormat);	
-							}*/
-							
-							myEvents.emit('cmdReceived', {
-								cmd: smsFormat
-							});
-							mainView.router.back();
 						}
 					})					
 					//let cmd = $(this).find('.cmd').attr('cmd-name');
