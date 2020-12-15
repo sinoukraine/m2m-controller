@@ -909,3 +909,8 @@ h3{
 .py-5{
 	padding: 15px 0;
 }
+
+.msg-status{
+	text-align: left;
+    color: rgba(255,255,255,0.5);
+}

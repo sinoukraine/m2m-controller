@@ -17,7 +17,7 @@ var API_URL = {};
 
 var API_IMNS_DOMIAN ="https://m2mdata.co/api/Service/";	
 var URL_LOGIN = API_IMNS_DOMIAN + "Auth";
-var URL_GET_COMMAND_LIST = API_IMNS_DOMIAN + "GetCommandList";
+var URL_GET_COMMAND_LIST = API_IMNS_DOMIAN + "GetCommandList2";
 var URL_GET_COMMAND_PARAMS = API_IMNS_DOMIAN +"GetCommand";
 
 var API_DOMIAN = "https://m2mdata03.sinopacific.com.ua/api/v3/";
@@ -201,7 +201,7 @@ var app = new Framework7({
 							self.utils.nextFrame(()=>{
 								app.preloader.hide();
 								//app.dialog.alert(LANGUAGE.LOGIN_MSG01);
-							app.dialog.alert('Er0');
+							app.dialog.alert('Something wrong. Please try later.');
 								app.loginScreen.open('.login-screen');
 							});
 						}	
@@ -210,7 +210,7 @@ var app = new Framework7({
 						console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
 						self.utils.nextFrame(()=>{
 							app.preloader.hide();
-							app.dialog.alert('Er1');
+							app.dialog.alert('Something wrong. Please try later.');
 							app.loginScreen.open('.login-screen');
 						});
 					}
@@ -317,9 +317,9 @@ var app = new Framework7({
 						}else {
 							self.utils.nextFrame(()=>{
 								app.preloader.hide();
-								app.dialog.alert(LANGUAGE.LOGIN_MSG01);
+								//app.dialog.alert(LANGUAGE.LOGIN_MSG01);
 								
-								app.dialog.alert('Er2');
+								app.dialog.alert('Something wrong. Please try later.');
 								app.loginScreen.open('.login-screen');
 							});
 						}					
@@ -329,7 +329,7 @@ var app = new Framework7({
 						self.utils.nextFrame(()=>{
 							app.preloader.hide();
 							app.dialog.alert('Error occured during login');							
-							app.dialog.alert('Er3');
+							//app.dialog.alert('Something wrong. Please try later.');
 							app.loginScreen.open('.login-screen');
 						});
 					}

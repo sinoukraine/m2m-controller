@@ -72,7 +72,7 @@
 				})
 				*/
 				
-				self.$app.request.promise.post(URL_GET_COMMAND_LIST, {
+				self.$app.request.promise.get(URL_GET_COMMAND_LIST, {
 					MajorToken:self.imnsToken	
 				}, 'json')
 	            .then(function (result) {

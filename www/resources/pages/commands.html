@@ -131,17 +131,17 @@
 					var d = new Date();
 				
 					let self = this;
-					var curDate = d.toISOString().substr(0, 11) + '00:00:00.000Z';
-					
+					//var curDate = d.toISOString().substr(0, 11) + '00:00:00.000Z';
+					var curDate = '2020-12-13T00:00:00.000Z';
 						
 				let userInfo = self.$app.methods.getFromStorage('userInfo');
 				let accessToken = userInfo.accessToken;		
 				
 					console.log(curDate);
 					$.ajax({
-						type: "GET",		        
-						url: 'https://m2mdata03.sinopacific.com.ua/api/v3/sims/' + self.ID + '/sms?startDate=' + curDate + '&pageSize=100',		        
-						//url: 'https://m2mdata03.sinopacific.com.ua/api/v3/nomad/messages?query%5Bimsi%5D=' + self.imsi + '&query%5BcreatedAt%5D%5B%24gt%5D=' + curDate + '&pageSize=100&sort=createdAt',//&query%5BcreatedAt%5D%5B%24lt%5D=' + nextDate &query%5BcreatedAt%5D%5B%24gt%5D=' + curDate
+						type: "GET",
+						url: 'https://m2mdata03.sinopacific.com.ua/nomad/sims/' + self.imsi + '/sms',
+						//url: 'https://m2mdata03.sinopacific.com.ua/api/v3/sims/' + self.ID + '/sms?startDate=' + curDate + '&pageSize=100',		        
 						dataType: "json",	
 						async: true,
 						//cache: false,
@@ -149,15 +149,14 @@
 							Authorization: "Bearer " + accessToken,
 						},
 						success: function (result) {//console.log(result);
-							if (result.rows) {
-								self.setReplyMessages(result.rows);
-										
-								if (result.rows.length === 0) {
-									/*App.addNotification({
-										hold: 3000,
-										message: LANGUAGE.PROMPT_MSG006
-									});*/
-								}
+							if (result) {
+								let sortedRes = result.sort(function(a,b){
+									var c = new Date(a.insertedDate);
+									var d = new Date(b.insertedDate);
+									return d-c;
+								});
+								self.setReplyMessages(sortedRes.reverse());
+							
 							} else {
 								//App.alert(LANGUAGE.PROMPT_MSG013);
 								//self.$app.dialog.alert('delivering...');
@@ -173,11 +172,11 @@
                 let self = this;
 				
 				var html = '';
-				$.each(callbackList, function(index, value){					
-					if(self.used_id.indexOf( value._id ) == -1){
+				$.each(callbackList, function(index, value){				
+					if(self.used_id.indexOf( value.insertedDate ) == -1){
 					
-						self.used_id.push(value._id);
-						var datetime = moment.utc(value.createdAt).toDate();
+						self.used_id.push(value.insertedDate);
+						var datetime = moment.utc(value.insertedDate).toDate();
 							//datetime = moment(datetime).format(window.COM_TIMEFORMAT);
 							
 						var time = datetime.getDate() + ' ' + self.month_names_short[datetime.getMonth()] + ' ' + ('0' + datetime.getHours()).slice(-2) + ':' + ('0' + datetime.getMinutes()).slice(-2) + ':' + ('0' + datetime.getSeconds()).slice(-2);
@@ -185,25 +184,52 @@
 						
 						if (value.message) {
 								replySMS = value.message.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-							}else{
-								replySMS = value.status;
 							}
 							
-						if(value.status == 'received'){
+							if(value.direction == 'Outbound'){
+								self.messages.addMessage({
+									text: replySMS,
+									textFooter: time,	
+									attrs: {
+										'data-id': value.insertedDate,	
+									}								
+								  });
+								  
+								$('[data-id="'+value.insertedDate+'"]').find('.message-bubble').prepend('<div class="msg-status">Delivered</div>');
+											
+								  if(value.status == 'Delivered' || value.status == 'Submitted'){
+									$('.message-sent').each(function(i, ele) {
+										//var x = document.getElementsByClassName("message-sent");
+										console.log(value.status,datetime.getTime(), $(this).data('id'));
+										//datetime.getTime() >= $(this).data('id')
+										if(replySMS === $(this).find('.message-text').text() && $(this).find('.message-bubble').find('.msg-status').text() != 'Delivered'){
+											$(this).remove();
+											 //return false;
+										}
+									})
+								  }
+								  
+								  
+								
+							}
+							
+						if(value.direction == 'Inbound'){
 							
 							//replySMS += ' (' + datetime + ')';
 							
-							//setTimeout(function () {				
+							//setTimeout(function () {		
+
+							
 								  self.messages.addMessage({
 									text: replySMS,
 									type: 'received',
 									textFooter: time,	
 									attrs: {
-										'data-id': value._id,	
+										'data-id': value.insertedDate,	
 									}								
 								  });
 							//}, 5000);
-						}else if(!self.isSent || value.status == 'delivered'){		
+						}/*else if(!self.isSent ){		//|| value.status == 'delivered'
 							// Add message to messages
 							self.messages.addMessage({
 									text: replySMS,
@@ -212,7 +238,9 @@
 										'data-id': value._id,	
 									}								
 								  });
-						}				
+						}			*/
+
+$('.page-content').scrollTop(10000, 400);						
 						
 					}
 					/*if(self.used_id.indexOf( value._id ) == -1 ){
@@ -489,17 +517,25 @@
 					  // Return focus to area
 					  self.messagebar.focus();
 
+					  const timesent = new Date().getTime()-1000;
 					  // Add message to messages
 					  self.messages.addMessage({
 						text: text,
+						attrs: {
+							'data-id': timesent,
+						  }
 					  });
 					  
+					  
+$('.page-content').scrollTop(10000, 400);
 					  self.$setState({
 						isSent: true,
 					});
 							
 					self.sendCommand(text);
-
+					
+					$('[data-id="'+timesent+'"]').find('.message-bubble').prepend('<div class="msg-status">Sent...</div>');
+					
 				});
 				
 						if(!self.responseInProgress){

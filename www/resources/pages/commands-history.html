@@ -62,7 +62,19 @@
 
 		
         <div class="list virtual-list home-list commandsHistoryList" style="">
-         
+						{{#if DashboardHasData }}						
+											
+							{{else}}
+								{{#if DashboardNoData }}
+								<div class="absolute-center py-5">
+									No data
+								</div>	
+								{{else}}
+								<div key="KeyChartGOverviewLoader" class="absolute-center">
+									<div class="preloader color-blue"></div>
+								</div>
+								{{/if}}
+							{{/if}} 
         </div>
 		<!--<div class="preloader infinite-scroll-preloader"></div>-->
     </div>
@@ -75,6 +87,8 @@
         data: function () {
             var self = this;
             var ret = {
+				DashboardNoData: false,
+				DashboardHasData: false,
 				oldHistoryArray: [],
 				virtualCommandsHistoryList: false,
 				allowInfinite: true,
@@ -99,73 +113,22 @@
 		methods: {
 			requestCommandHistory: function(list){	
 				var self = this;
-				self.$app.preloader.hide();
+				//self.$app.preloader.hide();
 				
 				
-				/*if (params && params.IMSI && params.LastDay) {
-					var data = {
-						IMSI: self.IMSI,
-						LastDay: params.LastDay,
-					};
-
-					var container = $$('body');
-					if (container.children('.progressbar, .progressbar-infinite').length) return; //don't run all this if there is a current progressbar loading
-					//App.showProgressbar(container);
-					
-					$.ajax({
-						type: "GET",
-						url: API_URL.URL_GET_COMMAND_HISTORY + data.IMSI + '/sms',        
-						dataType: "json",	
-						headers: { 
-							Authorization: "12345"
-						},
-						async: true,
-						cache: false,
-						success: function (result) {
-							if(result){				
-								
-									if (result) {
-										*/
+				
 										var listEl = self.$el.find('.commandsHistoryList');
-										/*
-										if (self.virtualCommandsHistoryList) {
-											self.virtualCommandsHistoryList.destroy();
-										}*/
-										
-										//result.length = 5;
 										
 										self.virtualCommandsHistoryList = self.$app.virtualList.create({
                     el: listEl,
                     items : [],
-                    //cache: false,
-                    //showFilteredItemsOnly: true,
-                    /*searchAll: function (query, items) {
-                        let filterType = this.el.data('filter-type');
-                        let filteredListIndexes = self.$app.methods.filterAssetList(items, filterType);
-                        let found = [];
-
-                        for (let i = 0; i < filteredListIndexes.length; i++) {
-                            if (items[filteredListIndexes[i]].Name.toLowerCase().indexOf(query.toLowerCase()) >= 0 || query.trim() === '') found.push(filteredListIndexes[i]);
-                        }
-
-                        return found; //return array with mathced indexes
-                    },*/
                     height: function(item){
                         let height = 65.33;
-                        /*let afs = Protocol.Helper.getAssetStateInfo(POSINFOASSETLIST[item.IMEI]);
-                        if (afs && afs.stats) {
-                            height = 164.63;
-                            if (afs.voltage && afs.fuel || afs.battery && afs.fuel || afs.battery && afs.voltage) {
-                                height = 192.94;
-                            }
-                        }*/
-                        return height;
+                             return height;
                     },
                     renderItem: function (item, index) {console.log(item);
 									let html = '';
-									/*var datetime = moment.utc(item.insertedDate).toDate();
-												datetime = moment(datetime).format(window.COM_TIMEFORMAT);.getFullYear();*/
-						var date = moment.utc(item.insertedDate).toDate();
+										var date = moment.utc(item.insertedDate).toDate();
 						var datetime = date.toISOString();
 						var time = date.getDate() + ' ' + self.month_names_short[date.getMonth()] + ' ' + date.getFullYear() + ' ' + ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2) + ':' + ('0' + date.getSeconds()).slice(-2);
 
@@ -235,8 +198,12 @@
 												return ret;*/
 											}
 										});
-										
 										self.virtualCommandsHistoryList.replaceAllItems(list);
+								
+									self.$setState({
+										DashboardHasData: true										
+									});
+										
 									/*} else {
 									
 										if (self.virtualCommandsHistoryList) {
@@ -261,7 +228,7 @@
 				let userInfo = self.$app.methods.getFromStorage('userInfo');
 				let accessToken = userInfo.accessToken;		
 				
-				self.$app.preloader.show();
+				//self.$app.preloader.show();
 				$.ajax({
 						type: "GET",		        
 						//url: 'https://m2mdata03.sinopacific.com.ua/api/v3/sims/' + self.ID + '/sms?page=' + self.page + '&pageSize=100',//?startDate=2019-03-14T10:36:31.000Z&endDate=2019-03-17T12:26:05.000Z
@@ -321,7 +288,12 @@
 								self.requestCommandHistory(self.oldHistoryArray);
 								//console.log(self.oldHistoryArray);
 							}else{
-								self.$app.preloader.hide();
+								
+								
+								self.$setState({
+										DashboardNoData: true										
+									});
+								//self.$app.preloader.hide();
 								self.$app.dialog.alert('There are no history for this SIM');
 							}
 						}
