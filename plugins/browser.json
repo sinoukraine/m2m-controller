@@ -54,6 +54,30 @@
         },
         "kaiquecruz-phonegap-plugin-barcodescanner-custom": {
             "PACKAGE_NAME": "com.quiktrak.m2mcontroller"
+        },
+        "phonegap-plugin-mobile-accessibility": {
+            "PACKAGE_NAME": "com.quiktrak.pro"
+        },
+        "cordova-plugin-wkwebview-engine": {
+            "PACKAGE_NAME": "com.quiktrak.pro"
+        },
+        "cordova-plugin-wkwebview-file-xhr": {
+            "PACKAGE_NAME": "com.quiktrak.pro"
+        },
+        "cordova-plugin-safariviewcontroller": {
+            "PACKAGE_NAME": "com.quiktrak.pro"
+        },
+        "uk.co.workingedge.phonegap.plugin.istablet": {
+            "PACKAGE_NAME": "com.quiktrak.pro"
+        },
+        "cordova-plugin-screen-orientation": {
+            "PACKAGE_NAME": "com.quiktrak.pro"
+        },
+        "uk.co.workingedge.phonegap.plugin.launchnavigator": {
+            "PACKAGE_NAME": "com.quiktrak.pro"
+        },
+        "cordova-plugin-phone-call": {
+            "PACKAGE_NAME": "com.quiktrak.m2mcontroller"
         }
     },
     "dependent_plugins": {
@@ -62,6 +86,9 @@
         },
         "es6-promise-plugin": {
             "PACKAGE_NAME": "com.dashcam.app"
+        },
+        "cordova-plugin-network-information": {
+            "PACKAGE_NAME": "com.quiktrak.pro"
         }
     }
 }

@@ -10,6 +10,9 @@
                         <i class="icon material-icons">arrow_back</i>
                     </a>
                 </div>
+                <div class="title sliding imsi-title">
+					Commands
+                </div>
                 <div class="right">
                     <!--<a href="#" class="link icon-only add-cmd">
                         <i class="material-icons md-36">add</i>
@@ -28,7 +31,29 @@
 			</div>
 				
 			<div class="list groupList">
-				<ul>					
+				<ul>
+<!--<li class="accordion-item">
+							<a href="#" class="item-content item-link">
+								<div class="item-inner">
+								  <div class="item-title"><b>bla</b></div>
+								</div>
+							</a>
+							<div class="accordion-item-content accordion-item-opened ">
+								<div class="list command-list-icons commandsList " id="cmd">
+								  <ul style="padding-left: 10px;">
+						
+							<li class="li-cmd" data-cmd-name="1111" data-command-content="1111">
+								  <div class="item-content">
+									<div class="item-inner">
+									  <div class="item-title cmd-code" data-cmd-name="1111">cmd</div>			
+									</div>
+								  </div>			
+							</li>
+						
+								  </ul>
+								</div>
+							</div>
+						</li>				-->
 								<div key="KeyChartGOverviewLoader" class="absolute-center py-5">
 									<div class="preloader color-blue"></div>
 								</div>
@@ -56,6 +81,10 @@
 			if (self.$route.query.imsi) {
 				ret.imsi = self.$route.query.imsi;
             }
+			
+			if (self.$route.query.id) {
+				ret.id = self.$route.query.id;
+            }
 
             return ret;
         },
@@ -63,23 +92,15 @@
 			showIMNSCommandList: function () {
 				let self = this;
 				
-				/*self.$app.request.promise.post(URL_LOGIN, {
-					LoginName:encodeURIComponent('root'),
-					Password:encodeURIComponent('Seamus2020!')
-				}, 'json')
-	            .then(function (result) {
-					console.log('good', result);
-				})
-				*/
-				
 				self.$app.request.promise.get(URL_GET_COMMAND_LIST, {
 					MajorToken:self.imnsToken	
 				}, 'json')
 	            .then(function (result) {
-					if(result.MajorCode=="000")
+				console.log(result)
+					if(result.length)
 					{				
-						var products={}
-						var data=result.Data;
+						/*var products={}
+						var data=result.data.Data;
 						for(var i=0;i<data.length;i++)
 						{
 							var productName=data[i].ProductName;
@@ -92,294 +113,56 @@
 								};
 							}										
 						}
-						var commandGroupList=[];
-						/*for(var productName in products)
-						{
-							commandGroupList.push(products[productName]);					
-						}*/
-						//console.log(commandGroupList)
-						self.setIMNSCommandsList(products)
+						var commandGroupList=[];*/
+						
+						self.setIMNSCommandsList(result)
 					}
-				})
-				/*
-				JSON.customPost(URL_GET_COMMAND_LIST,
-				{
-					MajorToken:code	
-				},
-				function (result) {		
-					if(result.MajorCode=="000")
-					{				
-						var products={}
-						var data=result.Data;
-						for(var i=0;i<data.length;i++)
-						{
-							var productName=data[i].ProductName;
-							if(products[productName]){					
-								products[productName].commandList.push({CmdCode:data[i].CmdCode,CmdName:data[i].CmdName});
-							}else{
-								products[productName]={
-									groupName:productName,
-									commandList:[{CmdCode:data[i].CmdCode,CmdName:data[i].CmdName}]
-								};
-							}										
-						}
-						var commandGroupList=[];
-						for(var productName in products)
-						{
-							commandGroupList.push(products[productName]);					
-						}								
-						var html = Template7.templates.commandList({
-							imsi:imsi,
-							commandGroupList: commandGroupList
-						});
-						$(".popup-commandList").html(html);
-						_f7Obj.popup(".popup-commandList");	
-					}else{
-						//_f7Obj.alert(LANGUAGE.MSG02007,'');	        	
-					}
-					//_f7Obj.hidePreloader();
-				});*/
-				
-			},
-			showCommandsList: function () {
-                let self = this;
-				
-					$$('.commandsList ul').html('');
-					
-					self.$setState({
-						page: 1
-					});
-					
-					self.getCommandsList();
-					self.$app.infiniteScroll.create('.infinite-scroll-commands-list-content');	
-					
-				//} else {
-					/*App.addNotification({
-						hold: 3000,
-						message: LANGUAGE.PROMPT_MSG008
-					});*/
-				//}		
-			},						
-			getCommandsList: function () {
-                
-                let self = this;
-					if (!self.allowInfinite) return;					
-					
-					// Set loading flag
-					self.$setState({
-                        allowInfinite: false
-                    });
-
-					//self.$app.preloader.show();
-	                self.$app.request.promise.get('https://m2mdata03.sinopacific.com.ua/em/v3/sms?page=' + self.page + '&pageSize=10', {}, 'json')
-	                    .then(function (result) {
-	                    	console.log(result);
-	                        if (result.rows) {
-								//$$('.page-content').removeClass('first_login');
-																	
-								if(result.page == 1){
-									
-									self.$app.infiniteScroll.create('.infinite-scroll-commands-list-content');
-									// Loading flag
-
-									self.$setState({
-										maxItems: result.total,
-										lastItemIndex: $$('.commandsList li').length,										
-									});
-								}
-							
-									// Reset loading flag
-									self.$setState({
-										allowInfinite: true
-									});
-								
-								self.setCommandsList(result.rows);
-								
-								//if (self.lastItemIndex >= self.maxItems) {
-								if (result.page === result.totalPages) {
-								  self.$app.infiniteScroll.destroy('.infinite-scroll-commands-list-content');
-								  
-								  // Remove preloader
-								  $$('.infinite-scroll-commands-list-preloader').remove();
-								  return;
-								}
-																		
-								let incrList = self.lastItemIndex + 10;
-								
-								self.$setState({
-									lastItemIndex: incrList
-								});
-								
-								let incr = self.page + 1;
-								
-								self.$setState({
-									page: incr
-								});
-									
-								//$('.searchbar-hide-on-search').addClass('display-none');
-																
-								if(self.page == 2){
-									$$('.infinite-scroll-commands-list-content').on('infinite', self.getCommandsList);
-								}
-										
-								if (result.rows.length === 0) {
-									/*App.addNotification({
-										hold: 3000,
-										message: LANGUAGE.PROMPT_MSG006
-									});*/
-								}
-							} else {
-								self.$app.alert(LANGUAGE.PROMPT_MSG013);
-							}
-	                    })
-	                    .finally(function () {
-	                        //self.$app.preloader.hide();
-	                    })
-	                    .catch(function (err) {
-	                        console.log(err);
-	                        if (err && err.status === 404){
-	                            self.$app.dialog.alert('METHOD NOT FOUND');
-	                        }else{
-	                            self.$app.dialog.alert('Something not good. Try again later');
-	                        }
-	                });
-					
-					//self.$app.preloader.show();
-					/*$.ajax({
-						type: "GET",		        
-						//url: 'https://m2mdata03.sinopacific.com.ua/em/v3/sims?page=' + self.page + '&pageSize=10&query%5Binfo.' + self.type + '%5D%5B%24regex%5D=' + self.text,
-						url: 'http://m2mdata03.sinopacific.com.ua/em/v3/sms',
-						dataType: "json",	
-						async: true,
-						cache: false,
-						headers: { 
-							Authorization: "12345"
-						},
-						success: function (result) {console.log(result);
-							if (result.rows) {
-								//$$('.page-content').removeClass('first_login');
-																	
-								if(result.page == 1){
-									
-									self.$app.infiniteScroll.create('.infinite-scroll-content');
-									// Loading flag
-
-									self.$setState({
-										maxItems: result.total,
-										lastItemIndex: $$('.commandsList li').length,										
-									});
-								}
-							
-									// Reset loading flag
-									self.$setState({
-										allowInfinite: true
-									});
-								
-								self.setCommandsList(result.rows);
-								
-								//if (self.lastItemIndex >= self.maxItems) {
-								if (result.page === result.totalPages) {
-								  self.$app.infiniteScroll.destroy('.infinite-scroll-content');
-								  
-								  // Remove preloader
-								  $$('.infinite-scroll-preloader').remove();
-								  return;
-								}
-																		
-								let incrList = self.lastItemIndex + 10;
-								
-								self.$setState({
-									lastItemIndex: incrList
-								});
-								
-								let incr = self.page + 1;
-								
-								self.$setState({
-									page: incr
-								});
-									
-								//$('.searchbar-hide-on-search').addClass('display-none');
-																
-								if(self.page == 2){
-									$$('.infinite-scroll-content').on('infinite', self.getCommandsList);
-								}
-										
-								if (result.rows.length === 0) {
-									//App.addNotification({
-									//	hold: 3000,
-									//	message: LANGUAGE.PROMPT_MSG006
-									//});
-								}
-							} else {
-								App.alert(LANGUAGE.PROMPT_MSG013);
-							}
-							//self.$app.preloader.hide();
-							
-						},
-						error: function(XMLHttpRequest, textStatus, errorThrown){
-							console.log(XMLHttpRequest);
-							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
-						}
-					});	*/			
-			},
-			setCommandsList: function (commandsList) {
-                let self = this;
-				// Generate new items HTML
-				var html = '';
-				
-				$.each(commandsList, function(index, value){	
-					html += '<li class="li-cmd " data-command-content="'+value.content+'">';//<a href="#" class="link">
-					html += '	  <div class="item-content">';
-					html += '		<div class="item-inner">';
-					html += '		  <div class="item-title cmd-code" data-cmd-name="' + value.content + '">' + value.name + '</div>';
-					html += '		  <a href="/edit-command/?id=' + value._id + '"><div class="item-after"><i class="material-icons md-24">create</i></div></a>';
-					html += '		</div>';
-					html += '	  </div>';	//</a>				
-					html += '               </li>';
-				});
-								
-				// Append new items
-				$$('.commandsList ul').append(html);		
+				})				
 			},
 			setIMNSCommandsList: function (products) {
                 let self = this;
 				// Generate new items HTML
 				var html = '';
 				
-				for(var productName in products)
-					{
+				
+				$.each(products, function(index, value){ 
+					
 						html += '<li class="accordion-item">';
 						html += '	<a href="#" class="item-content item-link">';
 						html += '		<div class="item-inner">';
-						html += '		  <div class="item-title">'+productName+'</div>';
+						html += '		  <div class="item-title"><b>'+value.ProductName+'</b></div>';
 						html += '		</div>';
 						html += '	</a>';
 						html += '	<div class="accordion-item-content accordion-item-opened ">';
-						html += '		<div class="list command-list-icons commandsList " id="'+productName+'">';
-						html += '		  <ul>';
+						html += '		<div class="list command-list-icons commandsList " id="'+value.ProductName+'">';
+						html += '		  <ul style="padding-left: 10px;">';
 						
-						$.each(products[productName].commandList, function(index, value){ 
-							html += '<li class="li-cmd" data-cmd-name="' + value.CmdCode + '" data-command-content="'+value.CmdCode+'">';//<a href="#" class="link">
+						$.each(value.CommandList, function(index_1, value_1){ 
+						let paramText = value_1.Params;
+							html += '<li class="li-cmd" data-cmd-name="' + value_1.Code + '" data-cmd-format="' + value_1.Format + '" data-cmd-params="'+escape(paramText)+'" data-command-content="'+value_1.Code+'">';
 							html += '	  <div class="item-content">';
 							html += '		<div class="item-inner">';
-							html += '		  <div class="item-title cmd-code" data-cmd-name="' + value.CmdCode + '">' + value.CmdName + '</div>';
-							//html += '		  <a href="/edit-command/?id=' + value.CmdCode + '"><div class="item-after"><i class="material-icons md-24">create</i></div></a>';
+							html += '		  <div class="item-title cmd-code" data-cmd-name="' + value_1.Code + '">' + value_1.Name + '</div>';			
 							html += '		</div>';
-							html += '	  </div>';	//</a>				
+							html += '	  </div>';			
 							html += '</li>';
 						});	
 						
 						html += '		  </ul>';
 						html += '		</div>';
-						//html += '		<div class="preloader infinite-scroll-preloader infinite-scroll-commands-list-preloader"></div>';
 						html += '	</div>';
 						html += '</li>';				
-					}	
-						
+					});
 				
 				$$('.groupList ul').html(html);	
 				
+				
+				
 			},	
+			esc_quot: function(text)
+				{
+					return text.replace('"', '\"');
+				}			
 		},
         on: {
             pageInit: function (e, page) {
@@ -395,21 +178,24 @@
 				
 				page.$el.on('click', '.li-cmd', function () {					
 					//let command = $$(this).closest('.cmd-code').data('cmd-name');
-					let commandName = $$(this).data('cmd-name');
+					let commandFormat = $$(this).data('cmd-format');
+					let commandParams = $$(this).data('cmd-params');
+					commandParams = unescape(commandParams);
 					
-					self.$app.request.promise.post(URL_GET_COMMAND_PARAMS, {
+					/*self.$app.request.promise.post(URL_GET_COMMAND_PARAMS, {
 						MajorToken:self.imnsToken,
 						Code:commandName
 					}, 'json')
 					.then(function (result) {
 						if(result.MajorCode=="000")
-						{				
+						{*/				
 							
-							console.log(result)
+							//console.log(result)
 							
-							var obj=result.Data;		
-							var smsFormat=obj.CmdFormat;			    
-							var arry=eval(obj.Params);
+							//var obj=result.Data;		
+							var smsFormat=commandFormat;		
+										console.log(commandParams);	    
+							var arry=eval(commandParams);
 							var params=[];							
 							var count=arry.length;
 							var j = 0;
@@ -418,27 +204,30 @@
 								  let curPar = self.$app.dialog.prompt(arry[i].Name, function (name) {
 										j++;
 										params.push(name);
-										console.log(j);
 										if(j == count){
 											smsFormat=smsFormat.format(params);
 											
-											myEvents.emit('cmdReceived', {
+											/*myEvents.emit('cmdReceived', {
 												cmd: smsFormat
-											});
-											mainView.router.back();
+											});*/
+											//mainView.router.back();
+											
+								mainView.router.navigate('/commands/?id='+self.id.toString()+'&imsi='+self.imsi.toString()+'&message='+smsFormat.toString());
 										}
 								  }, function (e) {}, arry[i].Prams);
 							}			   					    
 							if(count == 0)
 							{
-								myEvents.emit('cmdReceived', {
+								/*myEvents.emit('cmdReceived', {
 									cmd: smsFormat
-								});
-								mainView.router.back();
+								});*/
+								//mainView.router.back();
+								
+								mainView.router.navigate('/commands/?id='+self.id.toString()+'&imsi='+self.imsi.toString()+'&message='+smsFormat.toString());
 							}	
 							
-						}
-					})					
+						/*}
+					})*/	
 					//let cmd = $(this).find('.cmd').attr('cmd-name');
 					//self.$app.methods.setInStorage({cmd: cmd});
 					

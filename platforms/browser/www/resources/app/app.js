@@ -15,9 +15,9 @@ $$('#app').append(compiledTemplate());
 
 var API_URL = {};
 
-var API_IMNS_DOMIAN ="https://m2mdata.co/api/Service/";	
+var API_IMNS_DOMIAN ="https://api.m2mglobaltech.com/QuikData/V1/";	
 var URL_LOGIN = API_IMNS_DOMIAN + "Auth";
-var URL_GET_COMMAND_LIST = API_IMNS_DOMIAN + "GetCommandList2";
+var URL_GET_COMMAND_LIST = API_IMNS_DOMIAN + "Command/GetLIst";
 var URL_GET_COMMAND_PARAMS = API_IMNS_DOMIAN +"GetCommand";
 
 var API_DOMIAN = "https://m2mdata03.sinopacific.com.ua/api/v3/";

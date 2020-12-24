@@ -111,6 +111,33 @@
         },
         "kaiquecruz-phonegap-plugin-barcodescanner-custom": {
             "PACKAGE_NAME": "com.quiktrak.m2mcontroller"
+        },
+        "cordova-plugin-network-information": {
+            "PACKAGE_NAME": "com.quiktrak.pro"
+        },
+        "phonegap-plugin-mobile-accessibility": {
+            "PACKAGE_NAME": "com.quiktrak.pro"
+        },
+        "cordova-plugin-wkwebview-engine": {
+            "PACKAGE_NAME": "com.quiktrak.pro"
+        },
+        "cordova-plugin-wkwebview-file-xhr": {
+            "PACKAGE_NAME": "com.quiktrak.pro"
+        },
+        "cordova-plugin-safariviewcontroller": {
+            "PACKAGE_NAME": "com.quiktrak.pro"
+        },
+        "uk.co.workingedge.phonegap.plugin.istablet": {
+            "PACKAGE_NAME": "com.quiktrak.pro"
+        },
+        "cordova-plugin-screen-orientation": {
+            "PACKAGE_NAME": "com.quiktrak.pro"
+        },
+        "uk.co.workingedge.phonegap.plugin.launchnavigator": {
+            "PACKAGE_NAME": "com.quiktrak.pro"
+        },
+        "cordova-plugin-phone-call": {
+            "PACKAGE_NAME": "com.quiktrak.m2mcontroller"
         }
     },
     "dependent_plugins": {},
@@ -522,6 +549,90 @@
             "id": "kaiquecruz-phonegap-plugin-barcodescanner-custom.BarcodeScannerProxy",
             "pluginId": "kaiquecruz-phonegap-plugin-barcodescanner-custom",
             "runs": true
+        },
+        {
+            "file": "plugins/cordova-plugin-network-information/www/network.js",
+            "id": "cordova-plugin-network-information.network",
+            "pluginId": "cordova-plugin-network-information",
+            "clobbers": [
+                "navigator.connection"
+            ]
+        },
+        {
+            "file": "plugins/cordova-plugin-network-information/www/Connection.js",
+            "id": "cordova-plugin-network-information.Connection",
+            "pluginId": "cordova-plugin-network-information",
+            "clobbers": [
+                "Connection"
+            ]
+        },
+        {
+            "file": "plugins/cordova-plugin-network-information/src/browser/network.js",
+            "id": "cordova-plugin-network-information.NetworkInfoProxy",
+            "pluginId": "cordova-plugin-network-information",
+            "runs": true
+        },
+        {
+            "file": "plugins/phonegap-plugin-mobile-accessibility/www/mobile-accessibility.js",
+            "id": "phonegap-plugin-mobile-accessibility.mobile-accessibility",
+            "pluginId": "phonegap-plugin-mobile-accessibility",
+            "clobbers": [
+                "window.MobileAccessibility"
+            ]
+        },
+        {
+            "file": "plugins/phonegap-plugin-mobile-accessibility/www/MobileAccessibilityNotifications.js",
+            "id": "phonegap-plugin-mobile-accessibility.MobileAccessibilityNotifications",
+            "pluginId": "phonegap-plugin-mobile-accessibility",
+            "clobbers": [
+                "MobileAccessibilityNotifications"
+            ]
+        },
+        {
+            "file": "plugins/cordova-plugin-safariviewcontroller/www/SafariViewController.js",
+            "id": "cordova-plugin-safariviewcontroller.SafariViewController",
+            "pluginId": "cordova-plugin-safariviewcontroller",
+            "clobbers": [
+                "SafariViewController"
+            ]
+        },
+        {
+            "file": "plugins/uk.co.workingedge.phonegap.plugin.istablet/www/istablet.js",
+            "id": "uk.co.workingedge.phonegap.plugin.istablet.IsTablet",
+            "pluginId": "uk.co.workingedge.phonegap.plugin.istablet",
+            "runs": true
+        },
+        {
+            "file": "plugins/cordova-plugin-screen-orientation/www/screenorientation.js",
+            "id": "cordova-plugin-screen-orientation.screenorientation",
+            "pluginId": "cordova-plugin-screen-orientation",
+            "clobbers": [
+                "cordova.plugins.screenorientation"
+            ]
+        },
+        {
+            "file": "plugins/uk.co.workingedge.phonegap.plugin.launchnavigator/www/common.js",
+            "id": "uk.co.workingedge.phonegap.plugin.launchnavigator.Common",
+            "pluginId": "uk.co.workingedge.phonegap.plugin.launchnavigator",
+            "clobbers": [
+                "launchnavigator"
+            ]
+        },
+        {
+            "file": "plugins/uk.co.workingedge.phonegap.plugin.launchnavigator/www/localforage.v1.5.0.min.js",
+            "id": "uk.co.workingedge.phonegap.plugin.launchnavigator.LocalForage",
+            "pluginId": "uk.co.workingedge.phonegap.plugin.launchnavigator",
+            "clobbers": [
+                "localforage"
+            ]
+        },
+        {
+            "file": "plugins/cordova-plugin-phone-call/www/dialer.js",
+            "id": "cordova-plugin-phone-call.phonedialer",
+            "pluginId": "cordova-plugin-phone-call",
+            "merges": [
+                "cordova.plugins.phonedialer"
+            ]
         }
     ],
     "plugin_metadata": {
@@ -542,6 +653,15 @@
         "cordova-plugin-rtsp-vlc": "3.0.5",
         "cordova-plugin-file-opener2": "2.2.1",
         "cordova-plugin-inappbrowser": "3.0.0",
-        "kaiquecruz-phonegap-plugin-barcodescanner-custom": "6.0.5"
+        "kaiquecruz-phonegap-plugin-barcodescanner-custom": "6.0.5",
+        "cordova-plugin-network-information": "3.0.0-dev",
+        "phonegap-plugin-mobile-accessibility": "1.0.5-dev",
+        "cordova-plugin-wkwebview-engine": "1.2.1",
+        "cordova-plugin-wkwebview-file-xhr": "2.1.4",
+        "cordova-plugin-safariviewcontroller": "1.6.0",
+        "uk.co.workingedge.phonegap.plugin.istablet": "1.2.0",
+        "cordova-plugin-screen-orientation": "3.0.2",
+        "uk.co.workingedge.phonegap.plugin.launchnavigator": "5.0.5",
+        "cordova-plugin-phone-call": "1.0.7"
     }
 }

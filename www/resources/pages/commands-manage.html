@@ -1,0 +1,210 @@
+<!--suppress JSAnnotator -->
+<template>
+	<div data-name="commands-manage" class="page"> <!-- page-with-subnavbar -->
+		<!-- Top Navbar -->
+		<div class="navbar">
+            <div class="navbar-bg"></div>
+            <div class="navbar-inner">
+                <div class="left">
+                    <a href="#" class="back link icon-only " >
+                        
+                        <i class="icon material-icons">arrow_back</i>
+                    </a>
+                </div>
+                <div class="title sliding imsi-title">
+					Commands
+                </div>
+                <div class="right">
+				
+                    <a href="#" class="link icon-only add-cmd">
+                        <i class="material-icons md-36">add</i>
+                    </a>
+                </div>
+            </div>
+        </div>		
+		<div class="page-content ptr-content infinite-scroll-commands-manage-content infinite-scroll-bottom data-infinite-distance">		
+			<div class="ptr-preloader">
+				<div class="preloader"></div>
+				<div class="ptr-arrow"></div>
+			</div>
+			<div class="block searchbar-hide-on-search">
+				<h3>Commands List</h3>
+				<p>In this screen, you can create, edit or delete commands</p>				
+			</div>
+				
+			<div class="list groupList">
+				<ul>					
+					<div key="KeyChartGOverviewLoader" class="absolute-center py-5">
+						<div class="preloader color-blue"></div>
+					</div>
+				</ul>
+			</div>
+		</div>
+	</div>
+</template>
+
+<script>
+  // script must return component object
+    return { 
+        data: function () {
+            var self = this;
+            var ret = {
+				allowInfinite: true,
+				page: 1,
+				lastItemIndex: 0,
+				maxItems: 0,
+				loading: true,
+				imnsToken: "11111111-1111-1111-1111-111111111111"
+			};            
+            
+			if (self.$route.query.imsi) {
+				ret.imsi = self.$route.query.imsi;
+            }
+
+            return ret;
+        },
+        methods: {
+			showIMNSCommandList: function () {
+				let self = this;
+				
+				self.$app.request.promise.get(URL_GET_COMMAND_LIST, {
+					MajorToken:self.imnsToken	
+				}, 'json')
+	            .then(function (result) {
+				console.log(result)
+					if(result.length)
+					{				
+						/*var products={}
+						var data=result.data.Data;
+						for(var i=0;i<data.length;i++)
+						{
+							var productName=data[i].ProductName;
+							if(products[productName]){					
+								products[productName].commandList.push({CmdCode:data[i].CmdCode,CmdName:data[i].CmdName});
+							}else{
+								products[productName]={
+									groupName:productName,
+									commandList:[{CmdCode:data[i].CmdCode,CmdName:data[i].CmdName}]
+								};
+							}										
+						}
+						var commandGroupList=[];*/
+						
+						self.setIMNSCommandsList(result)
+					}
+				})				
+			},
+			setIMNSCommandsList: function (products) {
+                let self = this;
+				// Generate new items HTML
+				var html = '';
+				
+				
+				$.each(products, function(index, value){ 
+					
+						html += '<li class="accordion-item">';
+						html += '	<a href="#" class="item-content item-link">';
+						html += '		<div class="item-inner">';
+						html += '		  <div class="item-title"><b>'+value.ProductName+'</b></div>';
+						html += '		</div>';
+						html += '	</a>';
+						html += '	<div class="accordion-item-content accordion-item-opened ">';
+						html += '		<div class="list command-list-icons commandsList " id="'+value.ProductName+'">';
+						html += '		  <ul style="padding-left: 10px;">';
+						
+						$.each(value.CommandList, function(index_1, value_1){ 
+							html += '<li class="li-cmd" data-cmd-name="' + value_1.Name + '" data-cmd-type="' + value.ProductName + '" data-cmd-format="' + escape(value_1.Format) + '" data-command-content="'+value_1.Code+'">';
+							html += '	  <div class="item-content">';
+							html += '		<div class="item-inner">';
+							html += '		  <div class="item-title cmd-code" data-cmd-name="' + value_1.Code + '">' + value_1.Name + '</div>';			
+							html += '		</div>';
+							html += '	  </div>';			
+							html += '</li>';
+						});	
+						
+						html += '		  </ul>';
+						html += '		</div>';
+						html += '	</div>';
+						html += '</li>';				
+					});
+				
+				$$('.groupList ul').html(html);	
+				
+			},	
+		},
+        on: {
+            pageInit: function (e, page) {
+                let self = this; 
+				
+				self.showIMNSCommandList();
+				
+				$$('.page').find('.add-cmd').on('click', function () {
+					mainView.router.navigate('/add-command/?imsi=' + self.imsi);					
+				});			
+				
+				page.$el.on('click', '.li-cmd', function () {					
+					let commandName = $$(this).data('cmd-name');	
+					let commandType = $$(this).data('cmd-type');	
+					let commandFormat = $$(this).data('cmd-format');
+					mainView.router.navigate('/edit-command/?name=' + commandName+'&type=' + commandType+'&format=' + commandFormat);
+					//mainView.router.navigate('/edit-command/?imsi=' + self.imsi);
+					/*
+					self.$app.request.promise.post(URL_GET_COMMAND_PARAMS, {
+						MajorToken:self.imnsToken,
+						Code:commandName
+					}, 'json')
+					.then(function (result) {
+						if(result.data.MajorCode=="000")
+						{											
+							var obj=result.data.Data;		
+							var smsFormat=obj.CmdFormat;			    
+							var arry=eval(obj.Params);
+							var params=[];							
+							var count=arry.length;
+							var j = 0;
+							
+							for(var i=0;i<arry.length;i++){		
+								let curPar = self.$app.dialog.prompt(arry[i].Name, function (name) {
+									j++;
+									params.push(name);
+									if(j == count){
+										smsFormat=smsFormat.format(params);
+										
+										LoginEvents.emit('cmdReceived', {
+											cmd: smsFormat
+										});
+										mainView.router.back();
+									}
+								}, function (e) {}, arry[i].Prams);
+							}			   					    
+							if(count == 0)
+							{
+								LoginEvents.emit('cmdReceived', {
+									cmd: smsFormat
+								});
+								mainView.router.back();
+							}	
+							
+						}
+					})	*/				
+				});				
+				
+				// Pull to refresh content
+				var $ptrContent = $$('.ptr-content');
+				// Add 'refresh' listener on it
+				$ptrContent.on('ptr:refresh', function (e) {
+				  // Emulate 2s loading
+				  setTimeout(function () { // Prepend new list element
+					
+					self.showIMNSCommandsList();	
+					//$ptrContent.find('ul').prepend(itemHTML);
+					// When loading done, we need to reset it
+					self.$app.ptr.done(); // or e.detail();
+				  }, 2000);
+				});
+				
+				}
+			}
+    };
+</script>
+    

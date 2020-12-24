@@ -17,6 +17,11 @@ var routes = [
         name: 'commands'
     },
     {
+        path: '/commands-manage/',
+        componentUrl: './resources/pages/commands-manage.html?v=1.3',
+        name: 'commands-manage'
+    },
+    {
         path: '/commands-list/',
         componentUrl: './resources/pages/commands-list.html?v=1.3',
         name: 'commands-list'
