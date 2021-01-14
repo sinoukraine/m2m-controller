@@ -786,6 +786,9 @@
 				var self = this;        
 				var thisPage = page.$el.find('.page-content'); 
 
+				self.$app.actions.close();
+				self.$app.sheet.close();
+				
 				self.getOldHistory();
 
 				var selectLastDay = $$('select[name="LastDaySelect"]');

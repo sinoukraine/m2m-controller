@@ -544,7 +544,9 @@
 				});
 				$$('body').on('click', '.searchSim', function() {
 					self.submitSearchForm(self.type);
-				});
+				});		
+				
+				
 				
 				$$('body').on('click', '.simList .item-inner', function() {
 					var parrent = $$(this).closest('.item-content');
@@ -622,24 +624,33 @@
 							text: commands,
 							onClick: function() {
 								//loadPageCommands();
+								self.$app.actions.close();
+								self.$app.sheet.close();
 								mainView.router.navigate('/commands-list/?id='+id.toString()+'&imsi='+imsi.toString());
+								//
 							},
 						},
 						{
 							text: commandsHistory,
 							onClick: function() {
+								self.$app.actions.close();
+								self.$app.sheet.close();
 								mainView.router.navigate('/commands-history/?id='+id.toString()+'&imsi='+imsi.toString());;
 							},
 						},
 						{
 							text: SIMStatus,
 							onClick: function() {
+								self.$app.actions.close();
+								self.$app.sheet.close();
 								mainView.router.navigate('/sim-status/?id='+id.toString()+'&imsi='+imsi.toString()+'&iccid='+iccid.toString());
 							},
 						},
 						{
 							text: SIMReport,
 							onClick: function() {
+								self.$app.actions.close();
+								self.$app.sheet.close();
 								mainView.router.navigate('/report/?id='+id.toString()+'&imsi='+imsi.toString()+'&iccid='+iccid.toString());
 							},
 						},/*
@@ -652,6 +663,8 @@
 						{
 							text: SIMCells,
 							onClick: function() {
+								self.$app.actions.close();
+								self.$app.sheet.close();
 								mainView.router.navigate('/cells/?id='+id.toString()+'&imsi='+imsi.toString()+'&iccid='+iccid.toString());
 							},
 						},

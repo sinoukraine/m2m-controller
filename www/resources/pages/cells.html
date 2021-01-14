@@ -679,6 +679,10 @@
         on: {
             pageInit: function (e, page) {  
 				var self = this;        
+				
+				self.$app.actions.close();
+				self.$app.sheet.close();
+				
 				var thisPage = page.$el.find('.page-content'); 					
 				/*let overviewFiletrEl = self.$el.find('[name="dashboard-overview-filter"]');
 				

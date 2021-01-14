@@ -168,7 +168,10 @@
             pageInit: function (e, page) {
                 let self = this; 
 				
-				self.showIMNSCommandList();
+				self.$app.actions.close();
+				self.$app.sheet.close();
+				
+				//self.showIMNSCommandList();
 				
 				//self.showCommandsList();
 				

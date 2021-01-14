@@ -764,6 +764,9 @@
         on: {
             pageInit: function (e, page) {  
 				var self = this;        
+				self.$app.actions.close();
+				self.$app.sheet.close();
+				
 				self.$app.preloader.show();
 				self.getSim();
 				/*var placeholderDesc = '<span class="placeholder placeholder-desc">Description</span>';
