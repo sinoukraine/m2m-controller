@@ -11,11 +11,14 @@ window.LanguagePackages= {
 
 		"HOME_MSG00": "Home",
 
+		"DASH_MSG00": "Dashboard",
+		
 		"MENU_MSG00": "Home",
 		"MENU_MSG01": "User Settings",
 		"MENU_MSG02": "Sign Out",
 		"MENU_MSG03": "Reports",
 		"MENU_MSG04": "Commands",
+		"MENU_MSG05": "Dashboard",
 		
 		"ASSET_COMMANDS_HISTORY_MSG00": "Commands History",
         "ASSET_COMMANDS_HISTORY_MSG01": "There was no messages in selected period",

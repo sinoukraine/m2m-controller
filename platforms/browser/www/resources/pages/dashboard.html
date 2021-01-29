@@ -1,0 +1,726 @@
+<!--suppress JSAnnotator -->
+<template>
+    <div class="page dashboard-page" data-name="dashboard"> <!-- page-with-subnavbar -->
+        <!-- Top Navbar -->
+        <div class="navbar">
+            <div class="navbar-bg"></div>
+            <div class="navbar-inner">
+                <div class="left">
+                    <a href="#" class="back link icon-only " >
+                        <i class="icon material-icons">arrow_back</i>
+                    </a>
+                </div>
+                <div class="title sliding">
+                    {{@global.LANGUAGE.DASH_MSG00}}
+                </div>
+                <div class="right">
+                </div>
+            </div>
+        </div>
+        <div class="toolbar tabbar toolbar-top">
+            <div class="toolbar-inner">
+                <a  href="#tab-1" class="tab-link tab-link-active">Dashboard</a>
+                <a  href="#tab-2" class="tab-link" >Top SIM</a>
+            </div>
+        </div>
+        <div class="page-content">	
+            <div class="tabs">
+                <div class="tab tab-1 tab-active list" id="tab-1">
+					<ul>
+						<li class="state-block">
+						  <a class="item-link smart-select smart-select-0 smart-select-init ">
+							<select name="time-period">
+							  <option value="daily" id="timePeriodDay">Daily</option>
+							  <option value="weekly" id="timePeriodWeek">Weekly</option>
+							  <option value="monthly" id="timePeriodMonth">Monthly</option>
+							  <option value="yearly" id="timePeriodYear">Yearly</option>
+							</select>
+							<div class="item-content">
+							  <div class="item-inner">
+								<div class="item-title">Time Period</div>
+							  </div>
+							</div>
+						  </a>
+						</li>						
+						<li>						
+							<div class="card m-15">
+								<div class="card-content card-content-padding card-panel justify-content-between bg-green">
+									<div class="card-panel-icon-wrapper card-top">
+									  <div class="card-inline card-panel-left font-16 custom-color-white">
+										Data Sessions
+									  </div>
+									  <div class="card-inline card-panel-right">
+									   
+									  </div>
+									</div>
+									<div class="card-panel-icon-wrapper display-flex card-bottom">
+									  <div class="card-inline card-panel-left">
+										<div>
+										  {{#if totalDataSessions }}
+											<div class="font-size-18 custom-color-white">{{totalDataSessions}}</div>
+											{{else}}
+											<div key="KeyChartGOverviewLoader" class="absolute-center">
+												<div class="preloader color-white"></div>
+											</div>
+										   {{/if}}
+										</div>
+									  </div>
+									  <div class="card-inline card-panel-right">
+										  <img src="./resources/images/SVG/Dashboard/session.svg" width="20">
+									  </div>
+									</div>
+								  </div>
+							</div>
+							
+							<div class="card m-15">
+								<div class="card-content card-content-padding card-panel justify-content-between bg-blue">
+									<div class="card-panel-icon-wrapper card-top">
+									  <div class="card-inline card-panel-left font-16 custom-color-white">
+										Data Usage
+									  </div>
+									  <div class="card-inline card-panel-right">
+									   
+									  </div>
+									</div>
+									<div class="card-panel-icon-wrapper display-flex card-bottom">
+									  <div class="card-inline card-panel-left">
+										<div>										  
+											{{#if totalDataUsage }}
+											<div class="font-size-18 custom-color-white">{{totalDataUsage}}</div>
+											{{else}}
+											<div key="KeyChartGOverviewLoader" class="absolute-center">
+												<div class="preloader color-white"></div>
+											</div>
+										   {{/if}}
+										</div>
+									  </div>
+									  <div class="card-inline card-panel-right">
+										  <img src="./resources/images/SVG/Dashboard/usage.svg" width="20">
+									  </div>
+									</div>
+								  </div>
+							</div>
+							
+							<div class="card m-15">
+								<div class="card-content card-content-padding card-panel justify-content-between bg-orange">
+									<div class="card-panel-icon-wrapper card-top">
+									  <div class="card-inline card-panel-left font-16 custom-color-white">
+										SMS Usage
+									  </div>
+									  <div class="card-inline card-panel-right">
+									   
+									  </div>
+									</div>
+									<div class="card-panel-icon-wrapper display-flex card-bottom">
+									  <div class="card-inline card-panel-left">
+										<div>
+										  {{#if totalSMSUsage }}
+											<div class="font-size-18 custom-color-white">{{totalSMSUsage}}</div>
+											{{else}}
+											<div key="KeyChartGOverviewLoader" class="absolute-center">
+												<div class="preloader color-white"></div>
+											</div>
+										   {{/if}}    
+										</div>
+									  </div>
+									  <div class="card-inline card-panel-right">
+										  <img src="./resources/images/SVG/Dashboard/smsusage.svg" width="20">
+									  </div>
+									</div>
+								  </div>
+							</div>
+							
+							<div class="card m-15">
+								<div class="card-content card-content-padding card-panel justify-content-between bg-red">
+									<div class="card-panel-icon-wrapper card-top">
+									  <div class="card-inline card-panel-left font-16 custom-color-white">
+										Online Numbers
+									  </div>
+									  <div class="card-inline card-panel-right">
+									   
+									  </div>
+									</div>
+									<div class="card-panel-icon-wrapper display-flex card-bottom">
+									  <div class="card-inline card-panel-left">
+										<div>
+										  {{#if totalDuration }}
+											<div class="font-size-18 custom-color-white">{{totalDuration}}</div>
+											{{else}}
+											<div key="KeyChartGOverviewLoader" class="absolute-center">
+												<div class="preloader color-white"></div>
+											</div>
+										   {{/if}}
+										</div>
+									  </div>
+									  <div class="card-inline card-panel-right">
+										  <img src="./resources/images/SVG/Dashboard/online.svg" width="20">
+									  </div>
+									</div>
+								  </div>
+							</div>
+						</li>
+					</ul>
+				</div>
+                <div id="tab-2" class="tab tab-2 list">
+				
+				<ul>
+						<li class="state-block">
+						  <a class="item-link smart-select smart-select-1 smart-select-init ">
+							<select name="top-metrics">
+							  <option value="datausage" id="datausage">Data Usage</option>
+							  <option value="smsusage" id="smsusage">SMS Usage</option>
+							</select>
+							<div class="item-content">
+							  <div class="item-inner">
+								<div class="item-title">Top 10 metrics</div>
+							  </div>
+							</div>
+						  </a>
+						</li>						
+						<li>		
+						
+				<div key="KeyCOverview" class="col-50 tablet-20  ">
+				<div class="card dashboard-card-type1 elevation-6 elevation-hover-9 elevation-transition overflow-scroll-hor  mt-5">
+					
+					<div class="card-header bg-color-darkgray overflow-hidden no-padding text-color-black">
+						<div class="progressbar-container"></div>
+						<!-- {{@global.LANGUAGE.DASHBOARD_PANEL_MSG43 }} -->						
+						<div class="list no-hairlines no-hairlines-between" style="width:100%;" >
+							<ul>
+								<li class="display-flex">
+									
+											<div class="item-media">	
+												<!--<label for="date-to" class=" px-3">Till</label>
+												<input type="text" placeholder="Date" class="pl-3" disabled id = "date-to" value="{{DateTo}}">-->
+											</div>
+											<a class="item-link smart-select smart-select-init  w-100 text-color-black" data-open-in="popover" data-close-on-select="true">
+										<select name="dashboard-overview-filter" >
+										
+											<option value="lastday" selected>Last day</option>     
+											<option value="week" >Week</option>   
+											<option value="thismonth" >This month</option>  
+											<!--
+											<option value="1" selected>this month</option>     
+											<option value="2" >7 days</option>   
+											<option value="3" >last month</option>   
+											<option value="4" >month to date</option>-->
+										</select>
+										<div class="item-content h-100">
+											<div class="item-inner">
+												<div class="item-title text-color-black"></div>
+												<div class="item-after  text-color-black"></div>
+											</div>
+										</div>
+									</a>
+								</li> 
+							</ul>
+						</div>     
+					</div>
+					{{#if DashboardDataLoadedEndUserOverview}}
+						
+						{{else}}
+						<div key="KeyChartGOverviewLoader" class="absolute-center" style="padding: 10px 0;">
+							<div class="preloader color-blue"></div>
+						</div>
+						{{/if}}   
+						<table id="table-dashboard-sim" class="mdl-data-table " style="width:100%">
+							<thead>
+								<tr>
+									<th> № </th>	
+									<th> IMSI </th> 
+									<th> Customer </th> 		
+									<th> Total </th>			
+									<th> Flow </th>			
+									<th> SMS </th>			
+									<th> Days </th>			
+									<th> Last Update </th>						
+								</tr>
+							</thead>
+							<tbody> 
+								{{#DashboardDataTable}}
+									<tr data-item-index="{{@index}}" >
+										<td>{{num}}</td>	  
+										<td>{{imsi}}</td>	
+										<td>{{customer}}</td>	
+										<td>{{total}}</td>	
+										<td>{{flow}}</td>	
+										<td>{{sms}}</td>	
+										<td>{{days}}</td>	
+										<td>{{lastUpdate}}</td>									
+									</tr>
+								{{/DashboardDataTable}}  
+							</tbody>
+						</table>
+					</div>                                                                                                
+			</div>
+			
+			</li>
+			</ul>
+				
+				
+				</div>
+            </div>
+        </div>
+		<p><a href="#" data-actions=".my-actions" class="actions-open">Open Actions</a></p>
+    </div>
+</template>
+
+<script>
+    // script must return component object
+    return {
+        data: function () {
+            let ret = {
+				timePeriod: 'daily',
+				totalDataUsage: 0,
+				totalDataSessions: 0,
+				totalDuration: 0,
+				totalSMSUsage: 0,				
+				topPeriod: 'lastday',
+				tableData: 'datausage',
+			};
+			
+			
+			ret.DashboardDataTableEl = false; 
+			ret.DashboardDataTable = [];
+
+            return ret;
+        },
+        methods: {	
+			initTopSIM: function(changed = false){
+			
+				var self = this;			
+				let days = 0;
+				
+				const today = new Date()
+				  switch (this.topPeriod){
+					case 'lastday':
+						days = 1
+						break
+					case 'week':
+						days = 7
+						break
+				  }
+				
+				
+			  const current = moment()          
+
+			  const query = {
+				page: 1,
+				limit: 10,
+				date1: this.topPeriod === 'thismonth'?current.clone().startOf('month').format('YYYY-MM-DD'):moment(today, 'YYYY-MM-DD').add(-days, 'days').format('YYYY-MM-DD'),
+				date2: moment(today, 'YYYY-MM-DD').format('YYYY-MM-DD'),
+				sms: this.tableData === 'smsusage'?'sms':undefined
+			  }
+				
+				let addCustomer = '', addLimit = '', kind = 'data'
+				 if (query.sms !== undefined ) {
+					kind = 'sms'
+				  }
+				  if (query.limit !== undefined) {
+					addLimit = '&limit=' + query.limit
+				  }
+									
+				let userInfo = self.$app.methods.getFromStorage('userInfo');
+				let accessToken = userInfo.accessToken;		
+			
+				$.ajax({
+					type: "GET",	        
+					url: 'https://m2mdata03.sinopacific.com.ua/api/v3/cdrs?kindOfUsage=' + kind + '&startDate=' + query.date1 + 'T00:00:00.000Z&endDate=' + query.date2 + 'T00:00:00.000Z' + addLimit,
+					dataType: "json",	
+					async: true,
+					headers: { 
+						Authorization: "Bearer " + accessToken,
+					},
+					//cache: false,
+					success: function (response) {
+						
+						
+						const totalDataUsage = 0
+						const totalSMSUsage = 0
+
+						const arrTable = []
+
+						response.forEach((element, index) => {
+						  const tableDataUsageTotal = (+element.totalDataUsage / 1000000)
+						  const tableSMSUsageTotal = element.totalSmsUsage == 'undefined' ? 0 : (+element.totalSmsUsage)
+						  const tableFlowUsageTotal = element.totalFlowUsage == 'undefined' ? 0 : (+element.totalFlowUsage)
+						  arrTable.push({
+							num: index + 1,
+							imsi: element.imsi + ' ',
+							customer: element.customer,
+							total: tableDataUsageTotal,
+							flow: tableFlowUsageTotal,
+							sms: tableSMSUsageTotal,
+							days: element.days,
+							lastUpdate: element.lastUpdate.slice(0, 10)
+						  })
+						})
+						
+						
+						self.$setState({
+								DashboardDataTable: arrTable
+							}, ()=>{		
+								
+								if(changed && self.DashboardDataTableEl){					
+								
+									console.log(changed)
+									self.DashboardDataTableEl.destroy();
+									self.DashboardDataTableEl = false;
+						
+								}
+								self.DashboardDataTableEl = $('body').find('#table-dashboard-sim').DataTable({                    
+									columnDefs: [
+										{ // remove orederable arrows from column with pin
+											targets: [ 0 ], 
+											orderable: true,  
+										},
+										{ // hide group codes, which will be used for filtering
+											targets: [ 1 ],
+											visible: true
+										},
+										{ // hide group codes, which will be used for filtering
+											targets: [ 2 ],
+											visible: true
+										},
+										{ // hide group codes, which will be used for filtering
+											targets: [ 3 ],
+											visible: true
+										},
+										{ // hide group codes, which will be used for filtering
+											targets: [ 4 ],
+											visible: true
+										},
+										{ // hide group codes, which will be used for filtering
+											targets: [ 5 ],
+											visible: true
+										},
+										{ // hide group codes, which will be used for filtering
+											targets: [ 6 ],
+											visible: true
+										},
+										{ // hide group codes, which will be used for filtering
+											targets: [ 7 ],
+											visible: true
+										}
+									],
+									"order": [[ 0, "desc" ]],
+									lengthMenu: [5, 10, 25],
+									pageLength: 5   
+								});
+							
+							});
+							
+							self.$app.utils.nextFrame(()=>{
+									//let wasDataAlreadyLoaded = self.DashboardDataLoadedEndUserOverview;
+									self.$setState({
+										DashboardDataLoadedEndUserOverview: true,
+										//EndUser:{Overview: result}
+									});
+								});
+					},
+					error: function(XMLHttpRequest, textStatus, errorThrown){
+						console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
+					}
+				});
+	
+			},			
+			showPanels: function () {
+                let self = this;
+				const DEMO_OWERVIEW = 'https://api.m2mglobaltech.com/QuikData/V1/SMS/Overview'
+				const login = 'm2mdataadmin'
+				const requestOptions = {
+					method: 'GET',
+					redirect: 'follow',        
+				}
+				
+				fetch(DEMO_OWERVIEW + '?login=' + login, requestOptions)
+				.then(response => 
+				  response.json()
+				)
+				.then(result => {
+				  const response = JSON.parse(result);
+					
+				switch (self.timePeriod){
+						case 'daily':
+							self.$setState({
+								totalDataUsage: response.Table3.length ? (response.Table3[0].JTOV_DATA_DAY/1048576).toFixed(0) : 0,
+								totalSMSUsage: response.Table3.length ? response.Table3[0].JTOV_SMS_MO_DAY : 0,
+								totalDuration: response.Table3.length ? response.Table3[0].JTOV_DATA_NUMS_DAY : 0,
+								totalDataSessions: response.Table3.length ? response.Table3[0].JTOV_SESSION_DAY : 0,								
+							});
+						break
+						case 'weekly':
+							self.$setState({
+								totalDataUsage: response.Table3.length ? (response.Table3[0].JTOV_DATA_WEEK/1048576).toFixed(0) : 0,
+								totalSMSUsage: response.Table3.length ? response.Table3[0].JTOV_SMS_MO_WEEK : 0,
+								totalDuration: response.Table3.length ? response.Table3[0].JTOV_DATA_NUMS_WEEK : 0,//(3600*response.Table3[0].JTOV_DATA_WEEK)/(response.Table3[0].JTOV_DURATION_WEEK*1024),
+								totalDataSessions: response.Table3.length ? response.Table3[0].JTOV_SESSION_WEEK : 0,
+								
+							});
+						break
+						case 'monthly':
+							
+							self.$setState({
+								totalDataUsage: response.Table3.length ? (response.Table3[0].JTOV_DATA_MONTH/1048576).toFixed(0) : 0,
+								totalSMSUsage: response.Table3.length ? response.Table3[0].JTOV_SMS_MO_MONTH : 0,
+								totalDuration: response.Table3.length ? response.Table3[0].JTOV_DATA_NUMS_MONTH : 0,//(3600*response.Table3[0].JTOV_DATA_MONTH)/(response.Table3[0].JTOV_DURATION_MONTH*1024),
+								totalDataSessions: response.Table3.length ? response.Table3[0].JTOV_SESSION_MONTH : 0,
+								
+							});
+						break
+						case 'yearly':
+							
+							self.$setState({
+								totalDataUsage: response.Table3.length ? (response.Table3[0].JTOV_DATA_YEAR/1048576).toFixed(0) : 0,
+								totalSMSUsage: response.Table3.length ? response.Table3[0].JTOV_SMS_MO_YEAR : 0,
+								totalDuration: response.Table3.length ? response.Table3[0].JTOV_DATA_NUMS_YEAR : 0,//(3600*response.Table3[0].JTOV_DATA_YEAR)/(response.Table3[0].JTOV_DURATION_YEAR*1024),
+								totalDataSessions: response.Table3.length ? response.Table3[0].JTOV_SESSION_YEAR : 0,
+								
+							});
+						break
+					}
+				}
+				  
+				).catch(error => 
+				  self.$app.dialog.alert('Incorrect IMSI number.')
+				)
+			},		
+			initHome: function(){
+				var self = this;
+				
+				/*
+				self.submitSearchForm(self.type);
+				$$('body').on('submit', '.formSearchSim', function(e) {
+					e.preventDefault();
+					self.submitSearchForm(self.type);
+					return false;
+				});
+				$$('body').on('click', '.searchSim', function() {
+					self.submitSearchForm(self.type);
+				});		
+				
+				*/
+			},
+        },
+        on: {
+            pageInit: function (e, page) {
+                let self = this;				
+				
+				self.showPanels();
+				self.initTopSIM();
+				
+				var listEl = self.$el.find('.smart-select-0');
+				var listEl1 = self.$el.find('.smart-select-1');
+								
+						self.smartSelect = self.$app.smartSelect.create({
+							el: listEl,
+						  on: {
+							opened: function () {
+							
+							},
+							closed: function () {
+								self.$setState({
+									totalDataUsage: 0,
+									totalSMSUsage: 0,
+									totalDuration: 0,
+									totalDataSessions: 0,								
+								});
+								
+								self.$setState({
+									timePeriod: self.smartSelect.getValue()
+								})
+								
+								self.showPanels();
+							}
+						  }
+						});		
+
+					self.smartSelect1 = self.$app.smartSelect.create({
+							el: listEl1,
+						  on: {
+							opened: function () {
+							
+							},
+							closed: function () {
+								self.$setState({					
+									tableData: self.smartSelect1.getValue()
+								})
+								self.$setState({
+										DashboardDataLoadedEndUserOverview: false,
+										DashboardDataTable: []
+									});
+								self.initTopSIM(true);
+							}
+						  }
+						});		
+
+
+
+
+						
+				let overviewFiletrEl = self.$el.find('[name="dashboard-overview-filter"]');
+				overviewFiletrEl.on('change', function(e){ console.log(e)
+					
+					self.$setState({					
+						topPeriod: e.target.value
+					})
+					self.$setState({
+										DashboardDataLoadedEndUserOverview: false,
+										DashboardDataTable: []
+									});
+					self.initTopSIM(true);
+					
+				});
+				
+				
+				$('body').find('#table-dashboard-sim tbody').on('click', 'tr', function () {
+				
+					
+					self.$app.data.imsi = $(this).html().split(' <')[0].split('>')[3];
+					console.log('click', $(this).html().split(' <')[0].split('>')[3]);
+					myEvents.emit('home');
+					mainView.router.back();
+											
+					/*
+					
+					var commands = '<div class="action_button_wrapper">' +
+						'<div class="action_button_block action_button_media">' +
+						'<i class="f7-icons icon-other-commands commands-icon color-m2m-blue"></i>' +
+						'</div>' +
+						'<div class="action_button_block action_button_text color-m2m-grey">' +
+						'Commands' +
+						'</div>' +
+						'</div>';
+
+					var commandsHistory = '<div class="action_button_wrapper">' +
+						'<div class="action_button_block action_button_media">' +
+						'<i class="material-icons md-36 color-m2m-blue">watch_later</i>' +
+						'</div>' +
+						'<div class="action_button_block action_button_text color-m2m-grey">' +
+						'Commands History' +
+						'</div>' +
+						'</div>';
+
+
+					var SIMStatus = '<div class="action_button_wrapper">' +
+						'<div class="action_button_block action_button_media">' +
+						'<i class="material-icons md-36 color-m2m-blue">info</i>' +
+						'</div>' +
+						'<div class="action_button_block action_button_text color-m2m-grey">' +
+						'SIM Status' +
+						'</div>' +
+						'</div>';
+
+					var SIMReport = '<div class="action_button_wrapper">' +
+						'<div class="action_button_block action_button_media">' +
+						'<i class="material-icons md-36 color-m2m-blue">assessment</i>' +
+						'</div>' +
+						'<div class="action_button_block action_button_text color-m2m-grey">' +
+						'Data Usage ' +
+						'</div>' +
+						'</div>';
+						
+					var SIMSessions = '<div class="action_button_wrapper">' +
+						'<div class="action_button_block action_button_media">' +
+						'<i class="material-icons md-36 color-m2m-blue">sim_card</i>' +
+						'</div>' +
+						'<div class="action_button_block action_button_text color-m2m-grey">' +
+						'SIM Sessions ' +
+						'</div>' +
+						'</div>';
+						
+					var SIMCells = '<div class="action_button_wrapper">' +
+						'<div class="action_button_block action_button_media">' +
+						'<i class="material-icons md-36 color-m2m-blue">wifi</i>' +
+						'</div>' +
+						'<div class="action_button_block action_button_text color-m2m-grey">' +
+						'SIM Cells ' +
+						'</div>' +
+						'</div>';
+
+					var buttons = [{
+							text: 'IMSI: '+ imsi,
+							label: true,
+							color: 'blue',
+						},
+						{
+							text: commands,
+							onClick: function() {
+								//loadPageCommands();
+								self.$app.actions.close();
+								self.$app.sheet.close();
+								mainView.router.navigate('/commands-list/?id='+id.toString()+'&imsi='+imsi.toString());
+								//
+							},
+						},
+						{
+							text: commandsHistory,
+							onClick: function() {
+								self.$app.actions.close();
+								self.$app.sheet.close();
+								mainView.router.navigate('/commands-history/?id='+id.toString()+'&imsi='+imsi.toString());;
+							},
+						},
+						{
+							text: SIMStatus,
+							onClick: function() {
+								self.$app.actions.close();
+								self.$app.sheet.close();
+								mainView.router.navigate('/sim-status/?id='+id.toString()+'&imsi='+imsi.toString()+'&iccid='+iccid.toString());
+							},
+						},
+						{
+							text: SIMReport,
+							onClick: function() {
+								self.$app.actions.close();
+								self.$app.sheet.close();
+								mainView.router.navigate('/report/?id='+id.toString()+'&imsi='+imsi.toString()+'&iccid='+iccid.toString());
+							},
+						},
+						{
+							text: SIMCells,
+							onClick: function() {
+								self.$app.actions.close();
+								self.$app.sheet.close();
+								mainView.router.navigate('/cells/?id='+id.toString()+'&imsi='+imsi.toString()+'&iccid='+iccid.toString());
+							},
+						},
+					];
+
+
+					self.$app.actions.create({buttons}).open();*/
+					
+				
+				});		
+
+
+				
+				$$('body').on('click', '.simList .item-inner', function() {
+					var parrent = $$(this).closest('.item-content');
+					var id = parrent.attr('data-id');
+					var imsi = parrent.attr('data-imsi');
+					var iccid = parrent.attr('data-iccid');
+
+					var notificationsCheck = '';
+					if (parrent.data('notifications') == 1) {
+						notificationsCheck = 'checked="checked"';
+					}
+
+
+					
+				});				
+				
+            },
+			
+            pageAfterIn:function(){
+
+            },
+            pageBeforeOut:function(){
+			
+            },
+            pageBeforeRemove: function () {
+               									 
+            },
+        }
+    };
+</script>

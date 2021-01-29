@@ -65,6 +65,7 @@ var app = new Framework7({
                 firstName: 'John',
                 lastName: 'Doe',
             },
+			imsi: ''
         };
     },
     on: {

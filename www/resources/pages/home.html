@@ -100,6 +100,8 @@
                 let self = this;
 				var input = $$('.formSearchSim input[name="searchInput"');
 
+				self.$app.data.imsi = ''
+				
 					$$('.simList ul').html('');
 					input.blur();
 
@@ -535,6 +537,14 @@
 			},
 			initHome: function(){
 				var self = this;
+				
+				console.log('re', self.$app.data.imsi);
+				if(self.$app.data.imsi != 'undefined'){
+					$$('.formSearchSim input[name="searchInput"').val(self.$app.data.imsi)
+					self.$setState({
+						text: self.$app.data.imsi
+					})
+				}
 				
 				self.submitSearchForm(self.type);
 				$$('body').on('submit', '.formSearchSim', function(e) {
