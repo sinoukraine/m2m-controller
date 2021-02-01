@@ -133,6 +133,16 @@
 				// Generate new items HTML
 				var html = '';
 				
+				html += '<li class="accordion-item custom">';
+						html += '	<a href="#" class="item-content item-link">';
+						html += '		<div class="item-inner">';
+						html += '		  <div class="item-title"><b>Custom</b></div>';
+						html += '		</div>';
+						html += '	</a>';
+						html += '	<div class="accordion-item-content accordion-item-opened ">';
+					
+						html += '	</div>';
+						html += '</li>';
 				
 				$.each(products, function(index, value){ 
 					
@@ -186,6 +196,11 @@
 				
 				$$('.page').find('.add-cmd').on('click', function () {
 					mainView.router.navigate('/add-command/?imsi=' + self.imsi);					
+				});
+				
+				page.$el.on('click', '.accordion-item.custom', function () {	
+					console.log('f');
+					mainView.router.navigate('/commands/?id='+self.id.toString()+'&imsi='+self.imsi.toString());
 				});
 				
 				page.$el.on('click', '.li-cmd', function () {					
