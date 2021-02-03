@@ -13,7 +13,7 @@ var routes = [
     },
     {
         path: '/commands/',
-        componentUrl: './resources/pages/commands.html?v=1.3',
+        componentUrl: './resources/pages/commands.html?v=1.7',
         name: 'commands'
     },
     {

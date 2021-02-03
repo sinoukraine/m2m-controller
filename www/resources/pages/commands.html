@@ -104,17 +104,62 @@
 					
 				//console.log(data, "http://m2mdata03.sinopacific.com.ua/api/v3/sims/" + self.imsi + "/sms");
 				console.log('emit sending message');
-				$.ajax({
+				/*
+				var axios = require('axios');
+				
+			  const query = {
+                  imsi: this.deviceList[i].name,
+                  content: this.newMessage
+                }
+			  const findBy = query.imsi
+			  const options = {
+				url: "http://m2mdata03.sinopacific.com.ua/api/v3/sims/" + self.ID + "/sms',
+				method: 'post',
+				content: query.content
+			  }
+			  try {
+				const response = await axios.request(postRequestOptions(options))
+				return response
+			  } catch (e) {
+				const title = 'Error'
+				const message = 'An CORS issue has been detected, please try again later or contact our support team'
+				this.$alert(message, title, {type: 'error'})
+				throw e
+			  }
+			  */
+			  
+			  
+				$.ajax({/*
 					async: true,
 					crossDomain: true,
-					url: "http://m2mdata03.sinopacific.com.ua/api/v3/sims/" + self.ID + "/sms",
-					method: "POST",
+					url: "https://m2mdata03.sinopacific.com.ua/nomad/sims/" + self.imsi + "/sms",
+					//http://m2mdata03.sinopacific.com.ua/api/v3/sims/" + self.imsi + "/sms",
+					method: "POST",*/
 					headers: {
 						Authorization: "Bearer " + accessToken,
 						"content-type": "application/json"
 					},
+					async: true,
+					crossDomain: true,
+					url:  "https://m2mdata03.sinopacific.com.ua/nomad/sims/" + self.imsi + "/sms",
+					method: "POST",
 					processData: false,
-					data: JSON.stringify(data),
+					data: JSON.stringify({
+					  "smsParameters": {
+						"data": text,
+						"from": "Platform",
+						"replaceIfPresent": "No",
+						"smsType": "Text",
+						"smsValidityDays": "1",
+						"smsValidityHours": "1",
+						"smsValidityMinutes": "2",
+						"udh": "No"
+					  }
+					}),
+					timeout: 2147483647,
+					/*
+					processData: false,
+					data: JSON.stringify(data),*/
 					success: function (result) {
 						//self.receiveMessage(text, result.orderId);
 						//self.getReplyMessages(text, result.orderId);
@@ -449,7 +494,7 @@ $('.page-content').scrollTop(10000, 400);
             pageInit: function (e, page) {  
 				var self = this; 
 				
-				
+				console.log('ck', self.imsi);
 				
 				// Init Messages
 				self.messages = app.messages.create({
