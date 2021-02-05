@@ -1072,3 +1072,39 @@ h3{
     right: calc(var(--f7-list-item-padding-horizontal) + var(--f7-safe-area-right));
     content: 'chevron_right';
 }
+
+.history-status{
+	font-size: 12px;
+    color: #b3b3b3;
+    /* line-height: 2em; */
+    margin-top: -32px;
+    margin-left: 30px;
+    position: initial;
+}
+.summary-label{
+	font-size: 12px;
+    color: #b3b3b3;
+}
+
+.py-5{
+	padding: 30px 0;
+}
+
+.my-5{
+	margin: 30px 0;
+}
+
+.summary-block-line {
+	
+    background-color: var(--f7-card-header-border-color);
+    display: block;
+    z-index: 15;
+    top: auto;
+    right: auto;
+    bottom: 0;
+    left: 0;
+    height: 1px;
+    width: 100%;
+    transform-origin: 50% 100%;
+    transform: scaleY(calc(1 / var(--f7-device-pixel-ratio)));
+}

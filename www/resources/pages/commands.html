@@ -218,9 +218,9 @@
 				
 				var html = '';
 				$.each(callbackList, function(index, value){				
-					if(self.used_id.indexOf( value.insertedDate ) == -1){
+					if(self.used_id.indexOf( value.insertedDate + value.message[0] ) == -1){
 					
-						self.used_id.push(value.insertedDate);
+						self.used_id.push(value.insertedDate + value.message[0]);
 						var datetime = moment.utc(value.insertedDate).toDate();
 							//datetime = moment(datetime).format(window.COM_TIMEFORMAT);
 							
@@ -236,18 +236,18 @@
 									text: replySMS,
 									textFooter: time,	
 									attrs: {
-										'data-id': value.insertedDate,	
+										'data-id': value.insertedDate + value.message[0],	
 									}								
 								  });
 								  
-								$('[data-id="'+value.insertedDate+'"]').find('.message-bubble').prepend('<div class="msg-status">Delivered</div>');
+								$('[data-id="'+value.insertedDate + value.message[0]+'"]').find('.message-bubble').prepend('<div class="msg-status delivered">'+value.status+'</div>');
 											
 								  if(value.status == 'Delivered' || value.status == 'Submitted'){
 									$('.message-sent').each(function(i, ele) {
 										//var x = document.getElementsByClassName("message-sent");
 										console.log(value.status,datetime.getTime(), $(this).data('id'));
 										//datetime.getTime() >= $(this).data('id')
-										if(replySMS === $(this).find('.message-text').text() && $(this).find('.message-bubble').find('.msg-status').text() != 'Delivered'){
+										if(replySMS === $(this).find('.message-text').text() && !$(this).find('.message-bubble').find('.msg-status').hasClass('delivered')){
 											$(this).remove();
 											 //return false;
 										}
@@ -270,7 +270,7 @@
 									type: 'received',
 									textFooter: time,	
 									attrs: {
-										'data-id': value.insertedDate,	
+										'data-id': value.insertedDate + value.message[0],	
 									}								
 								  });
 							//}, 5000);

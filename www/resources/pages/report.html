@@ -109,7 +109,29 @@
 		
 		<div key="KeyCOverview" class="col-50 tablet-20  ">
 				<div class="card dashboard-card-type1 elevation-6 elevation-hover-9 elevation-transition overflow-scroll-hor  mt-5">
+				
 					
+				<div class="content-block status_block_top py-5">
+					<div class="row no-gutter status_block_icons">
+						<div class="col-33 ">
+							<img src="resources/images/data.svg" alt="">
+							<p class="summary-label">Total Data</p>
+							<p>{{totalData}}</p>
+						</div>                
+						<div class="col-33">
+							<img src="resources/images/messages.svg" alt="">
+							<p class="summary-label">Total SMS</p>
+							<p>{{totalSMS}}</p>
+							
+						</div> 
+						<div class="col-33">
+							<img src="resources/images/data.svg" alt="">
+							<p class="summary-label">Avg Data</p>
+							<p>{{averageData}}</p>                    
+						</div>               
+					</div>
+				</div>
+				<div class="summary-block-line"></div>
 					<div class="card-header bg-color-darkgray overflow-hidden no-padding text-color-black">
 						<div class="progressbar-container"></div>
 						<!-- {{@global.LANGUAGE.DASHBOARD_PANEL_MSG43 }} -->						
@@ -183,6 +205,9 @@
         data: function () {
             var self = this;
             var ret = {
+				totalData: 0,
+				totalSMS: 0,
+				averageData: 0,
 				IMSIUsageArray: [],
 				totalMB: [],
 				DateTo: '',
@@ -246,6 +271,10 @@
 						if(result){		
 						let arr = [];
 						let chartArr = [];
+						let totalData = 0;
+						let totalSMS = 0;
+						let averageData = 0;
+						
 						$.each(result, function(index, value1){
 							var flowField = 0;
 							var smsField = 0;
@@ -262,7 +291,8 @@
 							}
 							objTemp={'date':value1.date.slice(0, 10),'totalfield':totalField, 'flowfield':flowField, 'smsfield':smsField};
 							chartArr.push([value1.date.slice(0, 10), totalField]);
-							
+							totalData+=totalField;
+							totalSMS+=smsField;
 												
 							arr.push(objTemp);
 						});	
@@ -271,9 +301,21 @@
 			
 							self.$setState({
 								DashboardDataTable: arr,
-								totalMB: chartArr
+								totalMB: chartArr,
 							});
-									
+							
+							self.$setState({														
+								totalData: totalData.toFixed(3)
+							})
+							self.$setState({														
+								totalSMS: totalSMS
+							})
+							self.$setState({														
+								averageData: (totalData/result.length).toFixed(3)
+							})
+								
+								
+								
 							self.DashboardDataTableEl = $('body').find('#table-report-sim').DataTable({                    
 								columnDefs: [
 									{ // remove orederable arrows from column with pin
@@ -522,6 +564,9 @@
 				let userInfo = self.$app.methods.getFromStorage('userInfo');
 				let accessToken = userInfo.accessToken;		
 			
+				
+						
+						
 				$.ajax({
 					type: "GET",	        
 					url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/cdrs/'+ params.Iccid +'?' + urlparams,
@@ -536,6 +581,10 @@
 						if(result){		
 						let arr = [];
 						let chartArr = [];
+						let totalData = 0;
+						let totalSMS = 0;
+						let averageData = 0;
+						
 						$.each(result, function(index, value1){
 							var flowField = 0;
 							var smsField = 0;
@@ -553,7 +602,9 @@
 							objTemp={'date':value1.date.slice(0, 10),'totalfield':totalField, 'flowfield':flowField, 'smsfield':smsField};
 							chartArr.push([value1.date.slice(0, 10), totalField]);
 							
-												
+							totalData+=totalField;
+							totalSMS+=smsField;
+																	
 							arr.push(objTemp);
 						});	
 							
@@ -573,6 +624,19 @@
 								DashboardDataTable: arr,
 								totalMB: chartArr
 							});
+							
+							
+							self.$setState({														
+								totalData: totalData.toFixed(3)
+							})
+							self.$setState({														
+								totalSMS: totalSMS
+							})
+							self.$setState({														
+								averageData: (totalData/result.length).toFixed(3)
+							})
+								
+								
 							
 							self.DashboardDataTableEl = $('body').find('#table-report-sim').DataTable({                    
 								columnDefs: [
