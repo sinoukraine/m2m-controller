@@ -427,13 +427,13 @@
 			showPanels: function () {
                 let self = this;
 				const DEMO_OWERVIEW = 'https://api.m2mglobaltech.com/QuikData/V1/SMS/Overview'
-				const login = 'm2mdataadmin'
+				const login = 'root'
 				const requestOptions = {
 					method: 'GET',
 					redirect: 'follow',        
 				}
 				
-				fetch(DEMO_OWERVIEW + '?login=' + login, requestOptions)
+				fetch(DEMO_OWERVIEW + '?login=' + login + '&imsi=', requestOptions)
 				.then(response => 
 				  response.json()
 				)

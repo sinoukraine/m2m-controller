@@ -18,7 +18,7 @@ var routes = [
     },
     {
         path: '/dashboard/',
-        componentUrl: './resources/pages/dashboard.html?v=1.3',
+        componentUrl: './resources/pages/dashboard.html?v=1.4',
         name: 'dashboard'
     },
     {
