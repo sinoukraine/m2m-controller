@@ -146,116 +146,117 @@ var app = new Framework7({
             self.loginScreen.open('.login-screen');
 
         },
+		isObjEmpty: function(obj){
+		  // null and undefined are "empty"
+		  if (obj == null) return true;
+
+		  // Assume if it has a length property with a non-zero value
+		  // that that property is correct.
+		  if (obj.length > 0)    return false;
+		  if (obj.length === 0)  return true;
+
+		  // If it isn't an object at this point
+		  // it is empty, but it can't be anything *but* empty
+		  // Is it empty?  Depends on your application.
+		  if (typeof obj !== "object") return true;
+
+		  // Otherwise, does it have any properties of its own?
+		  // Note that this doesn't handle
+		  // toString and valueOf enumeration bugs in IE < 9
+		  for (let key in obj) {
+			if (hasOwnProperty.call(obj, key)) return false;
+		  }
+		  return true;
+		},
+		getFormDataFromObject: function(query){
+		  let data = new FormData();
+		  if (!this.methods.isObjEmpty(query)){
+			const arr = Object.keys(query)
+			arr.forEach(element => {
+			  if(Array.isArray(query[element])){
+				for (let i = 0; i < query[element].length; i++) {
+				  if (query[element][i]) data.append(element+'[]', query[element][i])
+				}
+			  }else{
+				if (query[element]) data.append(element, query[element])
+			  }
+			})
+		  }
+		  return data
+		},
         preLogin: function(){
             let self = this;
             				
-							
-            this.preloader.show();
-	/*
-			app.request.setup({
-				headers: {
-					"content-type": "application/json",
-					"Origin": "file://",
-				}
-			});
+			let accessToken = '';
 			
-			app.request.post('https://m2mdata03.sinopacific.com.ua/api/v3/consumers/tokens', {}, function (result) {
-				console.log(result);
-			  if(result && result.consumerToken) {
-							let consumerToken = result.consumerToken
-							app.preloader.hide();
-							app.dialog.alert('SUCCESS');
-							//app.methods.login(consumerToken);
-							
-						}else {
-							self.utils.nextFrame(()=>{
-								app.preloader.hide();
-								
-								app.dialog.alert('ER_0');
-								app.loginScreen.open('.login-screen');
-							});
-						}	
-			}, function(error){
-				console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
-						self.utils.nextFrame(()=>{
-							app.preloader.hide();
-							app.dialog.alert('ER_1');
-							app.loginScreen.open('.login-screen');
-						});
-			}, 'json');
-*/
+			const obj = {
+			  account: 'root',
+			  password: '888888'
+			}    
+			
+			let data =  Qs.stringify(obj)						
+			
+			this.preloader.show();
+			
 			$.ajax({
 					async: true,
 					crossDomain: true,
-					url: 'https://m2mdata03.sinopacific.com.ua/api/v3/consumers/tokens',
+					url: 'https://test.m2mdata.co/service/User/Auth',
+					data: data,
 					method: "POST",
 					headers: {
-						"content-type": "application/json",
-						"Origin": "*",
+						"content-type": 'application/x-www-form-urlencoded; charset=utf-8',
 					},
 					processData: false,
 					success: function (result) {	
-						if(result && result.consumerToken) {
-							let consumerToken = result.consumerToken
-							app.methods.login(consumerToken);
-						}else {
+						if(result.MajorCode == '000'){
+						accessToken = result.Data.Token
+						
+						$.ajax({
+								async: true,
+								crossDomain: true,
+								url: 'https://m2mdata03.sinopacific.com.ua/api/v3/consumers/tokens',
+								method: "POST",
+								headers: {
+									"content-type": "application/json",
+									"Origin": "*",
+								},
+								processData: false,
+								success: function (result) {	
+									if(result && result.consumerToken) {
+										let consumerToken = result.consumerToken
+										app.methods.login(consumerToken, accessToken);
+									}else {
+										self.utils.nextFrame(()=>{
+											app.preloader.hide();
+										app.dialog.alert('Something wrong. Please try later.');
+											app.loginScreen.open('.login-screen');
+										});
+									}	
+								},
+								error: function(XMLHttpRequest, textStatus, errorThrown){
+									console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
+									self.utils.nextFrame(()=>{
+										app.preloader.hide();
+										app.dialog.alert('Something wrong. Please try later.');
+										app.loginScreen.open('.login-screen');
+									});
+								}
+							});	
+						}else{
 							self.utils.nextFrame(()=>{
-								app.preloader.hide();
-								//app.dialog.alert(LANGUAGE.LOGIN_MSG01);
-							app.dialog.alert('Something wrong. Please try later.');
-								app.loginScreen.open('.login-screen');
-							});
-						}	
-					},
-					error: function(XMLHttpRequest, textStatus, errorThrown){
-						console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
-						self.utils.nextFrame(()=>{
-							app.preloader.hide();
-							app.dialog.alert('Something wrong. Please try later.');
-							app.loginScreen.open('.login-screen');
-						});
+										app.preloader.hide();
+										app.dialog.alert('Something wrong. Please try later.');
+										app.loginScreen.open('.login-screen');
+									});
+						}
 					}
-				});	
-				
-            /*app.request.get(API_URL.LOGIN, data, function (result, xhr, status) {
-                    console.log(result);
-                    if(result && result.MajorCode == '000') {
-                        if(account.val()) {
-                            localStorage.ACCOUNT = account.val().trim().toLowerCase();
-                            localStorage.PASSWORD = password.val();
-                        }
-                        password.val(null);
-                        self.methods.setInStorage({
-                            name:'userInfo',
-                            data: {
-                                MajorToken: result.Data.MajorToken,
-                                MinorToken: result.Data.MinorToken,
-                                UserInfo: result.Data.UserInfo
-                            }
-                        });
-                        self.data.CustomerType = result.Data.UserInfo.CustomerType;
-
-                        app.panel.close();
-                        app.loginScreen.close();
-                        leftView.router.back('/panel-left/');
-                    }else {
-                        self.utils.nextFrame(()=>{
-                            app.dialog.close();
-                            app.dialog.alert(LANGUAGE.LOGIN_MSG01);
-                            app.loginScreen.open('.login-screen');
-                        });
-                    }
-                },
-                function (xhr, status) {
-                    self.utils.nextFrame(()=>{
-                        app.dialog.close();
-                        app.dialog.alert('Error occured during login');
-                        app.loginScreen.open('.login-screen');
-                    });
-                },
-                'json');*/
+			})
+			
+			
+            
         },
-        login: function(token){
+        login: function(token, access){
             let self = this;
 			let consumerToken = token;
 			
@@ -265,10 +266,6 @@ var app = new Framework7({
             let data = {
                 login: account.val() ? account.val() : localStorage.ACCOUNT,
                 password: password.val() ? password.val() : localStorage.PASSWORD,
-                /*appKey: localStorage.PUSH_APP_KEY,
-                mobileToken: localStorage.PUSH_MOBILE_TOKEN,
-                deviceToken: localStorage.PUSH_DEVICE_TOKEN,
-                deviceType: localStorage.DEVICE_TYPE,*/
             };
 
 			localStorage.ACCOUNT = account.val();
@@ -290,6 +287,7 @@ var app = new Framework7({
 					data: JSON.stringify(data),
 					success: function (result) {
 						if(result && result.accessToken) {
+							
 							if(account.val()) {
 								localStorage.ACCOUNT = account.val().trim().toLowerCase();
 								localStorage.PASSWORD = password.val();
@@ -301,7 +299,8 @@ var app = new Framework7({
 							self.methods.setInStorage({
 								name:'userInfo',
 								data: {
-									accessToken: result.accessToken
+									accessToken: result.accessToken,
+									accessNewToken: access
 									/*MajorToken: result.Data.MajorToken,
 									MinorToken: result.Data.MinorToken,
 									UserInfo: result.Data.UserInfo*/

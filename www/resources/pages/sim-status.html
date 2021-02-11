@@ -29,7 +29,7 @@
 						<div class="text-content">{{SIMName}}</div>
 						<div class="text-content">IMSI: {{IMSI}}</div>
 						<div class="text-content">ICCID: {{ICCID}}</div>
-						<div class="text-content">Owner: {{CustomerName}}</div>
+						<div class="text-content">Owner: {{owner}}</div>
 						<div class="text-content">{{Description}}</div>
 					</div>
 				</div>
@@ -59,11 +59,54 @@
 						<li class="state-block display-none">
 						  <a class="item-link smart-select smart-select-0 smart-select-init ">
 							<select name="sim-state">
-							  <option value="OnStock" id="state-0">{{onstockTitle}}</option>
+							<option value="Current" id="state-3" selected>Current {{state}}</option>
+							
+							
+							
+						{{#if onlyActivate }}
+							<option value="Activate" id="state-4" >Activate</option>							
+						{{else}}
+							<option value="Activate" id="state-4" disabled>Activate</option>
+						{{/if }}
+						
+						{{#if onlySuspend }}
+							<option value="Suspend" id="state-0">Suspend</option>							
+						{{else}}
+							<option value="Suspend" id="state-0" disabled>Suspend</option>
+						{{/if }}
+						
+						{{#if onlyResume }}
+							<option value="Resume" id="state-1">Resume</option>							
+						{{else}}
+							<option value="Resume" id="state-1" disabled>Resume</option>
+						{{/if }}
+						
+						{{#if onlyTerminate }}
+							<option value="Terminate" id="state-2" >Terminate</option>							
+						{{else}}
+							<option value="Terminate" id="state-2" disabled>Terminate</option>
+						{{/if }}
+						
+						
+						
+							  
+							  
+							 <!--<option value="OnStock" id="state-0">{{onstockTitle}}</option>
 							  <option value="Productive" id="state-1">{{productiveTitle}}</option>
-							  <option value="Suspended" id="state-2">{{suspendedTitle}}</option>
-							  <!--<option value="Modified" id="state-3">{{modifiedTitle}}</option>-->
+							  <option value="Suspended" id="state-2" >{{suspendedTitle}}</option>
+							  <option value="Activated" id="state-3" >Activated</option>
 							  <option value="Deleted" id="state-4">{{terminatedTitle}}</option>
+							  <option value="Ordered" id="state-5" >Ordered</option>
+							  <option value="Test" id="state-6" >Test</option>
+							  <option value="TestProductive" id="state-7" >TestProductive</option>
+							  <option value="TestEnd" id="state-8" >TestEnd</option>
+							  <option value="AutoSuspended" id="state-9" >AutoSuspended</option>
+							  <option value="Paused" id="state-10" >Paused</option>
+							  <option value="Lost" id="state-11" >Lost</option>
+							  <option value="Reserved" id="state-12" >Reserved</option>
+							  <option value="Deleting" id="state-13" >Deleting</option>
+							  <option value="EuiccControl" id="state-14" >EuiccControl</option>
+							  <option value="Passive" id="state-15" >Passive</option>-->
 							</select>
 							<div class="item-content">
 							  <div class="item-inner">
@@ -168,6 +211,16 @@
             
 			if (self.$route.query.iccid) {
 				ret.ICCID = self.$route.query.iccid;
+            }  					
+            
+			if (self.$route.query.owner) {
+				ret.owner = self.$route.query.owner;
+            }  		
+			if (self.$route.query.csp) {
+				ret.csp = self.$route.query.csp;
+            }  			
+			if (self.$route.query.state) {
+				ret.state = self.$route.query.state;
             }  			
             return ret;
         },
@@ -177,6 +230,34 @@
 				var self = this;
 				//self.resetOK.open();
 				
+				var query = {
+				  IMSI: self.IMSI
+				}
+				
+				
+				let data =  Qs.stringify(query)
+				let url = 'http://test.m2mdata.co/Jt/Sim/Reboot'
+				$.ajax({
+						async: true,
+						crossDomain: true,	        
+						url: url,
+						method: "POST",
+						headers: {
+							"content-type": 'application/x-www-form-urlencoded; charset=utf-8',
+						},
+						processData: false,
+						data: data,
+						success: function (result) {
+							console.log('okk00',result);
+							self.resetOK.open();
+							
+						},
+						error: function (e) {
+						
+						}
+					});
+				
+				/*
 				let userInfo = self.$app.methods.getFromStorage('userInfo');
 				let accessToken = userInfo.accessToken;				
 						
@@ -197,7 +278,7 @@
 							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
 								self.$app.dialog.alert('Something wrong.');	
 						}
-					});				
+					});	*/			
 			},	
 			getSim: function (payload) {
 			
@@ -244,7 +325,7 @@
 								});
 								
 								$('.state-block').removeClass('display-none');
-							if(result.extra.states.current){
+							/*if(result.extra.states.current){
 										
 							console.log(result.extra.states.current)
 								setStatus = result.extra.states.current;								
@@ -262,7 +343,7 @@
 								self.$setState({
 									cspInfo: setCSP
 								});
-							}
+							}*/
 								
 								
 							}else{
@@ -294,11 +375,11 @@
 						success: function (result) {
 							if(result){							
 								//console.log(result);
-								var  lng = result.geometry.coordinates[0], lat= result.geometry.coordinates[1];
+								var  lng = result.geometry.coordinates[1], lat= result.geometry.coordinates[0];
 								
 								self.$setState({
-									lat: result.geometry.coordinates[1],
-									lng: result.geometry.coordinates[0],
+									lat: result.geometry.coordinates[0],
+									lng: result.geometry.coordinates[1],
 								});		
 								
 								$('.location-div').removeClass('display-none');
@@ -309,6 +390,7 @@
 						error: function(XMLHttpRequest, textStatus, errorThrown){
 							console.log('can not connect1: txt = '+textStatus+' err = '+errorThrown);
 							
+							self.$app.preloader.hide()
 								
 						}
 					});
@@ -481,14 +563,36 @@
                 let self = this;				
 				
 				if(self.cspInfo != state){
-				var data = {}
-				
-				data.action = 'modify';
-				data.actionParameters = {
-				  csp: state
+				var query = {
+				  ServiceProfileCode: state,
+				  IMSIs: [self.IMSI]
 				}
 				
-				let userInfo = self.$app.methods.getFromStorage('userInfo');
+				
+				let data =  Qs.stringify(query)
+				let url = 'http://test.m2mdata.co/Jt/Sim/SetSimServiceProfile'
+				$.ajax({
+						async: true,
+						crossDomain: true,	        
+						url: url,
+						method: "POST",
+						headers: {
+							"content-type": 'application/x-www-form-urlencoded; charset=utf-8',
+						},
+						processData: false,
+						data: data,
+						success: function (result) {
+							console.log('okk00',result);
+							self.notificationFull1.open();
+							
+						},
+						error: function (e) {
+						
+						}
+					});
+				
+				
+				/*let userInfo = self.$app.methods.getFromStorage('userInfo');
 				let accessToken = userInfo.accessToken;		
 				
 				
@@ -511,13 +615,128 @@
 							self.$app.dialog.alert('Something wrong.');
 							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
 						}
-					});
+					});*/
 				}
 			},
 			setNewState: function (state) {
                 let self = this;
 				
-				if(self.statusInfo != state){
+				var query = {
+				  IMSIs: [self.IMSI]
+				}
+								
+				let data =  Qs.stringify(query)
+				let url = ''
+				
+				switch(state){
+						case 'Suspend':	
+							
+							
+							url = 'http://test.m2mdata.co/Jt/Sim/Suspend'
+							$.ajax({
+								async: true,
+								crossDomain: true,	        
+								url: url,
+								method: "POST",
+								headers: {
+									"content-type": 'application/x-www-form-urlencoded; charset=utf-8',
+								},
+								processData: false,
+								data: data,
+								success: function (result) {
+									console.log('okk00',result);
+									self.notificationFull.open();
+									
+								},
+								error: function (e) {
+								
+								}
+							});
+					
+						break;
+						case 'Resume':							
+							
+							url = 'http://test.m2mdata.co/Jt/Sim/Resume'
+							$.ajax({
+								async: true,
+								crossDomain: true,	        
+								url: url,
+								method: "POST",
+								headers: {
+									"content-type": 'application/x-www-form-urlencoded; charset=utf-8',
+								},
+								processData: false,
+								data: data,
+								success: function (result) {
+									console.log('okk00',result);
+									self.notificationFull.open();
+									
+								},
+								error: function (e) {
+								
+								}
+							});
+							
+						break;
+						case 'Terminate':	
+						
+							url = 'http://test.m2mdata.co/Jt/Sim/Terminate'
+							$.ajax({
+								async: true,
+								crossDomain: true,	        
+								url: url,
+								method: "POST",
+								headers: {
+									"content-type": 'application/x-www-form-urlencoded; charset=utf-8',
+								},
+								processData: false,
+								data: data,
+								success: function (result) {
+									console.log('okk00',result);
+									self.notificationFull.open();
+									
+								},
+								error: function (e) {
+								
+								}
+							});
+						
+						break;
+						case 'Activate':
+
+							var queryActivate = {
+								
+				  ServiceProfileCode: state,
+							  IMSIs: [self.IMSI]
+							}
+											
+							let dataActivate =  Qs.stringify(queryActivate)
+						
+							url = 'http://test.m2mdata.co/Jt/Sim/Activate'
+							$.ajax({
+								async: true,
+								crossDomain: true,	        
+								url: url,
+								method: "POST",
+								headers: {
+									"content-type": 'application/x-www-form-urlencoded; charset=utf-8',
+								},
+								processData: false,
+								data: dataActivate,
+								success: function (result) {
+									console.log('okk00',result);
+									self.notificationFull.open();
+									
+								},
+								error: function (e) {
+								
+								}
+							});
+						
+						break;
+						default:
+							
+					}
 				
 					/*var data = {
 						"offer": "M2M Data",
@@ -544,7 +763,7 @@
 						break;
 						default:
 							
-					}*/
+					}
 						
 						if(state == 'Modified' || (state == 'Productive' && self.statusInfo != 'Suspended')) {
 							self.$app.dialog.create({
@@ -586,7 +805,7 @@
 							  }).open();
 						}else{
 							self.setNewStateCSP(state, self.statusInfo);
-						}
+						}*/
 					  
 					//
 					/*$.ajax({
@@ -624,7 +843,7 @@
 							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
 						}
 					});*/
-				}
+				
 			},
 			setNewStateCSP: function (state, oldState, csp = null) {
                 let self = this;
@@ -769,6 +988,10 @@
 				
 				self.$app.preloader.show();
 				self.getSim();
+				
+				
+												
+				
 				/*var placeholderDesc = '<span class="placeholder placeholder-desc">Description</span>';
 							
 				var textarea = page.$el.find('.desc-editor');
@@ -882,6 +1105,86 @@
 						  }
 						});	
 						
+						//console.log('self.csp b', self.csp);
+						//self.smartSelect.setValue(self.state);
+						
+						switch(self.state){
+						  case 'Productive':
+								self.$setState({
+									onlySuspend: true,
+								});
+								self.$setState({
+									onlyResume: false,
+								});
+								self.$setState({
+									onlyTerminate: true,
+								});
+								self.$setState({
+									onlyActivate: false,
+								});
+								
+							break;
+						  case 'TestProductive':
+								self.$setState({
+									onlySuspend: true,
+								});
+								self.$setState({
+									onlyResume: false,
+								});
+								self.$setState({
+									onlyTerminate: true,
+								});
+								self.$setState({
+									onlyActivate: true,
+								});
+							
+							break;
+						  case 'Suspended':
+							 self.$setState({
+									onlySuspend: false,
+								});
+								self.$setState({
+									onlyResume: true,
+								});
+								self.$setState({
+									onlyTerminate: true,
+								});		
+								self.$setState({
+									onlyActivate: false,
+								});								
+							break;
+							
+						  case 'OnStock':
+							 self.$setState({
+									onlySuspend: false,
+								});
+								self.$setState({
+									onlyResume: false,
+								});
+								self.$setState({
+									onlyTerminate: false,
+								});		
+								self.$setState({
+									onlyActivate: true,
+								});								
+							break;
+							default:
+								 self.$setState({
+									onlySuspend: false,
+								});
+								self.$setState({
+									onlyResume: false,
+								});
+								self.$setState({
+									onlyTerminate: false,
+								});									
+								self.$setState({
+									onlyActivate: false,
+								});
+						}
+						
+						self.smartSelect1.setValue(self.csp);
+						//console.log('self.csp a', self.smartSelect1.getValue());
 						/*
 						var listEl1 = self.$el.find('.smart-select-1');
 								
