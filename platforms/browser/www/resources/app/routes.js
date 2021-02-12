@@ -1,7 +1,7 @@
 var routes = [
     {
         path: '/',
-        componentUrl: './resources/pages/home.html?v=2.7',
+        componentUrl: './resources/pages/home.html?v=2.8',
         name: 'home',
     },
     {
@@ -13,7 +13,7 @@ var routes = [
     },
     {
         path: '/commands/',
-        componentUrl: './resources/pages/commands.html?v=1.8',
+        componentUrl: './resources/pages/commands.html?v=1.9',
         name: 'commands'
     },
     {

@@ -194,11 +194,24 @@ var app = new Framework7({
 			  password: '888888'
 			}    
 			
-			let data =  Qs.stringify(obj)						
-			
+			/*let data =  Qs.stringify(obj)*/
+
 			this.preloader.show();
 			
-			$.ajax({
+			var settings = {
+				  "url": "https://test.m2mdata.co/service/User/Auth",
+				  "method": "POST",
+				  "timeout": 0,
+				  "headers": {
+					"Content-Type": "application/x-www-form-urlencoded"
+				  },
+				  "data": obj
+				};
+
+				
+				$.ajax(settings).done(function (result) {				
+			
+				/*$.ajax({
 					async: true,
 					crossDomain: true,
 					url: 'https://test.m2mdata.co/service/User/Auth',
@@ -208,7 +221,8 @@ var app = new Framework7({
 						"content-type": 'application/x-www-form-urlencoded; charset=utf-8',
 					},
 					processData: false,
-					success: function (result) {	
+					success: function (result) {*/
+					console.log('MajorCode',result)
 						if(result.MajorCode == '000'){
 						accessToken = result.Data.Token
 						
@@ -229,7 +243,7 @@ var app = new Framework7({
 									}else {
 										self.utils.nextFrame(()=>{
 											app.preloader.hide();
-										app.dialog.alert('Something wrong. Please try later.');
+										app.dialog.alert('Consumer token invalid');
 											app.loginScreen.open('.login-screen');
 										});
 									}	
@@ -238,7 +252,7 @@ var app = new Framework7({
 									console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
 									self.utils.nextFrame(()=>{
 										app.preloader.hide();
-										app.dialog.alert('Something wrong. Please try later.');
+										app.dialog.alert('Access token invalid');
 										app.loginScreen.open('.login-screen');
 									});
 								}
@@ -246,11 +260,10 @@ var app = new Framework7({
 						}else{
 							self.utils.nextFrame(()=>{
 										app.preloader.hide();
-										app.dialog.alert('Something wrong. Please try later.');
+										app.dialog.alert('Major code invalid');
 										app.loginScreen.open('.login-screen');
 									});
 						}
-					}
 			})
 			
 			
@@ -319,7 +332,7 @@ var app = new Framework7({
 								app.preloader.hide();
 								//app.dialog.alert(LANGUAGE.LOGIN_MSG01);
 								
-								app.dialog.alert('Something wrong. Please try later.');
+								app.dialog.alert('Token invalid');
 								app.loginScreen.open('.login-screen');
 							});
 						}					
