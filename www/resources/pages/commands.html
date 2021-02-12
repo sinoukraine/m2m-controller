@@ -81,60 +81,39 @@
             return ret;
         },		
         methods: {
-            sendCommand: function(text){					
+            sendCommand: function(text, timesent){					
 				var self = this;  
 				//var text = data;	
 				var data = {
-					/*"smsParameters": {
-						"data": text,
-						"from": "Platform",
-						"replaceIfPresent": "No",
-						"smsType": "Text",
-						"smsValidityDays": "1",
-						"smsValidityHours": "1",
-						"smsValidityMinutes": "2",
-						"udh": "No"
-					}*/
 					"content": text
 				}
-				
-				
-					let userInfo = self.$app.methods.getFromStorage('userInfo');
-					let accessToken = userInfo.accessToken;
+								
+				let userInfo = self.$app.methods.getFromStorage('userInfo');
+				let accessToken = userInfo.accessToken;
 					
-				//console.log(data, "http://m2mdata03.sinopacific.com.ua/api/v3/sims/" + self.imsi + "/sms");
 				console.log('emit sending message');
-				/*
-				var axios = require('axios');
+			  
+				/*var query = {
+					SMSType: 'Query_Position',
+					IMSI: self.imsi
+				}
 				
-			  const query = {
-                  imsi: this.deviceList[i].name,
-                  content: this.newMessage
-                }
-			  const findBy = query.imsi
-			  const options = {
-				url: "http://m2mdata03.sinopacific.com.ua/api/v3/sims/" + self.ID + "/sms',
-				method: 'post',
-				content: query.content
-			  }
-			  try {
-				const response = await axios.request(postRequestOptions(options))
-				return response
-			  } catch (e) {
-				const title = 'Error'
-				const message = 'An CORS issue has been detected, please try again later or contact our support team'
-				this.$alert(message, title, {type: 'error'})
-				throw e
-			  }
-			  */
-			  
-			  
-				$.ajax({/*
-					async: true,
-					crossDomain: true,
-					url: "https://m2mdata03.sinopacific.com.ua/nomad/sims/" + self.imsi + "/sms",
-					//http://m2mdata03.sinopacific.com.ua/api/v3/sims/" + self.imsi + "/sms",
-					method: "POST",*/
+				var settings = {
+				  "url": "https://api.m2mglobaltech.com/QuikData/V1/Command/SendByType",
+				  "method": "POST",
+				  "timeout": 0,
+				  "headers": {
+					"token": "00000000-0000-0000-0000-000000000000",
+					"Content-Type": "application/x-www-form-urlencoded"
+				  },
+				  "data": query
+				};
+				
+				$.ajax(settings).done(function (result) {
+					console.log(result);
+				})*/
+				
+				$.ajax({
 					headers: {
 						Authorization: "Bearer " + accessToken,
 						"content-type": "application/json"
@@ -157,16 +136,16 @@
 					  }
 					}),
 					timeout: 2147483647,
-					/*
-					processData: false,
-					data: JSON.stringify(data),*/
 					success: function (result) {
-						//self.receiveMessage(text, result.orderId);
-						//self.getReplyMessages(text, result.orderId);
 						console.log(result);
+						$('[data-id="'+timesent+'"]').find('.message-bubble').find('.msg-status').remove()
+						$('[data-id="'+timesent+'"]').find('.message-bubble').prepend('<div class="msg-status">Sent</div>');
 					},
 					error: function(XMLHttpRequest, textStatus, errorThrown){
 						console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
+						$('[data-id="'+timesent+'"]').find('.message-bubble').find('.msg-status').remove()
+						$('[data-id="'+timesent+'"]').find('.message-bubble').prepend('<div class="msg-status" style="color:red">Not sent</div>');						
+						//self.$app.dialog.alert('Command was not sent');
 					}
 				});	
 				
@@ -576,10 +555,12 @@ $('.page-content').scrollTop(10000, 400);
 					  self.$setState({
 						isSent: true,
 					});
-							
-					self.sendCommand(text);
 					
-					$('[data-id="'+timesent+'"]').find('.message-bubble').prepend('<div class="msg-status">Sent...</div>');
+					
+					$('[data-id="'+timesent+'"]').find('.message-bubble').prepend('<div class="msg-status">Pending...</div>');
+					
+					self.sendCommand(text, timesent);
+					
 					
 				});
 				
