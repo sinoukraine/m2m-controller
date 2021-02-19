@@ -485,7 +485,7 @@
 			},
 			initHome: function(){
 				var self = this;
-				
+				console.log('rfr');
 				if(self.$app.data.imsi != 'undefined'){
 					$$('.formSearchSim input[name="searchInput"').val(self.$app.data.imsi)
 					self.$setState({
@@ -710,7 +710,7 @@
 				if(!isToken2){
 					self.$app.methods.logout();
 				}else{
-					self.initHome;
+					self.initHome();
 				}
 				
 				
@@ -718,10 +718,14 @@
 				var $ptrContent = $$('.ptr-content');
 				// Add 'refresh' listener on it
 				$ptrContent.on('ptr:refresh', function (e) {
+				
+				self.$app.actions.close();
+				self.$app.sheet.close();
+				
+					self.submitSearchForm(self.type);
 				  // Emulate 2s loading
 				  setTimeout(function () { // Prepend new list element
-					
-					self.initHome;	
+						
 					//$ptrContent.find('ul').prepend(itemHTML);
 					// When loading done, we need to reset it
 					self.$app.ptr.done(); // or e.detail();

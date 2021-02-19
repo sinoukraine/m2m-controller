@@ -256,6 +256,10 @@
 			},	
 			getSim: async function (payload) {			
 				var self = this;
+				
+				
+				self.$app.actions.close();
+				self.$app.sheet.close();
 
 				$('.state-block').removeClass('display-none');
 				
@@ -542,7 +546,7 @@
 				  IMSIs: [self.IMSI]
 				}
 						
-				
+				console.log('test state',state)
 				switch(state){
 						case 'Suspend':	
 							
@@ -569,7 +573,7 @@
 						case 'Resume':							
 							
 							var settingsResume = {
-								  "url": "https://test.m2mdata.co/JT/Sim/Suspend",
+								  "url": "https://test.m2mdata.co/JT/Sim/Resume",
 								  "method": "POST",
 								  "timeout": 0,
 								  "headers": {
@@ -591,7 +595,7 @@
 						case 'Terminate':	
 						
 							var settingsTerminate = {
-								  "url": "https://test.m2mdata.co/JT/Sim/Suspend",
+								  "url": "https://test.m2mdata.co/JT/Sim/Terminate",
 								  "method": "POST",
 								  "timeout": 0,
 								  "headers": {
