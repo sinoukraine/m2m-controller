@@ -64,7 +64,7 @@
 						<li class="state-block display-none">
 						  <a class="item-link smart-select smart-select-0 smart-select-init ">
 							<select name="sim-state">
-							<option value="Current" id="state-3" selected>Current {{state}}</option>
+							<option value="Current" id="state-3" selected>Select Action</option>
 							
 							
 							
@@ -291,7 +291,24 @@
 								$.ajax(settings).done(function (result) {
 					let objProfile = result.rows[0]
 				
+				self.$setState({
+					state: objProfile.State
+				});	
+								
+				self.updateStates(objProfile.State)
+				
+				self.$setState({
+					csp: objProfile.ServiceProfileCode
+				});		
+				
+				self.updateCSPs(objProfile.ServiceProfileCode)
+				
+				
+								
 					self.sessionActivity = objProfile.State
+					self.state = objProfile.State
+					self.csp = objProfile.ServiceProfileCode
+					
 					console.log('objProfile',objProfile)
 					/*if(objProfile.State == 'Suspended'){
 					  self.sessionActivityBg = 'bg-status-yellow'
@@ -648,6 +665,90 @@
 					
 				
 			},
+			updateStates: function(state){
+				var self = this
+				
+				switch(state){
+						  case 'Productive':
+								self.$setState({
+									onlySuspend: true,
+								});
+								self.$setState({
+									onlyResume: false,
+								});
+								self.$setState({
+									onlyTerminate: true,
+								});
+								self.$setState({
+									onlyActivate: false,
+								});
+								
+							break;
+						  case 'TestProductive':
+								self.$setState({
+									onlySuspend: true,
+								});
+								self.$setState({
+									onlyResume: false,
+								});
+								self.$setState({
+									onlyTerminate: true,
+								});
+								self.$setState({
+									onlyActivate: true,
+								});
+							
+							break;
+						  case 'Suspended':
+							 self.$setState({
+									onlySuspend: false,
+								});
+								self.$setState({
+									onlyResume: true,
+								});
+								self.$setState({
+									onlyTerminate: true,
+								});		
+								self.$setState({
+									onlyActivate: false,
+								});								
+							break;
+							
+						  case 'OnStock':
+							 self.$setState({
+									onlySuspend: false,
+								});
+								self.$setState({
+									onlyResume: false,
+								});
+								self.$setState({
+									onlyTerminate: false,
+								});		
+								self.$setState({
+									onlyActivate: true,
+								});								
+							break;
+							default:
+								 self.$setState({
+									onlySuspend: false,
+								});
+								self.$setState({
+									onlyResume: false,
+								});
+								self.$setState({
+									onlyTerminate: false,
+								});									
+								self.$setState({
+									onlyActivate: false,
+								});
+						}
+			},
+			updateCSPs: function(csp){
+				var self = this
+				
+				
+				self.smartSelect1.setValue(csp);
+			}
 		},
         on: {
             pageInit: function (e, page) {  
@@ -729,7 +830,6 @@
 				
 
 
-				self.loadTrackPage();
 				
 				var dynamicPopup = self.$app.popup.create({
 								  content: '<div class="page popup-tablet-fullscreen popup">'+
@@ -801,83 +901,10 @@
 						});	
 						
 						
-						switch(self.state){
-						  case 'Productive':
-								self.$setState({
-									onlySuspend: true,
-								});
-								self.$setState({
-									onlyResume: false,
-								});
-								self.$setState({
-									onlyTerminate: true,
-								});
-								self.$setState({
-									onlyActivate: false,
-								});
-								
-							break;
-						  case 'TestProductive':
-								self.$setState({
-									onlySuspend: true,
-								});
-								self.$setState({
-									onlyResume: false,
-								});
-								self.$setState({
-									onlyTerminate: true,
-								});
-								self.$setState({
-									onlyActivate: true,
-								});
-							
-							break;
-						  case 'Suspended':
-							 self.$setState({
-									onlySuspend: false,
-								});
-								self.$setState({
-									onlyResume: true,
-								});
-								self.$setState({
-									onlyTerminate: true,
-								});		
-								self.$setState({
-									onlyActivate: false,
-								});								
-							break;
-							
-						  case 'OnStock':
-							 self.$setState({
-									onlySuspend: false,
-								});
-								self.$setState({
-									onlyResume: false,
-								});
-								self.$setState({
-									onlyTerminate: false,
-								});		
-								self.$setState({
-									onlyActivate: true,
-								});								
-							break;
-							default:
-								 self.$setState({
-									onlySuspend: false,
-								});
-								self.$setState({
-									onlyResume: false,
-								});
-								self.$setState({
-									onlyTerminate: false,
-								});									
-								self.$setState({
-									onlyActivate: false,
-								});
-						}
-						
-						self.smartSelect1.setValue(self.csp);
+						self.updateStates(self.state)
+						self.updateCSPs(self.csp)
 					 
+				self.loadTrackPage();
 				
 				var thisPage = page.$el.find('.page-content'); 			
 
