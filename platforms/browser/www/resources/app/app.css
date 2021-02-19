@@ -224,6 +224,12 @@
 	padding: 20px 0px 0px;
 }
 
+.sim-status-bottom-info{
+	margin-top: -20px;
+	padding-top: 0;
+	padding-bottom: 20px;
+}
+
 .sim-icon{
 	width: 84px;
 }
@@ -1094,6 +1100,22 @@ h3{
 	margin: 30px 0;
 }
 
+.ml-20{
+	margin-left: 20px;
+}
+
+.mb-10{
+	margin-bottom: 10px;
+}
+
+.display-flex{
+	display: flex;
+}
+
+.display-inline{
+	display: inline;
+}
+
 .summary-block-line {
 	
     background-color: var(--f7-card-header-border-color);
@@ -1107,4 +1129,55 @@ h3{
     width: 100%;
     transform-origin: 50% 100%;
     transform: scaleY(calc(1 / var(--f7-device-pixel-ratio)));
+}
+
+.big-round{
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  position: absolute;
+    left: calc(50% + 25px);
+    margin-top: -15px;
+}
+
+.bg-status-grey{
+  background-color: #e3e3e3;
+}
+
+.bg-status-blue{
+  background-color: rgb(92, 174, 230);
+}
+
+.bg-status-yellow{
+  background-color: #ffb880;
+}
+
+.bg-status-green{
+  background-color: #34bfa3;
+}
+
+.color-status-grey{
+  color: #e3e3e3;
+}
+
+.color-status-blue{
+  color: rgb(92, 174, 230);
+}
+
+.color-status-green{
+  color: #34bfa3;
+}
+
+.color-status-yellow{
+  color: #ffb880;
+}
+.pl-20{
+	padding-left: 20px;
+}
+.mt-20{
+	margin-top: 20px;
+}
+
+.color-grey{
+	color: grey;
 }

@@ -30,10 +30,10 @@
 						<li class="state-block">
 						  <a class="item-link smart-select smart-select-0 smart-select-init ">
 							<select name="time-period">
-							  <option value="daily" id="timePeriodDay">Daily</option>
-							  <option value="weekly" id="timePeriodWeek">Weekly</option>
-							  <option value="monthly" id="timePeriodMonth">Monthly</option>
 							  <option value="yearly" id="timePeriodYear">Yearly</option>
+							  <option value="monthly" id="timePeriodMonth" selected>Monthly</option>
+							  <option value="weekly" id="timePeriodWeek">Weekly</option>
+							  <option value="daily" id="timePeriodDay">Daily</option>
 							</select>
 							<div class="item-content">
 							  <div class="item-inner">
@@ -270,7 +270,7 @@
     return {
         data: function () {
             let ret = {
-				timePeriod: 'daily',
+				timePeriod: 'monthly',
 				totalDataUsage: 0,
 				totalDataSessions: 0,
 				totalDuration: 0,
@@ -507,7 +507,7 @@
                 let self = this;				
 				
 				self.showPanels();
-				self.initTopSIM();
+				//self.initTopSIM();
 				
 				var listEl = self.$el.find('.smart-select-0');
 				var listEl1 = self.$el.find('.smart-select-1');
@@ -549,7 +549,7 @@
 										DashboardDataLoadedEndUserOverview: false,
 										DashboardDataTable: []
 									});
-								self.initTopSIM(true);
+								//self.initTopSIM(true);
 							}
 						  }
 						});		
@@ -568,7 +568,7 @@
 										DashboardDataLoadedEndUserOverview: false,
 										DashboardDataTable: []
 									});
-					self.initTopSIM(true);
+					//self.initTopSIM(true);
 					
 				});
 				
@@ -577,118 +577,9 @@
 				
 					
 					self.$app.data.imsi = $(this).html().split(' <')[0].split('>')[3];
-					console.log('click', $(this).html().split(' <')[0].split('>')[3]);
 					myEvents.emit('home');
 					mainView.router.back();
-											
-					/*
-					
-					var commands = '<div class="action_button_wrapper">' +
-						'<div class="action_button_block action_button_media">' +
-						'<i class="f7-icons icon-other-commands commands-icon color-m2m-blue"></i>' +
-						'</div>' +
-						'<div class="action_button_block action_button_text color-m2m-grey">' +
-						'Commands' +
-						'</div>' +
-						'</div>';
-
-					var commandsHistory = '<div class="action_button_wrapper">' +
-						'<div class="action_button_block action_button_media">' +
-						'<i class="material-icons md-36 color-m2m-blue">watch_later</i>' +
-						'</div>' +
-						'<div class="action_button_block action_button_text color-m2m-grey">' +
-						'Commands History' +
-						'</div>' +
-						'</div>';
-
-
-					var SIMStatus = '<div class="action_button_wrapper">' +
-						'<div class="action_button_block action_button_media">' +
-						'<i class="material-icons md-36 color-m2m-blue">info</i>' +
-						'</div>' +
-						'<div class="action_button_block action_button_text color-m2m-grey">' +
-						'SIM Status' +
-						'</div>' +
-						'</div>';
-
-					var SIMReport = '<div class="action_button_wrapper">' +
-						'<div class="action_button_block action_button_media">' +
-						'<i class="material-icons md-36 color-m2m-blue">assessment</i>' +
-						'</div>' +
-						'<div class="action_button_block action_button_text color-m2m-grey">' +
-						'Data Usage ' +
-						'</div>' +
-						'</div>';
 						
-					var SIMSessions = '<div class="action_button_wrapper">' +
-						'<div class="action_button_block action_button_media">' +
-						'<i class="material-icons md-36 color-m2m-blue">sim_card</i>' +
-						'</div>' +
-						'<div class="action_button_block action_button_text color-m2m-grey">' +
-						'SIM Sessions ' +
-						'</div>' +
-						'</div>';
-						
-					var SIMCells = '<div class="action_button_wrapper">' +
-						'<div class="action_button_block action_button_media">' +
-						'<i class="material-icons md-36 color-m2m-blue">wifi</i>' +
-						'</div>' +
-						'<div class="action_button_block action_button_text color-m2m-grey">' +
-						'SIM Cells ' +
-						'</div>' +
-						'</div>';
-
-					var buttons = [{
-							text: 'IMSI: '+ imsi,
-							label: true,
-							color: 'blue',
-						},
-						{
-							text: commands,
-							onClick: function() {
-								//loadPageCommands();
-								self.$app.actions.close();
-								self.$app.sheet.close();
-								mainView.router.navigate('/commands-list/?id='+id.toString()+'&imsi='+imsi.toString());
-								//
-							},
-						},
-						{
-							text: commandsHistory,
-							onClick: function() {
-								self.$app.actions.close();
-								self.$app.sheet.close();
-								mainView.router.navigate('/commands-history/?id='+id.toString()+'&imsi='+imsi.toString());;
-							},
-						},
-						{
-							text: SIMStatus,
-							onClick: function() {
-								self.$app.actions.close();
-								self.$app.sheet.close();
-								mainView.router.navigate('/sim-status/?id='+id.toString()+'&imsi='+imsi.toString()+'&iccid='+iccid.toString());
-							},
-						},
-						{
-							text: SIMReport,
-							onClick: function() {
-								self.$app.actions.close();
-								self.$app.sheet.close();
-								mainView.router.navigate('/report/?id='+id.toString()+'&imsi='+imsi.toString()+'&iccid='+iccid.toString());
-							},
-						},
-						{
-							text: SIMCells,
-							onClick: function() {
-								self.$app.actions.close();
-								self.$app.sheet.close();
-								mainView.router.navigate('/cells/?id='+id.toString()+'&imsi='+imsi.toString()+'&iccid='+iccid.toString());
-							},
-						},
-					];
-
-
-					self.$app.actions.create({buttons}).open();*/
 					
 				
 				});		

@@ -23,14 +23,19 @@
 		
 		<div class="page-content">
 			<div class="inner-content">
-				<div class="sim-status-top">
-					<img class="sim-icon" src="./resources/images/sim.svg" alt="main">
-					<div class="sim-status-top-info">
+				<div class="sim-status-top">					
+					<div class="sim-status-bottom-info">
+						<div class="text-content">{{Description}}</div>
 						<div class="text-content">{{SIMName}}</div>
 						<div class="text-content">IMSI: {{IMSI}}</div>
 						<div class="text-content">ICCID: {{ICCID}}</div>
 						<div class="text-content">Owner: {{owner}}</div>
-						<div class="text-content">{{Description}}</div>
+					</div>
+					<img class="sim-icon" src="./resources/images/sim.svg" alt="main">
+					<div class="big-round {{sessionActivityBg}}"></div >
+					<div class="sim-status-top-info">
+						<div class="text-content {{sessionActivityColor}}">{{sessionActivity}}</div>
+						<div class="text-content">{{#if lastUpdateTime}}(last update: {{lastUpdateTime}} ) {{else}} {{/if}}</div>
 					</div>
 				</div>
 				<div class="content-block status_block_top">
@@ -176,11 +181,17 @@
 
 <script>
   // script must return component object
+  const curday = new Date()	
+  
     return { 
         data: function () {
             var self = this;
             var ret = {
 				loading: true,
+				sessionActivity: self.$route.query.state,
+				sessionActivityColor: 'color-status-grey',
+				sessionActivityBg: 'bg-status-grey',
+				lastUpdateTime: '',
 				onstockTitle: 'OnStock',
 				productiveTitle: 'Productive',
 				suspendedTitle: 'Suspended',
@@ -200,10 +211,6 @@
 				customers: [],
 				selectedCustomer: 'uui'
 			};         
-			
-            if (self.$route.query.id) {
-				ret.ID = self.$route.query.id;
-            }  		
 			
 			if (self.$route.query.imsi) {
 				ret.IMSI = self.$route.query.imsi;
@@ -225,10 +232,8 @@
             return ret;
         },
 		methods: {
-			resetNetwork: function () {
-			
+			resetNetwork: function () {			
 				var self = this;
-				//self.resetOK.open();
 				
 				var query = {
 				  IMSIs: [self.IMSI]
@@ -245,172 +250,171 @@
 				  "data": query
 				};
 
+				$.ajax(settings).done(function (result) {
+					self.resetOK.open();
+				})
+			},	
+			getSim: async function (payload) {			
+				var self = this;
+
+				$('.state-block').removeClass('display-none');
+				
+				self.$setState({
+					loading: false									
+				});				
+				
+				
+				var listQuery = {
+					IMSIs: [self.IMSI]
+				}
+				
+				var settings = {
+				  "url": "https://test.m2mdata.co/JT/Sim/Query",
+				  "method": "POST",
+				  "timeout": 0,
+				  "headers": {
+					"token": "00000000-0000-0000-0000-000000000000",
+					"Content-Type": "application/x-www-form-urlencoded"
+				  },
+				  "data": listQuery
+				};
+				
+				const oneDayAgo = moment(curday, 'YYYY-MM-DD').add(-1, 'days').format('YYYY-MM-DD')
 				/**/
 				$.ajax(settings).done(function (result) {
+					let objProfile = result.rows[0]
 				
-				//let data =  Qs.stringify(query)
-				//let url = 'http://test.m2mdata.co/Jt/Sim/Reboot'
-				/*$.ajax({
-						async: true,
-						crossDomain: true,	        
-						url: url,
-						method: "POST",
-						headers: {
-							"content-type": 'application/x-www-form-urlencoded; charset=utf-8',
-						},
-						processData: false,
-						data: data,
-						success: function (result) {*/
-							console.log('okk00',result);
-							self.resetOK.open();
-							
-						})/*,
-						error: function (e) {
-						
-						}
-					});*/
+					self.sessionActivity = objProfile.State
+					console.log('objProfile',objProfile)
+					if(objProfile.State == 'Suspended'){
+					  self.sessionActivityBg = 'bg-status-yellow'
+						self.sessionActivityColor = 'color-status-yellow'
+					}else if(objProfile.SMSMOUpdateTime == null && objProfile.DataUpdateTime == null){
+					  self.sessionActivityBg = 'bg-status-grey'
+					self.sessionActivityColor = 'color-status-grey'
+					  if(objProfile.State == 'Productive' || objProfile.State == 'TestProductive'){
+						self.sessionActivityBg = 'bg-status-blue'
+						self.sessionActivityColor = 'color-status-blue'
+						self.sessionActivity = objProfile.State + ', but no current data session'
+					  }
+					}else if(objProfile.DataUpdateTime == null){
+					  self.sessionActivityBg = 'bg-status-grey'
+					self.sessionActivityColor = 'color-status-grey'
+					  if(objProfile.State == 'Productive' || objProfile.State == 'TestProductive'){
+						self.sessionActivityBg = 'bg-status-blue'
+					self.sessionActivityColor = 'color-status-blue'
+						self.sessionActivity = objProfile.State + ', but no current data session'
+					  }
+					}else{
+					  const simActivityTime = moment(objProfile.DataUpdateTime, 'YYYY-MM-DD').format('YYYY-MM-DD')
+					  self.lastUpdateTime = objProfile.DataUpdateTime.replace("T", " ").replace("Z", "")
+					  
+					  if(simActivityTime >= oneDayAgo){
+						self.sessionActivityBg = 'bg-status-green'
+					self.sessionActivityColor = 'color-status-green'
+					  }else {
+						self.sessionActivityBg = 'bg-status-yellow'
+					self.sessionActivityColor = 'color-status-yellow'
+					  }
+					}
+				});
 				
-				/*
-				let userInfo = self.$app.methods.getFromStorage('userInfo');
-				let accessToken = userInfo.accessToken;				
+				/*const token = "00000000-0000-0000-0000-000000000000"
+				const oneDayAgo = moment(curday, 'YYYY-MM-DD').add(-1, 'days').format('YYYY-MM-DD')
+				const threeDayAgo = moment(curday, 'YYYY-MM-DD').add(-3, 'days').format('YYYY-MM-DD')
+				const weekAgo = moment(curday, 'YYYY-MM-DD').add(-7, 'days').format('YYYY-MM-DD')
+				
+				const responseActiveSession = await fetch(`https://m2mdata.co/jt/GetActiveSession?imsi=${self.IMSI}`)
+				let resActiveSession = await responseActiveSession.json()
+				
+				console.log(resActiveSession)
+				if(resActiveSession.Data){
+					self.lastUpdateTime = resActiveSession.Data.startDateField.replace("T", " ").replace("Z", "")
+				
+					const simActivityTime = moment(self.lastUpdateTime, 'YYYY-MM-DD').format('YYYY-MM-DD')
+					console.log('comp', simActivityTime, oneDayAgo)
+				  if(simActivityTime > oneDayAgo){
+					self.sessionActivity = 'Productive'
+					self.sessionActivityColor = 'color-status-blue'
+					self.sessionActivityBg = 'bg-status-blue'
+				  }else if(simActivityTime <= oneDayAgo && simActivityTime > threeDayAgo){
+					self.sessionActivity = 'Active'
+					self.sessionActivityColor = 'color-status-green'
+					self.sessionActivityBg = 'bg-status-green'
+				  }else if(simActivityTime <= threeDayAgo){             
+					self.sessionActivity = 'Suspended'
+					self.sessionActivityColor = 'color-status-yellow'
+					self.sessionActivityBg = 'bg-status-yellow'
+				  }else{ 
+					self.sessionActivity = 'Productive, but no current data session'
+					self.sessionActivityColor = 'color-statusr-blue'
+					self.sessionActivityBg = 'bg-status-blue'
+				  }
+				}else{
+					self.sessionActivity = 'Productive, but no current data session'
+					self.sessionActivityColor = 'color-status-blue'
+					self.sessionActivityBg = 'bg-status-blue'					
+				}*/
 						
-				$.ajax({      
-						url: 'https://m2mdata03.sinopacific.com.ua/api/v3/sims/'+self.ID+'/cells', 
-						dataType: "json",	
-						async: true,				
-						//data: JSON.stringify(data),
-						method: "PUT",
-						headers: {
-							Authorization: "Bearer " + accessToken,
-							"content-type": "application/json"
-						},
-						success: function (result) {
-							self.resetOK.open();
-						},
-						error: function(XMLHttpRequest, textStatus, errorThrown){
-							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
-								self.$app.dialog.alert('Something wrong.');	
-						}
-					});	*/			
-			},	
-			getSim: function (payload) {
-			
-				var self = this;	
+
+				self.$app.preloader.hide();						
 								
-				let userInfo = self.$app.methods.getFromStorage('userInfo');
-				let accessToken = userInfo.accessToken;		
-				self.$app.preloader.hide();
-				$.ajax({
-						type: "GET",		        
-						url: 'https://m2mdata03.sinopacific.com.ua/api/v3/sims/' + self.ID + '?populate[]=ancestors&extra[]=origin&extra[]=states',//&extra[]=activity&extra[]=cells
-						//imsi 234500003041558
-						dataType: "json",	
-						async: true,
-						headers: { 
-							Authorization: "Bearer " + accessToken,
-						},
-						success: function (result) {
-							if(result){							
-								
-								console.log('sim',result);	
-								
-								self.obj = result;
-																
-								/*var inputDesc = $('body').find('.desc-editor');
-								inputDesc.html(result.info.description);*/						
-							var setStatus = '', setCSP = '';
-							
-							
-							
-								
-														
-								self.$setState({
-									loading: false
-									
-								});
-								
-								
-								self.$setState({
-									CustomerName: result.ancestors[0].info.name,
-									SIMName: result.info.name,
-									Description: result.info.description,
-									
-								});
-								
-								$('.state-block').removeClass('display-none');
-							/*if(result.extra.states.current){
-										
-							console.log(result.extra.states.current)
-								setStatus = result.extra.states.current;								
-								self.smartSelect.setValue(setStatus);	
-								self.$setState({
-									statusInfo: setStatus
-								});										
-							}
-							
-							if(typeof result.extra.states.csp != 'undefined'){
-										
-							console.log(result.extra.states.csp)
-								setCSP = result.extra.states.csp;
-								self.smartSelect1.setValue(setCSP);
-								self.$setState({
-									cspInfo: setCSP
-								});
-							}*/
-								
-								
-							}else{
-								console.log('something wrong');
-							}
-						},
-						error: function(XMLHttpRequest, textStatus, errorThrown){
-							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
-						}
-					});
+				/*var settings = {
+				  "url": "https://m2mdata.co/jt/GetGetHlrInfo?imsi=" + self.IMSI,
+				  "method": "GET",
+				  "timeout": 0,
+				  "headers": {
+					"token": "00000000-0000-0000-0000-000000000000",
+					"Content-Type": "application/x-www-form-urlencoded"
+				  },
+				};
+
+				$.ajax(settings).done(function (result) {
+					console.log('hlr',JSON.parse(result));
+				})*/
 					
 			},					
 			loadTrackPage: function () {
-			
 				var self = this;
+				var queryLBS = {
+				  imsi: [self.IMSI]
+				}
 				
-				let userInfo = self.$app.methods.getFromStorage('userInfo');
-				let accessToken = userInfo.accessToken;		
-								
-				$.ajax({
-						type: "GET",		        
-						url: API_URL.URL_GET_COMMAND_HISTORY + self.ID + '/coordinates?formula=center', 
-						dataType: "json",	
-						async: true,
-						headers: { 
-							Authorization: "Bearer " + accessToken,
-						},
-						success: function (result) {
-							if(result){							
-								console.log(result);
-								var  lng = result.geometry.coordinates[1], lat= result.geometry.coordinates[0];
+				var settingsLBS = {
+				  "url": "https://test.m2mdata.co/JT/Sim/QueryLBSInfo",
+				  "method": "POST",
+				  "timeout": 0,
+				  "headers": {
+					"token": "00000000-0000-0000-0000-000000000000",
+					"Content-Type": "application/x-www-form-urlencoded"
+				  },
+				  "data": queryLBS
+				};
+
+				$.ajax(settingsLBS).done(function (result) {
+				  const query_1 = {
+					lat: result.Data.LbsLat,
+					lon: result.Data.LbsLng
+				  }
+				  var  lng = result.Data.LbsLng, lat= result.Data.LbsLat;
 								
 								self.$setState({
-									lat: result.geometry.coordinates[0],
-									lng: result.geometry.coordinates[1],
+									lat
+								});		
+								self.$setState({
+									lng
 								});		
 								
 								$('.location-div').removeClass('display-none');
-							}
-						},
-						error: function(XMLHttpRequest, textStatus, errorThrown){
-							console.log('can not connect1: txt = '+textStatus+' err = '+errorThrown);
-							
-							self.$app.preloader.hide()
-								
-						}
-					});
+					})
+				
 					
 					
 			},
 			initSimInfo: function () {
                 let self = this;
 									
-				let userInfo = self.$app.methods.getFromStorage('userInfo');
+				/*~~~~~~~today let userInfo = self.$app.methods.getFromStorage('userInfo');
 				let accessToken = userInfo.accessToken;		
 				
 					$.ajax({
@@ -479,7 +483,7 @@
 						error: function(XMLHttpRequest, textStatus, errorThrown){
 							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
 						}
-					});
+					});*/
             },
 			setNewCSP: function (state) {
                 let self = this;				
@@ -502,56 +506,16 @@
 				  "data": query
 				};
 
-				/**/
+		
 				$.ajax(settings).done(function (result) {
-				/*
-				let data =  Qs.stringify(query)
-				let url = 'http://test.m2mdata.co/Jt/Sim/SetSimServiceProfile'
-				$.ajax({
-						async: true,
-						crossDomain: true,	        
-						url: url,
-						method: "POST",
-						headers: {
-							"content-type": 'application/x-www-form-urlencoded; charset=utf-8',
-						},
-						processData: false,
-						data: data,
-						success: function (result) {*/
-							console.log('okk00',result);
+		
+							console.log('ok',result);
 							self.notificationFull1.open();
 							
-						})/*,
-						error: function (e) {
-						
-						}
-					});*/
+						})
 				
 				
-				/*let userInfo = self.$app.methods.getFromStorage('userInfo');
-				let accessToken = userInfo.accessToken;		
-				
-				
-				$.ajax({
-						type: "PUT",		        
-						url: API_URL.URL_GET_COMMAND_HISTORY + self.ID + '/states', 
-						dataType: "json",	
-						async: true,
-						//cache: false,
-						data: JSON.stringify(data),
-						headers: {
-							Authorization: "Bearer " + accessToken,
-							"content-type": "application/json"
-						},
-						success: function (result) {
-							self.notificationFull1.open();
-						},
-						error: function(XMLHttpRequest, textStatus, errorThrown){								
-							
-							self.$app.dialog.alert('Something wrong.');
-							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
-						}
-					});*/
+			
 				}
 			},
 			setNewState: function (state) {
@@ -576,28 +540,13 @@
 								  "data": query
 								};
 
-								/**/
+				
 								$.ajax(settingsSuspend).done(function (result) {
-							/*url = 'http://test.m2mdata.co/Jt/Sim/Suspend'
-							$.ajax({
-								async: true,
-								crossDomain: true,	        
-								url: url,
-								method: "POST",
-								headers: {
-									"content-type": 'application/x-www-form-urlencoded; charset=utf-8',
-								},
-								processData: false,
-								data: data,
-								success: function (result) {*/
-									console.log('okk00',result);
+						
+									console.log('ok',result);
 									self.notificationFull.open();
 									
-								})/*,
-								error: function (e) {
-								
-								}
-							});*/
+								})
 					
 						break;
 						case 'Resume':							
@@ -613,28 +562,13 @@
 								  "data": query
 								};
 
-								/**/
+						
 								$.ajax(settingsResume).done(function (result) {
-								/*url = 'http://test.m2mdata.co/Jt/Sim/Resume'
-							$.ajax({
-								async: true,
-								crossDomain: true,	        
-								url: url,
-								method: "POST",
-								headers: {
-									"content-type": 'application/x-www-form-urlencoded; charset=utf-8',
-								},
-								processData: false,
-								data: data,
-								success: function (result) {*/
+							
 									console.log('okk00',result);
 									self.notificationFull.open();
 									
-								})/*,
-								error: function (e) {
-								
-								}
-							});*/
+								})
 							
 						break;
 						case 'Terminate':	
@@ -650,28 +584,13 @@
 								  "data": query
 								};
 
-								/**/
+							
 								$.ajax(settingsTerminate).done(function (result) {
-								/*url = 'http://test.m2mdata.co/Jt/Sim/Terminate'
-							$.ajax({
-								async: true,
-								crossDomain: true,	        
-								url: url,
-								method: "POST",
-								headers: {
-									"content-type": 'application/x-www-form-urlencoded; charset=utf-8',
-								},
-								processData: false,
-								data: data,
-								success: function (result) {*/
-									console.log('okk00',result);
+							
+									console.log('ok',result);
 									self.notificationFull.open();
 									
-								})/*,
-								error: function (e) {
-								
-								}
-							});*/
+								})
 						
 						break;
 						case 'Activate':
@@ -692,278 +611,22 @@
 								  "data": queryActivate
 								};
 
-								/**/
 								$.ajax(settingsActivate).done(function (result) {
-											
-							/*let dataActivate =  Qs.stringify(queryActivate)
 						
-							url = 'http://test.m2mdata.co/Jt/Sim/Activate'
-							$.ajax({
-								async: true,
-								crossDomain: true,	        
-								url: url,
-								method: "POST",
-								headers: {
-									"content-type": 'application/x-www-form-urlencoded; charset=utf-8',
-								},
-								processData: false,
-								data: dataActivate,
-								success: function (result) {*/
-									console.log('okk00',result);
+									console.log('ok',result);
 									self.notificationFull.open();
 									
-								})/*,
-								error: function (e) {
-								
-								}
-							});*/
+								})
 						
 						break;
 						default:
 							
 					}
 				
-					/*var data = {
-						"offer": "M2M Data",
-						"offerOptions": {},
-					}*/
-					//let setStatus = '';
 					
-					/*switch(state){
-						case 'Productive':	
-							
-							if(self.statusInfo == 'Suspended'){
-								setStatus = '/resume';
-							}else{
-								setStatus = '/activate';
-							}			
-						break;
-						case 'Terminate':							
-							setNewStateCSP();
-							//setStatus = '/resume';
-						break;
-						case 'Suspended':	
-							setNewStateCSP(0);
-							//setStatus = '/suspend';
-						break;
-						default:
-							
-					}
-						
-						if(state == 'Modified' || (state == 'Productive' && self.statusInfo != 'Suspended')) {
-							self.$app.dialog.create({
-								title: 'CSP',
-								text: 'Please select CSP to change state',
-								buttons: [
-								  {
-									text: 'M2M Data',
-									onClick: function() {
-										self.setNewStateCSP(state, self.statusInfo, 'M2M Data');
-									},
-								  },
-								  {
-									text: 'M2M Data Normal CSP Z1 &2',
-									onClick: function() {
-										self.setNewStateCSP(state, self.statusInfo, 'M2M Data Normal CSP Z1 &2');
-									},
-								  },
-								  {
-									text: 'M2M Data High CSP Z1-3',
-									onClick: function() {
-										self.setNewStateCSP(state, self.statusInfo, 'M2M Data High CSP Z1-3');
-									},
-								  },
-								  {
-									text: 'M2M Data Emergency CSP Z1- 9',
-									onClick: function() {
-										self.setNewStateCSP(state, self.statusInfo, 'M2M Data Emergency CSP Z1- 9');
-									},
-								  },
-								  {
-									text: 'M2M Data Custom Network Profile Australia',
-									onClick: function() {
-										self.setNewStateCSP(state, self.statusInfo, 'M2M Data Custom Network Profile Australia');
-									},
-								  }
-								],
-								verticalButtons: true,
-							  }).open();
-						}else{
-							self.setNewStateCSP(state, self.statusInfo);
-						}*/
-					  
-					//
-					/*$.ajax({
-						type: "PUT",		        
-						url: API_URL.URL_GET_COMMAND_HISTORY + self.ID + setStatus, 
-						dataType: "json",	
-						async: true,
-						//cache: false,
-						data: JSON.stringify(data),
-						headers: {
-							Authorization: "Bearer " + accessToken,
-							"content-type": "application/json"
-						},
-						success: function (result) {
-								//console.log(result);
-							if(result){		
-								self.$setState({
-									statusInfo: state
-								});
-								//self.$app.dialog.alert('Button1 clicked')
-								self.notificationFull.open();
-							}else{
-								//console.log('something wrong');
-								self.$setState({
-									statusInfo: self.statusInfo
-								});
-								self.$app.dialog.alert('Something wrong');
-							}
-						},
-						error: function(XMLHttpRequest, textStatus, errorThrown){
-							self.$setState({
-									statusInfo: self.statusInfo
-								});
-							self.$app.dialog.alert('Something wrong');
-							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
-						}
-					});*/
+					
 				
 			},
-			setNewStateCSP: function (state, oldState, csp = null) {
-                let self = this;
-				let putState = '';
-				
-				switch(state){
-					case 'Productive':	
-						if(self.statusInfo == 'Suspended'){
-							putState = 'resume';
-						}else{
-							putState = 'activate';
-						}
-					break;
-					case 'Deleted':			
-						putState = 'terminate';
-					break;
-					case 'Suspended':	
-						putState = 'suspend';
-					break;
-							
-				}
-					
-				var data = {}
-				
-				if(putState.length > 0) {
-					data.action = putState;
-				}
-				
-				if(csp) {
-					data.actionParameters = {
-					  csp: csp
-					}
-				}
-					console.log('data', data);
-				let userInfo = self.$app.methods.getFromStorage('userInfo');
-				let accessToken = userInfo.accessToken;		
-				
-				$('.sim-status-page').find('.smart-select-0').addClass('disabled');				
-							
-							
-				$.ajax({
-						type: "PUT",		        
-						url: API_URL.URL_GET_COMMAND_HISTORY + self.ID + '/states', 
-						dataType: "json",	
-						async: true,
-						//cache: false,
-						data: JSON.stringify(data),
-						headers: {
-							Authorization: "Bearer " + accessToken,
-							"content-type": "application/json"
-						},
-						success: function (result) {
-							self.$setState({
-								onstockTitle: 'Pending',
-							});
-							self.$setState({							
-								productiveTitle: 'Pending',
-							});
-							self.$setState({
-								suspendedTitle: 'Pending',
-							});
-							self.$setState({
-								terminatedTitle: 'Pending',
-							});
-							self.$setState({
-								modifiedTitle: 'Pending',
-							});
-							self.notificationFull.open();
-						},
-						error: function(XMLHttpRequest, textStatus, errorThrown){	
-							
-							self.$setState({
-								onstockTitle: 'OnStock',
-							});
-							self.$setState({							
-								productiveTitle: 'Productive',
-							});
-							self.$setState({
-								suspendedTitle: 'Suspended',
-							});
-							self.$setState({
-								terminatedTitle: 'Deleted',
-							});
-										
-							console.log('eerr', oldState);
-							self.smartSelect.setValue(oldState);
-							
-						$('.sim-status-page').find('.smart-select-0').removeClass('disabled');	
-							self.$app.dialog.alert('Sorry, this state can\'t be changed');
-							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
-						}
-					});
-			}
-		/*setNewCustomerState: function (state) {
-                let self = this;
-				
-				//if(self.customerId != state){
-				
-				var data = { 
-					'info' : self.obj.info,
-					'settings' : self.obj.settings,
-					'ancestors' : self.obj.ancestors,
-					'tags' : self.obj.tags					
-				};
-				
-				
-					data.ancestors.pop(state);
-					data.ancestors.push(state);
-				//}
-				$.ajax({	        
-						url: 'https://m2mdata03.sinopacific.com.ua/em/v3/sims/'+ self.ID, 
-						dataType: "json",	
-						async: true,					
-						data: JSON.stringify(data),
-						method: "PUT",
-						headers: {
-							"authorization": "12345",
-							"content-type": "application/json"
-						},
-						success: function (result) {
-							if(result){			
-								
-							}else{
-								console.log('something wrong');
-							}
-						},
-						error: function(XMLHttpRequest, textStatus, errorThrown){
-							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
-						}
-					});
-					
-					
-				//},
-				
-		},	*/
 		},
         on: {
             pageInit: function (e, page) {  
@@ -1007,13 +670,11 @@
 				});
 				
 				$('.openSettings').on('click', function(){						
-					mainView.router.navigate('/settings/?id='+self.ID);
+					mainView.router.navigate('/settings/');//?id='+self.ID
 				});
 				
 				$('.sim-status-page').find('.currentLocation').on('click', function(){		
 					console.log('ok')
-					//self.$app.dialog.alert('Showing location in development')
-					//self.$app.preloader.show();
 					dynamicPopup.open();
 							
 				});
@@ -1200,7 +861,6 @@
 				var thisPage = page.$el.find('.page-content'); 			
 
                 self.initSimInfo();
-				self.$app.preloader.hide();
 				
 						
 				

@@ -88,9 +88,9 @@
 				SIMEmail: false,
 				SIMBlock: false,
 			};     
-            if (self.$route.query.id) {
+            /*if (self.$route.query.id) {
 				ret.ID = self.$route.query.id;
-            }  		
+            } */ 		
             return ret;
         },
 		methods: {
@@ -177,7 +177,7 @@
 				var self = this;    				
 				var thisPage = $$('.sim-expired-page');				                 
 								 
-				self.getSimExpired();	
+				/*self.getSimExpired();	
 				
 				
 				 var calendar = self.$app.calendar.create({
@@ -217,16 +217,9 @@
 					console.log('uuu1', newObj);
 					self.putSimExpired(newObj);	
 					
-					/*if(newValue.length >= 1){
-						//self.$app.methods.changePassword(newPass);	
-						//self.putSimRemark(newValue);					
-					}else{
-						App.dialog.alert('Remark must be at least 1 character.');
-					}*/
-					
 					
 				});
-				
+			*/	
 			}
 		}	
     };

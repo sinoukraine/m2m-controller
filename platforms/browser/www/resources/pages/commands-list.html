@@ -82,9 +82,7 @@
 				ret.imsi = self.$route.query.imsi;
             }
 			
-			if (self.$route.query.id) {
-				ret.id = self.$route.query.id;
-            }
+		
 
             return ret;
         },
@@ -200,7 +198,7 @@
 				
 				page.$el.on('click', '.accordion-item.custom', function () {	
 					console.log('f');
-					mainView.router.navigate('/commands/?id='+self.id.toString()+'&imsi='+self.imsi.toString());
+					mainView.router.navigate('/commands/?imsi='+self.imsi.toString());
 				});
 				
 				page.$el.on('click', '.li-cmd', function () {					
@@ -239,7 +237,7 @@
 											});*/
 											//mainView.router.back();
 											
-								mainView.router.navigate('/commands/?id='+self.id.toString()+'&imsi='+self.imsi.toString()+'&message='+smsFormat.toString());
+								mainView.router.navigate('/commands/?imsi='+self.imsi.toString()+'&message='+smsFormat.toString());
 										}
 								  }, function (e) {}, arry[i].Prams);
 							}			   					    
@@ -250,7 +248,7 @@
 								});*/
 								//mainView.router.back();
 								
-								mainView.router.navigate('/commands/?id='+self.id.toString()+'&imsi='+self.imsi.toString()+'&message='+smsFormat.toString());
+								mainView.router.navigate('/commands/?imsi='+self.imsi.toString()+'&message='+smsFormat.toString());
 							}	
 							
 						/*}

@@ -83,147 +83,30 @@
             var ret = {			
 				obj: {}
 			};         
-					
+					/*
 			if (self.$route.query.id) {
 				ret.ID = self.$route.query.id;
-            }  			
+            }  		*/	
             return ret;
         },
 		methods: {
 			navigateSIMName: function(){
 				var self = this;
-				mainView.router.navigate('/my-sim-name/?id='+self.ID.toString());//?name='+name.toString()+'&mac='+mac.toString()
+				mainView.router.navigate('/my-sim-name/');//?id='+self.ID.toString()?name='+name.toString()+'&mac='+mac.toString()
 			},
 			navigateSIMRemark: function(){
 				var self = this;
-				mainView.router.navigate('/my-sim-remark/?id='+self.ID.toString());//?name='+name.toString()+'&mac='+mac.toString()
+				mainView.router.navigate('/my-sim-remark/');//?id='+self.ID.toString()?name='+name.toString()+'&mac='+mac.toString()
 			},
 			navigateSIMThreshold: function(){
 				var self = this;
-				mainView.router.navigate('/my-sim-threshold/?id='+self.ID.toString());//?name='+name.toString()+'&mac='+mac.toString()
+				mainView.router.navigate('/my-sim-threshold/');//?id='+self.ID.toString()?name='+name.toString()+'&mac='+mac.toString()
 			},
 			navigateSIMExpired: function(){
 				var self = this;
-				mainView.router.navigate('/my-sim-expired/?id='+self.ID.toString());//?name='+name.toString()+'&mac='+mac.toString()
+				mainView.router.navigate('/my-sim-expired/');//?id='+self.ID.toString()?name='+name.toString()+'&mac='+mac.toString()
 			},
-			/*getSim: function (payload) {
-                let self = this;
-				$.ajax({
-						type: "GET",		        
-						url: 'https://m2mdata03.sinopacific.com.ua/em/v3/sims/'+ self.ID, 
-						dataType: "json",	
-						async: true,
-						headers: { 
-							Authorization: "12345"
-						},
-						success: function (result) {
-							if(result){		
-								console.log(result);								
-								self.obj = result;
-								
-								//if (!self.isEmptyObject(result.settings.dataUsageThreshold)) {
-									payload.html(result.settings.dataUsageThreshold);	
-								//}
-								//if (!self.isEmptyObject(result.settings.dataUsageUnits)) {
-									//self.getCustomerName(self.obj.ancestors[0]);
-								//}
-								
-								
-								self.smartSelect.setValue(result.settings.dataUsageUnits);
-											
-							}else{
-								console.log('something wrong');
-							}
-						},
-						error: function(XMLHttpRequest, textStatus, errorThrown){
-							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
-						}
-					});
-			},
-			saveSim: function (payload) {
 			
-				var self = this;				
-				var data = { 
-					'info' : self.obj.info,
-					'settings' : self.obj.settings,
-					'ancestors' : self.obj.ancestors,
-					'tags' : self.obj.tags					
-				};
-				
-				data.settings.dataUsageThreshold = payload;
-				
-				$.ajax({
-						//type: "PUT",		        
-						url: 'https://m2mdata03.sinopacific.com.ua/em/v3/sims/'+ self.ID, 
-						dataType: "json",	
-						async: true,
-						//cache: false,						
-						data: JSON.stringify(data),
-						method: "PUT",
-						headers: {
-							"authorization": "12345",
-							"content-type": "application/json"
-						},
-						success: function (result) {
-							if(result){							
-								console.log(result);	
-								
-							}else{
-								console.log('something wrong');
-							}
-						},
-						error: function(XMLHttpRequest, textStatus, errorThrown){
-							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
-						}
-					});
-					
-			},
-			setNewState: function (state) {
-				
-				var self = this;				
-				var data = { 
-					'info' : self.obj.info,
-					'settings' : self.obj.settings,
-					'ancestors' : self.obj.ancestors,
-					'tags' : self.obj.tags					
-				};
-				
-				data.settings.dataUsageUnits = state;
-				
-				$.ajax({
-						//type: "PUT",		        
-						url: 'https://m2mdata03.sinopacific.com.ua/em/v3/sims/'+ self.ID, 
-						dataType: "json",	
-						async: true,
-						//cache: false,						
-						data: JSON.stringify(data),
-						method: "PUT",
-						headers: {
-							"authorization": "12345",
-							"content-type": "application/json"
-						},
-						success: function (result) {
-							if(result){							
-								console.log(result);	
-								
-							}else{
-								console.log('something wrong');
-							}
-						},
-						error: function(XMLHttpRequest, textStatus, errorThrown){
-							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
-						}
-					});
-				
-			},	
-			isEmptyObject: function (obj) {
-				for (var i in obj) {
-					if (obj.hasOwnProperty(i)) {
-						return false;
-					}
-				}
-				return true;
-			}*/
 		},
         on: {
             pageInit: function (e, page) {  
@@ -235,39 +118,6 @@
 				thisPage.on('click', '.my-sim-threshold', self.navigateSIMThreshold);
 				thisPage.on('click', '.my-sim-expired', self.navigateSIMExpired);
 
-				/*var placeholder = '<span class="placeholder">Threshold</span>';
-				var textarea = page.$el.find('.text-editor-content');
-				textarea.html(placeholder);				
-				
-				self.getSim(textarea);	
-				
-				textarea.on('click', function(){
-					$(this).find('.placeholder').remove();
-				});
-				
-				textarea.on('blur', function(){
-					if(!$(this).html()) {
-						$(this).html(placeholder);
-					}else{
-						var data = $(this).html().replace(/(<([^>]+)>)/ig,"");
-						self.saveSim(data);
-					}
-				});			
-
-				var listEl = self.$el.find('.smart-select-unit');
-								
-						self.smartSelect = self.$app.smartSelect.create({
-							el: listEl,
-						  on: {
-							opened: function () {
-							},
-							closed: function () {
-							  self.setNewState(self.smartSelect.getValue());
-							}
-						  }
-						});							
-						*/
-				
 			}
 		}
     };

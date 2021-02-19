@@ -214,9 +214,9 @@
 				myCalendar: false
 			};            
             
-            if (self.$route.query.id) {
+            /*if (self.$route.query.id) {
 				ret.ID = self.$route.query.id;
-            } 
+            } */
 			
 			if (self.$route.query.imsi) {
 				ret.IMSI = self.$route.query.imsi;
@@ -844,7 +844,7 @@
 					DateTo: currentDay
 				});
 				
-				self.initReport();
+				/*self.initReport();
 				
 				self.myCalendar = self.$app.calendar.create({
 					inputEl: '#date-to',
@@ -866,7 +866,7 @@
 						self.getOverviewDetails(e.target.value);
 					}
 				});
-				
+				*/
 				
 			}
 		}

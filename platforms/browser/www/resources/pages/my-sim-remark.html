@@ -52,9 +52,9 @@
 				obj: {},
 				SIMRemark: ''
 			};     
-            if (self.$route.query.id) {
+            /*if (self.$route.query.id) {
 				ret.ID = self.$route.query.id;
-            }  		
+            }  		*/
             return ret;
         },
 		methods: {
@@ -135,7 +135,7 @@
 				var self = this;    				
 				var thisPage = $$('.sim-remark-page');				                 
 								 
-				self.getSimRemark();	
+				/*self.getSimRemark();	
 				
 				thisPage.on('click', '#saveSIMRemark', function() {
 					var newValue = thisPage.find('input[name="sim-remark"]').val(); 
@@ -147,7 +147,7 @@
 					}else{
 						App.dialog.alert('Remark must be at least 1 character.');
 					}
-				});
+				});*/
 				
 			}
 		}	

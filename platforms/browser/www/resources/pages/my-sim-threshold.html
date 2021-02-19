@@ -181,9 +181,9 @@
 				SIMMonthlyBlock: false,
 				SIMTotalBlock: false
 			};     
-            if (self.$route.query.id) {
+            /*if (self.$route.query.id) {
 				ret.ID = self.$route.query.id;
-            }  		
+            }  */		
             return ret;
         },
 		methods: {
@@ -276,7 +276,7 @@
 				var self = this;    				
 				var thisPage = $$('.sim-threshold-page');				                 
 								 
-				self.getSimThreshold();	
+				/*self.getSimThreshold();	
 				
 				thisPage.on('click', '#saveSIMThreshold', function() {
 					//var reg = new RegExp('^[0-9]*$');
@@ -359,16 +359,11 @@
 					//console.log('uuu1',self.SIMTotalThreshold, newObj);
 					self.putSimThreshold(newObj);	
 					
-					/*if(newValue.length >= 1){
-						//self.$app.methods.changePassword(newPass);	
-						//self.putSimRemark(newValue);					
-					}else{
-						App.dialog.alert('Remark must be at least 1 character.');
-					}*/
+				
 					
 					
 				});
-				
+			*/	
 			}
 		}	
     };

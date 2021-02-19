@@ -213,8 +213,7 @@
                     },
                     processData: false,
                     data: listQuery,
-                    success: function (result) {*/
-                        console.log('list',result);							
+                    success: function (result) {*/						
                         if (result.total) {			
                             var newArr = [];
                             
@@ -226,7 +225,8 @@
                                 var threeDayAgo = moment(currentTime, 'YYYY-MM-DD').add(-3, 'days').format('YYYY-MM-DD');
                                     
                                 const activityTime = value.DataUpdateTime;
-                                if(typeof activityTime == 'undefined'){					
+                                
+								/*if(typeof activityTime == 'undefined'){					
                                         newObj.rag = 'rgb(204,204,204)';												
                                 }else{														
                                     var simActivityTime = moment(activityTime, 'YYYY-MM-DD').format('YYYY-MM-DD');									
@@ -237,7 +237,31 @@
                                     }else{								
                                         newObj.rag = '#CD3333';	
                                     }													
-                                }
+                                }*/
+								
+								newObj.rag = 'color-status-grey'
+
+								if(value.State == 'Suspended'){
+								  newObj.rag = 'color-status-yellow'
+								}else if(value.SMSMOUpdateTime == null && value.DataUpdateTime == null){
+								  newObj.rag = 'color-status-grey'
+								  if(value.State == 'Productive' || value.State == 'TestProductive'){
+									newObj.rag = 'color-status-blue'
+								  }
+								}else if(value.DataUpdateTime == null){
+								  newObj.rag = 'color-status-grey'
+								  if(value.State == 'Productive' || value.State == 'TestProductive'){
+									newObj.rag = 'color-status-blue'
+								  }
+								}else{
+								  const simActivityTime = moment(value.DataUpdateTime, 'YYYY-MM-DD').format('YYYY-MM-DD')
+								  
+								  if(simActivityTime >= oneDayAgo){
+									newObj.rag = 'color-status-green'
+								  }else {
+									newObj.rag = 'color-status-yellow'
+								  }
+								}
                                 newArr.push(newObj);
 
                                 if(index === (result.rows.length-1)){
@@ -324,7 +348,6 @@
                 let self = this;
 				// Generate new items HTML
 				var html = '';
-				console.log('simList', simList)
 				$.each(simList, function(index, value){	
 					var simID = value.IMSI;
 					
@@ -387,7 +410,7 @@
                     html += '                         </div>';
                     html += '                   <div class="display-flex">';
                     html += '                      <div class="prop-name">State:</div>';
-					html += '						<div style="font-size: 14px;color: '+simRAG+';">&#11044;</div>';//#CD3333
+					html += '						<div style="font-size: 14px;" class="'+simRAG+'">&#11044;</div>';//#CD3333
                     html += '          			</div>';
                     html += '            </div>';
                     html += '             </div>';
@@ -470,7 +493,7 @@
 					var csp = parrent.attr('data-csp');
 					var state = parrent.attr('data-state');
 					
-					let userInfo = self.$app.methods.getFromStorage('userInfo');
+					/*let userInfo = self.$app.methods.getFromStorage('userInfo');
 					let accessToken = userInfo.accessToken;
 					
 					$.ajax({
@@ -483,8 +506,7 @@
                         },
                         success: function (result1) {
                             if(result1){
-                            console.log('r1',result1)
-                            var id = result1._id;
+                            var id = result1._id;*/
                             
                             var notificationsCheck = '';
                             if (parrent.data('notifications') == 1) {
@@ -528,24 +550,36 @@
                                 'Data Usage ' +
                                 '</div>' +
                                 '</div>';
-                                
-                            var SIMSessions = '<div class="action_button_wrapper">' +
+                            
+								
+                            var SIMHlr = '<div class="action_button_wrapper">' +
                                 '<div class="action_button_block action_button_media">' +
                                 '<i class="material-icons md-36 color-m2m-blue">sim_card</i>' +
                                 '</div>' +
                                 '<div class="action_button_block action_button_text color-m2m-grey">' +
-                                'SIM Sessions ' +
+                                'HLR Info ' +
                                 '</div>' +
                                 '</div>';
                                 
                             var SIMCells = '<div class="action_button_wrapper">' +
                                 '<div class="action_button_block action_button_media">' +
-                                '<i class="material-icons md-36 color-m2m-blue">wifi</i>' +
+                                '<i class="material-icons md-36 color-m2m-blue">settings_input_antenna</i>' +
                                 '</div>' +
                                 '<div class="action_button_block action_button_text color-m2m-grey">' +
                                 'SIM Cells ' +
                                 '</div>' +
                                 '</div>';
+								
+								    
+                            var SIMSessions = '<div class="action_button_wrapper">' +
+                                '<div class="action_button_block action_button_media">' +
+                                '<i class="material-icons md-36 color-m2m-blue">swap_vert</i>' +
+                                '</div>' +
+                                '<div class="action_button_block action_button_text color-m2m-grey">' +
+                                'Current Session ' +
+                                '</div>' +
+                                '</div>';
+                                
 
                             var buttons = [{
                                     text: 'IMSI: '+ imsi,
@@ -557,7 +591,7 @@
                                     onClick: function() {
                                         self.$app.actions.close();
                                         self.$app.sheet.close();
-                                        mainView.router.navigate('/commands-list/?id='+id.toString()+'&imsi='+imsi.toString());
+                                        mainView.router.navigate('/commands-list/?imsi='+imsi.toString());
                                     },
                                 },
                                 {
@@ -565,7 +599,7 @@
                                     onClick: function() {
                                         self.$app.actions.close();
                                         self.$app.sheet.close();
-                                        mainView.router.navigate('/commands-history/?id='+id.toString()+'&imsi='+imsi.toString());;
+                                        mainView.router.navigate('/commands-history/?imsi='+imsi.toString());;
                                     },
                                 },
                                 {
@@ -573,7 +607,7 @@
                                     onClick: function() {
                                         self.$app.actions.close();
                                         self.$app.sheet.close();
-                                        mainView.router.navigate('/sim-status/?id='+id.toString()+'&imsi='+imsi.toString()+'&iccid='+iccid.toString()+'&owner='+encodeURIComponent(owner.toString())+'&csp='+encodeURIComponent(csp.toString())+'&state='+encodeURIComponent(state.toString()));
+                                        mainView.router.navigate('/sim-status/?imsi='+imsi.toString()+'&iccid='+iccid.toString()+'&owner='+encodeURIComponent(owner.toString())+'&csp='+encodeURIComponent(csp.toString())+'&state='+encodeURIComponent(state.toString()));
                                     },
                                 },
                                 {
@@ -581,7 +615,23 @@
                                     onClick: function() {
                                         self.$app.actions.close();
                                         self.$app.sheet.close();
-                                        mainView.router.navigate('/report/?id='+id.toString()+'&imsi='+imsi.toString()+'&iccid='+iccid.toString());
+                                        mainView.router.navigate('/report/?imsi='+imsi.toString()+'&iccid='+iccid.toString());
+                                    },
+                                },
+                                {
+                                    text: SIMHlr,
+                                    onClick: function() {
+                                        self.$app.actions.close();
+                                        self.$app.sheet.close();
+                                        mainView.router.navigate('/hlr/?imsi='+imsi.toString()+'&iccid='+iccid.toString());
+                                    },
+                                },
+                                {
+                                    text: SIMSessions,
+                                    onClick: function() {
+                                        self.$app.actions.close();
+                                        self.$app.sheet.close();
+                                        mainView.router.navigate('/sessions/?imsi='+imsi.toString()+'&iccid='+iccid.toString());
                                     },
                                 },
                                 {
@@ -589,16 +639,16 @@
                                     onClick: function() {
                                         self.$app.actions.close();
                                         self.$app.sheet.close();
-                                        mainView.router.navigate('/cells/?id='+id.toString()+'&imsi='+imsi.toString()+'&iccid='+iccid.toString());
+                                        mainView.router.navigate('/cells/?imsi='+imsi.toString()+'&iccid='+iccid.toString());
                                     },
                                 },
                             ];
 
                             self.$app.actions.create({buttons}).open();
 
-                            }
+                           /*}
                         }
-                    })	
+                    })	*/
 				});
 				
 				$$('body').on('click', '.scanBarCode', function() {
@@ -636,10 +686,10 @@
 				myEvents.on('home', self.initHome);
 						
 				let userInfo = self.$app.methods.getFromStorage('userInfo');
-				let isToken1 = userInfo.accessToken;
+				//let isToken1 = userInfo.accessToken;
 				let isToken2 = userInfo.accessNewToken;
 				
-				if(!isToken1||!isToken2){
+				if(!isToken2){
 					self.$app.methods.logout();
 				}else{
 					self.initHome;

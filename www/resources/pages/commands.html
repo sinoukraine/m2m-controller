@@ -48,10 +48,13 @@
 
 <script>
   // script must return component object
-    return { 
+    const today = new Date()	
+	return { 
         data: function () {
             var self = this;
             var ret = {
+				PeriodFrom: moment(today, 'YYYY-MM-DD').add(-30, 'days').format('YYYY-MM-DD'),
+				PeriodTo: moment(today, 'YYYY-MM-DD').format('YYYY-MM-DD'),
 				intervalForReply: {},
 				responseInProgress: false,
 				messages: {},
@@ -67,10 +70,6 @@
 				dynamicPopup: {}
 			};     
 			
-            if (self.$route.query.id) {
-				ret.ID = self.$route.query.id;
-            }  		
-			
 			if (self.$route.query.message) {
 				ret.selectedCmd = self.$route.query.message;
             }  	
@@ -83,23 +82,37 @@
         methods: {
             sendCommand: function(text, timesent){					
 				var self = this;  
-				//var text = data;	
-				var data = {
-					"content": text
-				}
-								
-				let userInfo = self.$app.methods.getFromStorage('userInfo');
-				let accessToken = userInfo.accessToken;
 					
 				console.log('emit sending message');
-			  
+				
+				let data = {                    
+					IMSI: self.imsi,
+					SMS: text
+                };
+                
+                self.$app.request.promise.post("https://api.m2mglobaltech.com/QuikData/v1/Command/Send", data, 'json')
+                    .then(function (result) {
+                        if(result.MajorCode === '000') {
+							$('[data-id="now"]').find('.message-bubble').find('.msg-status').remove()
+							$('[data-id="now"]').find('.message-bubble').prepend('<div class="msg-status">Sent</div>');
+                        }else{
+							$('[data-id="now"]').find('.message-bubble').find('.msg-status').remove()
+							$('[data-id="now"]').find('.message-bubble').prepend('<div class="msg-status" style="color:red">Not sent</div>');
+						}
+                    })
+                    .catch(function (err) {
+                        console.log('err = '+err);
+						$('[data-id="now"]').find('.message-bubble').find('.msg-status').remove()
+						$('[data-id="now"]').find('.message-bubble').prepend('<div class="msg-status" style="color:red">Not sent</div>');
+                    });
+					
 				/*var query = {
-					SMSType: 'Query_Position',
-					IMSI: self.imsi
+					IMSI: self.imsi,
+					SMS: text
 				}
 				
 				var settings = {
-				  "url": "https://api.m2mglobaltech.com/QuikData/V1/Command/SendByType",
+				  "url": "//api.m2mglobaltech.com/QuikData/v1/Command/Send",
 				  "method": "POST",
 				  "timeout": 0,
 				  "headers": {
@@ -107,65 +120,66 @@
 					"Content-Type": "application/x-www-form-urlencoded"
 				  },
 				  "data": query
-				};
+				}
 				
 				$.ajax(settings).done(function (result) {
-					console.log(result);
-				})*/
-				
-				$.ajax({
-					headers: {
-						Authorization: "Bearer " + accessToken,
-						"content-type": "application/json"
-					},
-					async: true,
-					crossDomain: true,
-					url:  "https://m2mdata03.sinopacific.com.ua/nomad/sims/" + self.imsi + "/sms",
-					method: "POST",
-					processData: false,
-					data: JSON.stringify({
-					  "smsParameters": {
-						"data": text,
-						"from": "Platform",
-						"replaceIfPresent": "No",
-						"smsType": "Text",
-						"smsValidityDays": "1",
-						"smsValidityHours": "1",
-						"smsValidityMinutes": "2",
-						"udh": "No"
-					  }
-					}),
-					timeout: 2147483647,
-					success: function (result) {
-						console.log(result);
-						$('[data-id="'+timesent+'"]').find('.message-bubble').find('.msg-status').remove()
-						$('[data-id="'+timesent+'"]').find('.message-bubble').prepend('<div class="msg-status">Sent</div>');
-					},
-					error: function(XMLHttpRequest, textStatus, errorThrown){
-						console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
-						$('[data-id="'+timesent+'"]').find('.message-bubble').find('.msg-status').remove()
-						$('[data-id="'+timesent+'"]').find('.message-bubble').prepend('<div class="msg-status" style="color:red">Not sent</div>');						
-						//self.$app.dialog.alert('Command was not sent');
-					}
-				});	
-				
-				
+					$('[data-id="now"]').find('.message-bubble').find('.msg-status').remove()
+					$('[data-id="now"]').find('.message-bubble').prepend('<div class="msg-status">Sent</div>');
+				}).fail(function (e){
+					console.log('err = '+e);
+					$('[data-id="now"]').find('.message-bubble').find('.msg-status').remove()
+					$('[data-id="now"]').find('.message-bubble').prepend('<div class="msg-status" style="color:red">Not sent</div>');		
+				})*/			
             },
-			getReplyMessages: function () {					
-					var d = new Date();
+			getReplyMessages: async function () {
+				var self = this
+				var query = {
+				  IMSIs: [self.imsi]
+				}
+				
+				let date1 = self.getFormattedDate(self.PeriodFrom)
+				let date2 = self.getFormattedDate(self.PeriodTo)
+				/*var settings = {
+				  "url": "https://m2mdata.co/jt/GetSimHisList?imsi=" + self.imsi + "&direct=3&begin="+date1+"&end="+date2,
+				  "method": "GET",
+				  "timeout": 0,
+				  "headers": {
+					"token": "00000000-0000-0000-0000-000000000000",
+					"Content-Type": "application/x-www-form-urlencoded"
+				  },
+				  "data": query
+				};*/
+				const responseH = await fetch("https://m2mdata.co/jt/GetSimHisList?imsi=" + self.imsi + "&direct=3&begin="+date1+"&end="+date2)
+				
+				/*$.ajax(settings).done(function (result) {	*/				
+					try{
+					
+						let result = await responseH.json()
+						console.log(result)
+						if (result.length) {		
+							let sortedRes = result.sort(function(a,b){
+								var c = new Date(a.DateTime);
+								var d = new Date(b.DateTime);
+								return d-c;
+							});
+							self.setReplyMessages(sortedRes.reverse());		
+						}
+					}catch(e){					
+						console.log(e)
+					}
+				//})
+
+			
+				/*	var d = new Date();
 				
 					let self = this;
-					//var curDate = d.toISOString().substr(0, 11) + '00:00:00.000Z';
-					var curDate = '2020-12-13T00:00:00.000Z';
 						
 				let userInfo = self.$app.methods.getFromStorage('userInfo');
 				let accessToken = userInfo.accessToken;		
 				
-					console.log(curDate);
 					$.ajax({
 						type: "GET",
-						url: 'https://m2mdata03.sinopacific.com.ua/nomad/sims/' + self.imsi + '/sms',
-						//url: 'https://m2mdata03.sinopacific.com.ua/api/v3/sims/' + self.ID + '/sms?startDate=' + curDate + '&pageSize=100',		        
+						url: 'https://m2mdata03.sinopacific.com.ua/nomad/sims/' + self.imsi + '/sms',	        
 						dataType: "json",	
 						async: true,
 						//cache: false,
@@ -190,290 +204,76 @@
 							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
 								//self.$app.dialog.alert('erroring...');
 						}
-					});				
+					});		*/		
 			},
-			setReplyMessages: function (callbackList) { console.log(callbackList);
+			getFormattedDate: function (date) {
+				var todayTime = new Date(date);
+				var month = todayTime.getMonth() + 1;
+				var day = todayTime.getDate();
+				var year = todayTime.getFullYear();
+				return month > 9 ? "" : "0" + month + "/" + ((day > 9) ? "" : "0") + day + "/" + year;
+			},
+			setReplyMessages: function (callbackList) { 
                 let self = this;
+				console.log('cals',callbackList)
 				
 				var html = '';
-				$.each(callbackList, function(index, value){				
-					if(self.used_id.indexOf( value.insertedDate + value.message[0] ) == -1){
-					
-						self.used_id.push(value.insertedDate + value.message[0]);
-						var datetime = moment.utc(value.insertedDate).toDate();
+				$.each(callbackList, function(index, value){		
+						console.log('cal',value);		
+					if(self.used_id.indexOf( value.ID ) == -1){
+						self.used_id.push(value.ID);
+						/*var datetime = moment.utc(value.DateTime).toDate();
 							//datetime = moment(datetime).format(window.COM_TIMEFORMAT);
 							
 						var time = datetime.getDate() + ' ' + self.month_names_short[datetime.getMonth()] + ' ' + ('0' + datetime.getHours()).slice(-2) + ':' + ('0' + datetime.getMinutes()).slice(-2) + ':' + ('0' + datetime.getSeconds()).slice(-2);
+						*/
 						var replySMS;
 						
-						if (value.message) {
-								replySMS = value.message.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+						if (value.Message) {
+								replySMS = value.Message.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 							}
 							
-							if(value.direction == 'Outbound'){
+							if(value.Dirct == 1){
 								self.messages.addMessage({
 									text: replySMS,
-									textFooter: time,	
+									textFooter: value.DateTime,	
 									attrs: {
-										'data-id': value.insertedDate + value.message[0],	
+										'data-id': value.ID,	
 									}								
 								  });
 								  
-								$('[data-id="'+value.insertedDate + value.message[0]+'"]').find('.message-bubble').prepend('<div class="msg-status delivered">'+value.status+'</div>');
-											
-								  if(value.status == 'Delivered' || value.status == 'Submitted'){
+								$('[data-id="'+value.ID+'"]').find('.message-bubble').prepend('<div class="msg-status delivered">'+value.State+'</div>');
+										
+								if(value.State == 'Delivered' || value.State == 'Submitted' || value.State == 'Sent'){
 									$('.message-sent').each(function(i, ele) {
-										//var x = document.getElementsByClassName("message-sent");
-										console.log(value.status,datetime.getTime(), $(this).data('id'));
-										//datetime.getTime() >= $(this).data('id')
-										if(replySMS === $(this).find('.message-text').text() && !$(this).find('.message-bubble').find('.msg-status').hasClass('delivered')){
+										console.log(value.Message, $(this).find('.message-text').text(), value.Message === $(this).find('.message-text').text(), replySMS === $(this).find('.message-text').text(), $(this).attr('data-id') == 'now')
+										if(value.Message === $(this).find('.message-text').text() && $(this).attr('data-id') == 'now'){
 											$(this).remove();
-											 //return false;
 										}
 									})
 								  }
-								  
-								  
-								
 							}
 							
-						if(value.direction == 'Inbound'){
-							
-							//replySMS += ' (' + datetime + ')';
-							
-							//setTimeout(function () {		
-
-							
+						if(value.Dirct == 2){
 								  self.messages.addMessage({
 									text: replySMS,
 									type: 'received',
-									textFooter: time,	
+									textFooter: value.DateTime,	
 									attrs: {
-										'data-id': value.insertedDate + value.message[0],	
+										'data-id': value.ID,	
 									}								
 								  });
-							//}, 5000);
-						}/*else if(!self.isSent ){		//|| value.status == 'delivered'
-							// Add message to messages
-							self.messages.addMessage({
-									text: replySMS,
-									textFooter: time,	
-									attrs: {
-										'data-id': value._id,	
-									}								
-								  });
-						}			*/
+						}
 
-$('.page-content').scrollTop(10000, 400);						
+						$('.page-content').scrollTop(10000, 400);						
 						
 					}
-					/*if(self.used_id.indexOf( value._id ) == -1 ){
-						self.used_id.push(value._id);
-						var datetime = moment.utc(value.createdAt).toDate();
-							//datetime = moment(datetime).format(window.COM_TIMEFORMAT);
-							
-						var time = datetime.getDate() + ' ' + self.month_names_short[datetime.getMonth()] + ' ' + ('0' + datetime.getHours()).slice(-2) + ':' + ('0' + datetime.getMinutes()).slice(-2) + ':' + ('0' + datetime.getSeconds()).slice(-2);
-						var replySMS;
-						
-						if (value.message) {
-							replySMS = value.message.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-						}else{
-							replySMS = value.status;
-						}
-						//replySMS += ' (' + datetime + ')';
-						
-						//setTimeout(function () {				
-							  self.messages.addMessage({
-								text: replySMS,
-								type: 'received',
-								textFooter: time,	
-								attrs: {
-									'data-id': value._id,	
-								}								
-							  });
-						//}, 5000);
-					}*/
 				});
 			},
-			/*receiveMessage: function(text, id){					
-				var self = this;  
-				
-				var orderId = id;
-						//console.log('https://m2mdata03.sinopacific.com.ua/api/v3/sims/orders/'+orderId);
-				$.ajax({
-					type: "GET",
-					url: 'https://m2mdata03.sinopacific.com.ua/api/v3/sims/orders/'+orderId,
-					dataType: "json",	
-					async: true,
-					headers: { 
-						Authorization: "12345"
-					},
-					cache: false,
-					success: function (result) {
-						//console.log(result);
-						self.$setState({
-							responseInProgress: true,
-						});
-					  setTimeout(function () {
-						var answer = text + ': ' + result.status;
-						
-						setTimeout(function () {
-						  // Add received dummy message
-						  self.messages.addMessage({
-							text: answer,
-							type: 'received',
-						  });
-						  self.$setState({
-							responseInProgress: false,
-						});
-						}, 20000);
-					  }, 10000);
-					},
-					error: function(XMLHttpRequest, textStatus, errorThrown){
-						console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
-					}
-				});
-				
-			},*/
-			showCommandsList: function () {
-                let self = this;
-				
-					$$('.commandsList ul').html('');
-					
-					self.$setState({
-						page: 1
-					});
-					
-					self.getCommandsList();
-					self.$app.infiniteScroll.create('.infinite-scroll-content');	
-					
-				//} else {
-					/*App.addNotification({
-						hold: 3000,
-						message: LANGUAGE.PROMPT_MSG008
-					});*/
-				//}		
-			},						
-			getCommandsList: function () {
-                let self = this;
-					if (!self.allowInfinite) return;					
-					
-					// Set loading flag
-					self.$setState({
-                        allowInfinite: false
-                    });
-					//self.$app.preloader.show();
-					$.ajax({
-						type: "GET",		        
-						//url: 'https://m2mdata03.sinopacific.com.ua/em/v3/sims?page=' + self.page + '&pageSize=10&query%5Binfo.' + self.type + '%5D%5B%24regex%5D=' + self.text,
-						url: 'http://m2mdata03.sinopacific.com.ua/em/v3/sms?page=' + self.page + '&pageSize=100',
-						dataType: "json",	
-						async: true,
-						//cache: false,
-						headers: { 
-							Authorization: "12345"
-						},
-						success: function (result) {
-							if (result.rows) {
-								//$$('.page-content').removeClass('first_login');
-																	
-								if(result.page == 1){
-									
-									self.$app.infiniteScroll.create('.infinite-scroll-content');
-									// Loading flag
-
-									self.$setState({
-										maxItems: result.total,
-										lastItemIndex: $$('.commandsList li').length,										
-									});
-								}
-							
-									// Reset loading flag
-									self.$setState({
-										allowInfinite: true
-									});
-								
-								self.setCommandsList(result.rows);
-								
-								//if (self.lastItemIndex >= self.maxItems) {
-								if (result.page === result.totalPages) {
-								  self.$app.infiniteScroll.destroy('.infinite-scroll-content');
-								  
-								  // Remove preloader
-								  $$('.infinite-scroll-preloader').remove();
-								  return;
-								}
-																		
-								let incrList = self.lastItemIndex + 10;
-								
-								self.$setState({
-									lastItemIndex: incrList
-								});
-								
-								let incr = self.page + 1;
-								
-								self.$setState({
-									page: incr
-								});
-									
-								//$('.searchbar-hide-on-search').addClass('display-none');
-																
-								if(self.page == 2){
-									$$('.infinite-scroll-content').on('infinite', self.getCommandsList);
-								}
-										
-								if (result.rows.length === 0) {
-									/*App.addNotification({
-										hold: 3000,
-										message: LANGUAGE.PROMPT_MSG006
-									});*/
-								}
-							} else {
-								//App.alert(LANGUAGE.PROMPT_MSG013);
-							}
-							//self.$app.preloader.hide();
-							
-						},
-						error: function(XMLHttpRequest, textStatus, errorThrown){
-							console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
-						}
-					});				
-			},
-			setCommandsList: function (commandsList) {
-                let self = this;
-				// Generate new items HTML
-				var html = '';
-				
-				$.each(commandsList, function(index, value){	
-					html += '<li class="li-cmd">';//<a href="/commands/?cmd=' + value.content + '" class="link">
-					html += '	  <div class="item-content">';
-					html += '		<div class="item-inner">';
-					html += '		  <div class="item-title cmd" cmd-name="' + value.content + '">' + value.name + '</div>';
-					html += '		  <a href="/edit-command/?id=' + value._id + '" class="popup-close"><div class="item-after"><i class="material-icons md-24">create</i></div></a>';
-					html += '		</div>';
-					html += '	  </div>';	//	</a>			
-					html += '</li>';
-				});
-								
-				// Append new items
-				$$('.commandsList ul').append(html);	
-				$$('.commandsList ul .li-cmd').on('click', function(){	
-					let command = $(this).find('.cmd').attr('cmd-name');
-					self.messagebar.setValue(command);
-					//self.$update();
-					
-					/*self.$setState({
-						customCmd: command,
-					});		*/
-					self.dynamicPopup.close();	
-				});				
-			},	
 		},
         on: {
             pageInit: function (e, page) {  
 				var self = this; 
-				
-				console.log('ck', self.imsi);
 				
 				// Init Messages
 				self.messages = app.messages.create({
@@ -522,8 +322,8 @@ $('.page-content').scrollTop(10000, 400);
 				  el: '.messagebar'
 				});			
 				//<b>Friday, Feb 17</b> 12:58
-				var today = new Date();
-				$$('.messages-title').html(today);
+				var curday = new Date(self.PeriodFrom);
+				$$('.messages-title').html(curday);
 				//self.messagebar = page.$el.find('.messagebar'); 
 				$$('.send-link').on('click', function () {
                 //self.messagebar.on('click', '.send-link', function(e){      
@@ -545,21 +345,21 @@ $('.page-content').scrollTop(10000, 400);
 					  // Add message to messages
 					  self.messages.addMessage({
 						text: text,
+						textFooter: 'Now',	
 						attrs: {
-							'data-id': timesent,
+							'data-id': 'now',
 						  }
-					  });
+					  });					  
 					  
-					  
-$('.page-content').scrollTop(10000, 400);
+						$('.page-content').scrollTop(10000, 400);
 					  self.$setState({
 						isSent: true,
 					});
 					
 					
-					$('[data-id="'+timesent+'"]').find('.message-bubble').prepend('<div class="msg-status">Pending...</div>');
+					$('[data-id="now"]').find('.message-bubble').prepend('<div class="msg-status">Pending...</div>');
 					
-					self.sendCommand(text, timesent);
+					self.sendCommand(text);
 					
 					
 				});
@@ -576,75 +376,6 @@ $('.page-content').scrollTop(10000, 400);
 						}, 30000);				
 						
 				
-				
-			
-				
-			
-				
-				/*
-				self.dynamicPopup = self.$app.popup.create({
-								  content: 
-									  '<div class="popup"><div class="navbar">'+
-										'<div class="navbar-bg"></div>'+
-										'<div class="navbar-inner">'+
-											'<div class="left">'+
-												'<a href="#" class="link icon-only popup-close" >'+
-													'<i class="icon material-icons">arrow_back</i>'+
-												'</a>'+
-											'</div>'+
-											'<div class="right">'+
-												'<a href="/add-command/?imsi=' + self.imsi + '" class="link icon-only popup-close add-cmd">'+
-													'<i class="material-icons md-36">add</i>'+
-												'</a>'+
-											'</div>'+
-										'</div>'+
-									'</div>'+
-									'<div class="page-content  ">'+	// ptr-content	
-										*'<div class="ptr-preloader">'+
-													'<div class="preloader"></div>'+
-													'<div class="ptr-arrow"></div>'+
-										'</div>'+*
-										'<div class="block searchbar-hide-on-search">'+
-											'<h3>Commands List</h3>'+
-											'<p>In this screen, you can send different commands to test this device</p>		'+		
-										'</div><div class="list">'+
-										'<div class="list command-list-icons commandsList ">'+
-													'<ul>'+
-													'</ul>'+
-													'</div>'+
-													'<div class="preloader infinite-scroll-preloader"></div>'+
-											*'<ul>'+
-											'<li class="accordion-item"><a href="#" class="item-content item-link">'+
-												'<div class="item-inner">'+
-												  '<div class="item-title">Demo list</div>'+
-												'</div></a>'+
-												'<div class="accordion-item-content accordion-item-opened ">'+						
-													
-												'</div>'+
-											'</li>'+
-											'</ul>'+*
-										'</div>'+
-									'</div>'+	
-									'</div>',	
-			
-								  on: {
-									open: function (popup) {									
-									  //console.log('Popup open');
-									  self.showCommandsList();
-									},
-									opened: function (popup) {
-									  //console.log('Popup opened');
-									},
-								  }
-								});
-								
-				$('.cmdList').on('click', function(){		
-					self.dynamicPopup.open();							
-				});*/
-			
-				/*$('.cmdList').on('click', function(){		
-					mainView.router.navigate('/commands-list/?imsi=' + self.imsi);
-				});*/
 				
 				myEvents.on('cmdReceived', function (data) {					
 					self.messagebar.setValue(data.cmd);		

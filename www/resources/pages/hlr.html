@@ -1,0 +1,164 @@
+<!--suppress JSAnnotator -->
+<template>
+	<div data-name="cells" class="page hlr-page"> <!-- page-with-subnavbar -->
+		<!-- Top Navbar -->
+		<div class="navbar">
+            <div class="navbar-bg"></div>
+            <div class="navbar-inner">
+                <div class="left">
+                    <a href="#" class="back link icon-only " >
+                        <i class="icon material-icons">arrow_back</i>
+                    </a>
+                </div>
+                <div class="title sliding">
+                    HLR Info
+                </div>
+            </div>
+        </div>
+		
+		<div class="page-content ">	
+			<div class="inner-content">
+				<div key="KeyCOverview" class="col-50 tablet-20 pl-20 ">
+					{{#if hlrName}}
+						<div class="list no-margin" style="width:100%;">
+						<ul class=" ">
+						  <li>							  
+							  <div class="item-inner">
+								<div class="item-media  color-grey">{{hlrName}}</div>
+								<div class="item-title">{{hlrValue}}</div>
+							  </div>
+						  </li>
+						  <li>							  
+							  <div class="item-inner">
+								<div class="item-media color-grey">{{hlrName4}}</div>
+								<div class="item-title">{{hlrValue4}}</div>
+							  </div>
+						  </li>
+						  <li>							  
+							  <div class="item-inner">
+								<div class="item-media color-grey">{{hlrName2}}</div>
+								<div class="item-title">{{hlrValue2}}</div>
+							  </div>
+						  </li>
+						  <li>							  
+							  <div class="item-inner">
+								<div class="item-media color-grey">{{hlrName1}}</div>
+								<div class="item-title">{{hlrValue1}}</div>
+							  </div>
+						  </li>
+						  <li>							  
+							  <div class="item-inner">
+								<div class="item-media color-grey">{{hlrName3}}</div>
+								<div class="item-title">{{hlrValue3}}</div>
+							  </div>
+						  </li>
+						  <li>							  
+							  <div class="item-inner">
+								<div class="item-media color-grey">{{hlrName5}}</div>
+								<div class="item-title">{{hlrValue5}}</div>
+							  </div>
+						  </li>
+						</ul>
+					  </div>										
+					{{else}}
+						<div key="KeyChartGOverviewLoader" class="absolute-center mt-20">
+							<div class="preloader color-blue"></div>
+						</div>
+					{{/if}}  					  
+				</div>
+			</div>
+		</div>
+	</div>
+</template>
+
+<script>
+  // script must return component object
+    return { 
+        data: function () {
+            var self = this;
+            var ret = {
+				hlrName: 'Imsi',
+				hlrValue: '',
+				hlrName1: 'Packet Switched Up Time',
+				hlrValue1: '',
+				hlrName2: 'Visitor Location Register',
+				hlrValue2: '',
+				hlrName3: 'Circuit Switch Up Time',
+				hlrValue3: '',
+				hlrName4: 'MSISDN',
+				hlrValue4: '',
+				hlrName5: 'EPCMMERealm',
+				hlrValue5: '',
+			};            
+            
+            if (self.$route.query.id) {
+				ret.ID = self.$route.query.id;
+            } 
+			
+			if (self.$route.query.imsi) {
+				ret.IMSI = self.$route.query.imsi;
+            }  			
+			
+            return ret;
+        },
+		methods: {
+			initHLR: async function(){
+				let self = this
+				
+				try {
+					const responseHLR = await fetch(`https://m2mdata.co/jt/GetGetHlrInfo?imsi=${self.IMSI}`)
+					let resHLR = await responseHLR.json()					
+					
+					let mapList = resHLR.Data.dataMapField
+					let hlrList = resHLR.Data.hlrInfoFieldsField
+
+					console.log('arr',resHLR)
+					let hlrDate1 = hlrList.find(el=>el.nameField==self.hlrName1).valueField
+					let hlrDate2 = hlrList.find(el=>el.nameField==self.hlrName3).valueField
+					
+					self.$setState({
+						hlrValue: hlrList.find(el=>el.nameField==self.hlrName).valueField									
+					});
+					self.$setState({
+						hlrValue2: hlrList.find(el=>el.nameField==self.hlrName2).valueField										
+					});
+					self.$setState({
+						hlrValue1: hlrDate1=='00000000000000'?'':hlrDate1.slice(0,4) + '-' + hlrDate1.slice(4,6) + '-' + hlrDate1.slice(6,8) + ' ' + hlrDate1.slice(8,10) + ':' + hlrDate1.slice(10,12) + ':' + hlrDate1.slice(12,14)									
+					});	
+					self.$setState({
+						hlrValue3: hlrDate2=='00000000000000'?'':hlrDate2.slice(0,4) + '-' + hlrDate2.slice(4,6) + '-' + hlrDate2.slice(6,8) + ' ' + hlrDate2.slice(8,10) + ':' + hlrDate2.slice(10,12) + ':' + hlrDate2.slice(12,14)								
+					});
+					
+					self.$setState({
+						hlrName4: 'MSISDN'									
+					});
+					self.$setState({
+						hlrValue4: mapList.find(el=>el.keyField=='MSISDN').valueField										
+					});
+					self.$setState({
+						hlrName5: 'EPCMMERealm'									
+					});
+					self.$setState({
+						hlrValue5: mapList.find(el=>el.keyField=='EPCMMERealm')?.valueField										
+					});
+				}catch(e){					
+					console.log('eeeerrrr',e)
+				}
+			}
+		},
+        on: {
+            pageInit: function (e, page) {  
+				var self = this;        
+				
+				self.$app.actions.close();
+				self.$app.sheet.close();
+				
+				var thisPage = page.$el.find('.page-content'); 		
+				
+				self.initHLR();			
+				
+			}
+		}
+    };
+</script>
+    

@@ -1,7 +1,7 @@
 var routes = [
     {
         path: '/',
-        componentUrl: './resources/pages/home.html?v=2.8',
+        componentUrl: './resources/pages/home.html?v=3.2',
         name: 'home',
     },
     {
@@ -18,7 +18,7 @@ var routes = [
     },
     {
         path: '/dashboard/',
-        componentUrl: './resources/pages/dashboard.html?v=1.4',
+        componentUrl: './resources/pages/dashboard.html?v=1.5',
         name: 'dashboard'
     },
     {
@@ -38,12 +38,12 @@ var routes = [
     },
     {
         path: '/commands-history/',
-        componentUrl: './resources/pages/commands-history.html?v=1.3',
+        componentUrl: './resources/pages/commands-history.html?v=1.4',
         name: 'commands-history'
     },
     {
         path: '/sim-status/',
-        componentUrl: './resources/pages/sim-status.html?v=1.8',
+        componentUrl: './resources/pages/sim-status.html?v=2.4',
         name: 'sim-status'
     },
     {
@@ -95,13 +95,18 @@ var routes = [
     },
 	{
         path: '/sessions/',
-        componentUrl: './resources/pages/sessions.html?v=1.8',
+        componentUrl: './resources/pages/sessions.html?v=2.1',
         name: 'sessions'
     },
 	{
         path: '/cells/',
         componentUrl: './resources/pages/cells.html?v=1.9',
         name: 'cells'
+    },
+	{
+        path: '/hlr/',
+        componentUrl: './resources/pages/hlr.html?v=2.1',
+        name: 'hlr'
     },
 
 

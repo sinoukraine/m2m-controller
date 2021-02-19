@@ -211,59 +211,42 @@ var app = new Framework7({
 				
 				$.ajax(settings).done(function (result) {				
 			
-				/*$.ajax({
-					async: true,
-					crossDomain: true,
-					url: 'https://test.m2mdata.co/service/User/Auth',
-					data: data,
-					method: "POST",
-					headers: {
-						"content-type": 'application/x-www-form-urlencoded; charset=utf-8',
-					},
-					processData: false,
-					success: function (result) {*/
+				
 					console.log('MajorCode',result)
 						if(result.MajorCode == '000'){
-						accessToken = result.Data.Token
-						
-						$.ajax({
-								async: true,
-								crossDomain: true,
-								url: 'https://m2mdata03.sinopacific.com.ua/api/v3/consumers/tokens',
-								method: "POST",
-								headers: {
-									"content-type": "application/json",
-									"Origin": "*",
-								},
-								processData: false,
-								success: function (result) {	
-									if(result && result.consumerToken) {
-										let consumerToken = result.consumerToken
-										app.methods.login(consumerToken, accessToken);
+							let account = $$("input[name='username']");
+							let password = $$("input[name='password']");
+							
+							//localStorage.ACCOUNT = account.val();
+							//localStorage.PASSWORD = password.val();
+								
+							if(account.val()) {
+								localStorage.ACCOUNT = account.val().trim().toLowerCase();
+								localStorage.PASSWORD = password.val();
+							}
+							
+							password.val(null);
+							self.methods.setInStorage({
+								name:'userInfo',
+								data: {
+									accessNewToken: result.Data.Token
+								}
+							});
+							//self.data.CustomerType = result.Data.UserInfo.CustomerType;
+							app.preloader.hide();
+							app.panel.close();
+							app.loginScreen.close();
+							
+							myEvents.emit('home');
+							
+							
 									}else {
 										self.utils.nextFrame(()=>{
 											app.preloader.hide();
-										app.dialog.alert('Consumer token invalid');
+										app.dialog.alert('Something wrong. Please try later.');
 											app.loginScreen.open('.login-screen');
 										});
-									}	
-								},
-								error: function(XMLHttpRequest, textStatus, errorThrown){
-									console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
-									self.utils.nextFrame(()=>{
-										app.preloader.hide();
-										app.dialog.alert('Access token invalid');
-										app.loginScreen.open('.login-screen');
-									});
-								}
-							});	
-						}else{
-							self.utils.nextFrame(()=>{
-										app.preloader.hide();
-										app.dialog.alert('Major code invalid');
-										app.loginScreen.open('.login-screen');
-									});
-						}
+									}
 			})
 			
 			
