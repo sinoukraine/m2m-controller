@@ -1156,6 +1156,15 @@ h3{
   background-color: #34bfa3;
 }
 
+.bg-status-red{
+  background-color: #d47980;
+}
+
+.color-status-red{
+  color: #d47980;
+}
+
+
 .color-status-grey{
   color: #e3e3e3;
 }

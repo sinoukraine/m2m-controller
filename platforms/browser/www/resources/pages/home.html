@@ -221,8 +221,9 @@
                                 var newObj = value;                                
                     
                                 var currentTime = moment();
-                                var oneDayAgo = moment(currentTime, 'YYYY-MM-DD').add(-1, 'days').format('YYYY-MM-DD'); 
-                                var threeDayAgo = moment(currentTime, 'YYYY-MM-DD').add(-3, 'days').format('YYYY-MM-DD');
+								var halfDayAgo = moment(currentTime, 'YYYY-MM-DD HH').add(-12, 'hours').format('YYYY-MM-DD HH'); 
+                                var oneDayAgo = moment(currentTime, 'YYYY-MM-DD HH').add(-1, 'days').format('YYYY-MM-DD HH'); 
+                                var threeDayAgo = moment(currentTime, 'YYYY-MM-DD HH').add(-3, 'days').format('YYYY-MM-DD HH');
                                     
                                 const activityTime = value.DataUpdateTime;
                                 
@@ -238,7 +239,24 @@
                                         newObj.rag = '#CD3333';	
                                     }													
                                 }*/
+								newObj.rag = 'color-status-grey'
 								
+								if(value.SMSMOUpdateTime == null && value.DataUpdateTime == null){
+									newObj.rag = 'color-status-grey'
+								}else if(value.DataUpdateTime == null){
+									newObj.rag = 'color-status-grey'
+								}else{
+								  const simActivityTime = moment(value.DataUpdateTime, 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
+								  //console.log(simActivityTime, halfDayAgo, oneDayAgo)
+								  if(simActivityTime >= halfDayAgo){
+									newObj.rag = 'color-status-green'
+								  }else if(simActivityTime >= oneDayAgo && simActivityTime < halfDayAgo){
+									newObj.rag = 'color-status-yellow'
+								  }else {
+									newObj.rag = 'color-status-red'
+								  }
+								}
+								/*
 								newObj.rag = 'color-status-grey'
 
 								if(value.State == 'Suspended'){
@@ -261,7 +279,7 @@
 								  }else {
 									newObj.rag = 'color-status-yellow'
 								  }
-								}
+								}*/
                                 newArr.push(newObj);
 
                                 if(index === (result.rows.length-1)){

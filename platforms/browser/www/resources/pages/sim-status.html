@@ -279,43 +279,60 @@
 				  "data": listQuery
 				};
 				
-				const oneDayAgo = moment(curday, 'YYYY-MM-DD').add(-1, 'days').format('YYYY-MM-DD')
-				/**/
-				$.ajax(settings).done(function (result) {
+                                var currentTime = moment();
+				var halfDayAgo = moment(currentTime, 'YYYY-MM-DD HH').add(-12, 'hours').format('YYYY-MM-DD HH'); 
+                  var oneDayAgo = moment(currentTime, 'YYYY-MM-DD HH').add(-1, 'days').format('YYYY-MM-DD HH'); 
+                                var threeDayAgo = moment(currentTime, 'YYYY-MM-DD HH').add(-3, 'days').format('YYYY-MM-DD HH');
+                                
+								$.ajax(settings).done(function (result) {
 					let objProfile = result.rows[0]
 				
 					self.sessionActivity = objProfile.State
 					console.log('objProfile',objProfile)
-					if(objProfile.State == 'Suspended'){
+					/*if(objProfile.State == 'Suspended'){
 					  self.sessionActivityBg = 'bg-status-yellow'
 						self.sessionActivityColor = 'color-status-yellow'
-					}else if(objProfile.SMSMOUpdateTime == null && objProfile.DataUpdateTime == null){
+					}else*/ if(objProfile.SMSMOUpdateTime == null && objProfile.DataUpdateTime == null){
 					  self.sessionActivityBg = 'bg-status-grey'
 					self.sessionActivityColor = 'color-status-grey'
 					  if(objProfile.State == 'Productive' || objProfile.State == 'TestProductive'){
-						self.sessionActivityBg = 'bg-status-blue'
-						self.sessionActivityColor = 'color-status-blue'
+						/*self.sessionActivityBg = 'bg-status-blue'
+						self.sessionActivityColor = 'color-status-blue'*/
 						self.sessionActivity = objProfile.State + ', but no current data session'
 					  }
 					}else if(objProfile.DataUpdateTime == null){
 					  self.sessionActivityBg = 'bg-status-grey'
 					self.sessionActivityColor = 'color-status-grey'
 					  if(objProfile.State == 'Productive' || objProfile.State == 'TestProductive'){
-						self.sessionActivityBg = 'bg-status-blue'
-					self.sessionActivityColor = 'color-status-blue'
+						/*self.sessionActivityBg = 'bg-status-blue'
+					self.sessionActivityColor = 'color-status-blue'*/
 						self.sessionActivity = objProfile.State + ', but no current data session'
 					  }
 					}else{
-					  const simActivityTime = moment(objProfile.DataUpdateTime, 'YYYY-MM-DD').format('YYYY-MM-DD')
-					  self.lastUpdateTime = objProfile.DataUpdateTime.replace("T", " ").replace("Z", "")
+					 // const simActivityTime = moment(objProfile.DataUpdateTime, 'YYYY-MM-DD').format('YYYY-MM-DD')
 					  
-					  if(simActivityTime >= oneDayAgo){
+					  
+					  const simActivityTime = moment(objProfile.DataUpdateTime, 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
+						self.lastUpdateTime = objProfile.DataUpdateTime.replace("T", " ").replace("Z", "")
+					  
+					  if(simActivityTime >= halfDayAgo){
+									self.sessionActivityBg = 'bg-status-green'
+									self.sessionActivityColor = 'color-status-green'
+								  }else if(simActivityTime >= oneDayAgo && simActivityTime < halfDayAgo){
+									self.sessionActivityBg = 'bg-status-yellow'
+									self.sessionActivityColor = 'color-status-yellow'
+								  }else {
+									self.sessionActivityBg = 'bg-status-red'
+									self.sessionActivityColor = 'color-status-red'
+								  }
+					  
+					  /*if(simActivityTime >= oneDayAgo){
 						self.sessionActivityBg = 'bg-status-green'
 					self.sessionActivityColor = 'color-status-green'
 					  }else {
 						self.sessionActivityBg = 'bg-status-yellow'
 					self.sessionActivityColor = 'color-status-yellow'
-					  }
+					  }*/
 					}
 				});
 				
