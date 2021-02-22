@@ -80,31 +80,45 @@
             return ret;
         },		
         methods: {
-            sendCommand: function(text, timesent){					
+            sendCommand: async function(text, timesent){					
 				var self = this;  
 					
 				console.log('emit sending message');
 				
-				let data = {                    
+				/*~~~let data = {                    
 					IMSI: self.imsi,
 					SMS: text
                 };
                 
                 self.$app.request.promise.post("https://api.m2mglobaltech.com/QuikData/v1/Command/Send", data, 'json')
                     .then(function (result) {
-                        if(result.MajorCode === '000') {
+                        if(result.MajorCode === '000') {*/
+						
+				const result = await fetch("https://api.m2mglobaltech.com/QuikData/v1/SMS/SendSMS?deviceId="+self.imsi+"&message="+encodeURIComponent(text)).catch(e=>{
+					console.log(e)
+					  
+							$('[data-id="now"]').find('.message-bubble').find('.msg-status').remove()
+							$('[data-id="now"]').find('.message-bubble').prepend('<div class="msg-status" style="color:red">Not sent</div>');
+					 return
+				  })
+					let jsonResult = await result.json()
+					//$.ajax(settings).done(function (result) {
+					console.log(jsonResult)
+					if(jsonResult.MajorCode=='000'){
+						
 							$('[data-id="now"]').find('.message-bubble').find('.msg-status').remove()
 							$('[data-id="now"]').find('.message-bubble').prepend('<div class="msg-status">Sent</div>');
                         }else{
+						
 							$('[data-id="now"]').find('.message-bubble').find('.msg-status').remove()
 							$('[data-id="now"]').find('.message-bubble').prepend('<div class="msg-status" style="color:red">Not sent</div>');
 						}
-                    })
+                    /*})
                     .catch(function (err) {
                         console.log('err = '+err);
 						$('[data-id="now"]').find('.message-bubble').find('.msg-status').remove()
 						$('[data-id="now"]').find('.message-bubble').prepend('<div class="msg-status" style="color:red">Not sent</div>');
-                    });
+                    });*/
 					
 				/*var query = {
 					IMSI: self.imsi,
@@ -139,35 +153,43 @@
 				
 				let date1 = self.getFormattedDate(self.PeriodFrom)
 				let date2 = self.getFormattedDate(self.PeriodTo)
-				/*var settings = {
-				  "url": "https://m2mdata.co/jt/GetSimHisList?imsi=" + self.imsi + "&direct=3&begin="+date1+"&end="+date2,
-				  "method": "GET",
-				  "timeout": 0,
-				  "headers": {
-					"token": "00000000-0000-0000-0000-000000000000",
-					"Content-Type": "application/x-www-form-urlencoded"
-				  },
-				  "data": query
-				};*/
-				const responseH = await fetch("https://m2mdata.co/jt/GetSimHisList?imsi=" + self.imsi + "&direct=3&begin="+date1+"&end="+date2)
 				
-				/*$.ajax(settings).done(function (result) {	*/				
-					try{
+				
+          var settings = {
+					  "url": "//test4.m2mdata.co/JT/SMS/History",
+					  "method": "POST",
+					  "timeout": 0,
+					  "headers": {
+						"token": "00000000-0000-0000-0000-000000000000",
+						"Content-Type": "application/x-www-form-urlencoded"
+					  },
+					  "data": {
+						"IMSI":  self.imsi,
+						"PAGE": "1",
+						"pagesize": "100",
+					  }
+					};
+
+					//$.ajax(settings).done(function (response) { 
+				//~~~onst responseH = await fetch("https://m2mdata.co/jt/GetSimHisList?imsi=" + self.imsi + "&direct=3&begin="+date1+"&end="+date2)
+				
+				$.ajax(settings).done(function (result) {				
+					/*try{
 					
-						let result = await responseH.json()
+						let result = await responseH.json()*/
 						console.log(result)
-						if (result.length) {		
-							let sortedRes = result.sort(function(a,b){
-								var c = new Date(a.DateTime);
-								var d = new Date(b.DateTime);
+						if (result.Data.length) {		
+							let sortedRes = result.Data.sort(function(a,b){
+								var c = new Date(a.CreateTime);
+								var d = new Date(b.CreateTime);
 								return d-c;
 							});
 							self.setReplyMessages(sortedRes.reverse());		
 						}
-					}catch(e){					
+					/*}catch(e){					
 						console.log(e)
-					}
-				//})
+					}*/
+				})
 
 			
 				/*	var d = new Date();
@@ -220,33 +242,40 @@
 				var html = '';
 				$.each(callbackList, function(index, value){		
 						console.log('cal',value);		
-					if(self.used_id.indexOf( value.ID ) == -1){
-						self.used_id.push(value.ID);
+					if(self.used_id.indexOf( value.CenterNumber + ' ' + value.CreateTime + value.Message[0] ) == -1){
+						self.used_id.push(value.CenterNumber + ' ' + value.CreateTime + value.Message[0]);
 						/*var datetime = moment.utc(value.DateTime).toDate();
 							//datetime = moment(datetime).format(window.COM_TIMEFORMAT);
 							
 						var time = datetime.getDate() + ' ' + self.month_names_short[datetime.getMonth()] + ' ' + ('0' + datetime.getHours()).slice(-2) + ':' + ('0' + datetime.getMinutes()).slice(-2) + ':' + ('0' + datetime.getSeconds()).slice(-2);
 						*/
-						var replySMS;
+						//var datetime = moment.utc(value.CreateTime).toDate();
+						//var datetime = date.toISOString();
+						
+						var date = moment.utc(value.CreateTime).toDate();
+						var time = date.getDate() + ' ' + self.month_names_short[date.getMonth()] + ' ' + date.getFullYear() + ' ' + ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2) + ':' + ('0' + date.getSeconds()).slice(-2);
+
+												
+												
+						var replySMS = '';
 						
 						if (value.Message) {
 								replySMS = value.Message.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 							}
 							
-							if(value.Dirct == 1){
+							if(value.Direction == 2){
 								self.messages.addMessage({
 									text: replySMS,
-									textFooter: value.DateTime,	
+									textFooter: time,	
 									attrs: {
-										'data-id': value.ID,	
+										'data-id': value.CenterNumber + ' ' + value.CreateTime + value.Message[0],	
 									}								
 								  });
 								  
-								$('[data-id="'+value.ID+'"]').find('.message-bubble').prepend('<div class="msg-status delivered">'+value.State+'</div>');
+								$('[data-id="'+value.CenterNumber + ' ' + value.CreateTime + value.Message[0]+'"]').find('.message-bubble').prepend('<div class="msg-status delivered">'+value.State==0?'Error':value.State==1?'Sent':value.State==2?'Submitted':value.State==3?'Delivered':'Received'+'</div>');
 										
-								if(value.State == 'Delivered' || value.State == 'Submitted' || value.State == 'Sent'){
+								if(value.State == 0 || value.State == 1 || value.State == 2 || value.State == 3){
 									$('.message-sent').each(function(i, ele) {
-										console.log(value.Message, $(this).find('.message-text').text(), value.Message === $(this).find('.message-text').text(), replySMS === $(this).find('.message-text').text(), $(this).attr('data-id') == 'now')
 										if(value.Message === $(this).find('.message-text').text() && $(this).attr('data-id') == 'now'){
 											$(this).remove();
 										}
@@ -254,13 +283,13 @@
 								  }
 							}
 							
-						if(value.Dirct == 2){
+						if(value.Direction == 1){
 								  self.messages.addMessage({
 									text: replySMS,
 									type: 'received',
-									textFooter: value.DateTime,	
+									textFooter: time,	
 									attrs: {
-										'data-id': value.ID,	
+										'data-id': value.CenterNumber + ' ' + value.CreateTime + value.Message[0],	
 									}								
 								  });
 						}

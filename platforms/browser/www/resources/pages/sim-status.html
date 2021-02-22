@@ -189,8 +189,8 @@
             var ret = {
 				loading: true,
 				sessionActivity: self.$route.query.state,
-				sessionActivityColor: 'color-status-grey',
-				sessionActivityBg: 'bg-status-grey',
+				sessionActivityColor: 'color-status-'+self.$route.query.rag,
+				sessionActivityBg: 'bg-status-'+self.$route.query.rag,
 				lastUpdateTime: '',
 				onstockTitle: 'OnStock',
 				productiveTitle: 'Productive',
@@ -228,6 +228,9 @@
             }  			
 			if (self.$route.query.state) {
 				ret.state = self.$route.query.state;
+            }  			
+			if (self.$route.query.rag) {
+				ret.ragFromList = self.$route.query.rag;
             }  			
             return ret;
         },
@@ -314,16 +317,16 @@
 					  self.sessionActivityBg = 'bg-status-yellow'
 						self.sessionActivityColor = 'color-status-yellow'
 					}else*/ if(objProfile.SMSMOUpdateTime == null && objProfile.DataUpdateTime == null){
-					  self.sessionActivityBg = 'bg-status-grey'
-					self.sessionActivityColor = 'color-status-grey'
+					  //~~~self.sessionActivityBg = 'bg-status-grey'
+					//~~~self.sessionActivityColor = 'color-status-grey'
 					  if(objProfile.State == 'Productive' || objProfile.State == 'TestProductive'){
 						/*self.sessionActivityBg = 'bg-status-blue'
 						self.sessionActivityColor = 'color-status-blue'*/
 						self.sessionActivity = objProfile.State + ', but no current data session'
 					  }
 					}else if(objProfile.DataUpdateTime == null){
-					  self.sessionActivityBg = 'bg-status-grey'
-					self.sessionActivityColor = 'color-status-grey'
+					  //~~~self.sessionActivityBg = 'bg-status-grey'
+					//~~~self.sessionActivityColor = 'color-status-grey'
 					  if(objProfile.State == 'Productive' || objProfile.State == 'TestProductive'){
 						/*self.sessionActivityBg = 'bg-status-blue'
 					self.sessionActivityColor = 'color-status-blue'*/
@@ -337,14 +340,14 @@
 						self.lastUpdateTime = objProfile.DataUpdateTime.replace("T", " ").replace("Z", "")
 					  
 					  if(simActivityTime >= halfDayAgo){
-									self.sessionActivityBg = 'bg-status-green'
-									self.sessionActivityColor = 'color-status-green'
+									//~~~self.sessionActivityBg = 'bg-status-green'
+									//~~~self.sessionActivityColor = 'color-status-green'
 								  }else if(simActivityTime >= oneDayAgo && simActivityTime < halfDayAgo){
-									self.sessionActivityBg = 'bg-status-yellow'
-									self.sessionActivityColor = 'color-status-yellow'
+									//~~~self.sessionActivityBg = 'bg-status-yellow'
+									//~~~self.sessionActivityColor = 'color-status-yellow'
 								  }else {
-									self.sessionActivityBg = 'bg-status-red'
-									self.sessionActivityColor = 'color-status-red'
+									//~~~self.sessionActivityBg = 'bg-status-red'
+									//~~~self.sessionActivityColor = 'color-status-red'
 								  }
 					  
 					  /*if(simActivityTime >= oneDayAgo){
@@ -452,6 +455,10 @@
 			initSimInfo: function () {
                 let self = this;
 									
+									
+								
+			
+					
 				/*~~~~~~~today let userInfo = self.$app.methods.getFromStorage('userInfo');
 				let accessToken = userInfo.accessToken;		
 				

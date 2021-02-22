@@ -1160,25 +1160,25 @@ h3{
   background-color: #d47980;
 }
 
-.color-status-red{
-  color: #d47980;
+.color-status-red, .history-status-red{
+  color: #d47980 !important;
 }
 
 
-.color-status-grey{
-  color: #e3e3e3;
+.color-status-grey, .history-status-grey{
+  color: #e3e3e3 !important;
 }
 
-.color-status-blue{
-  color: rgb(92, 174, 230);
+.color-status-blue, .history-status-blue{
+  color: rgb(92, 174, 230) !important;
 }
 
-.color-status-green{
-  color: #34bfa3;
+.color-status-green, .history-status-green{
+  color: #34bfa3 !important;
 }
 
-.color-status-yellow{
-  color: #ffb880;
+.color-status-yellow, .history-status-yellow{
+  color: #ffb880 !important;
 }
 .pl-20{
 	padding-left: 20px;

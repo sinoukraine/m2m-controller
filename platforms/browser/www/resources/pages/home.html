@@ -68,6 +68,8 @@
 
 <script>
     // script must return component object
+	// var nowFull = moment(); 
+	//var today = nowFull.clone().startOf('day').format('YYYY-MM-DD');
     return {
         data: function () {
             let ret = {
@@ -217,15 +219,94 @@
                         if (result.total) {			
                             var newArr = [];
                             
-                            $.each(result.rows, function(index, value){
-                                var newObj = value;                                
-                    
-                                var currentTime = moment();
+                            $.each(result.rows, async function(index, value){
+                                var newObj = value;           
+                                
+								var currentTime = moment();
 								var halfDayAgo = moment(currentTime, 'YYYY-MM-DD HH').add(-12, 'hours').format('YYYY-MM-DD HH'); 
                                 var oneDayAgo = moment(currentTime, 'YYYY-MM-DD HH').add(-1, 'days').format('YYYY-MM-DD HH'); 
                                 var threeDayAgo = moment(currentTime, 'YYYY-MM-DD HH').add(-3, 'days').format('YYYY-MM-DD HH');
                                     
                                 const activityTime = value.DataUpdateTime;
+								
+								newObj.rag = 'grey'
+								
+								//1
+								const responseActiveSession = await fetch(`https://m2mdata.co/jt/GetActiveSession?imsi=${newObj.IMSI}`)
+								let resActiveSession = await responseActiveSession.json()
+																
+								if(resActiveSession.Data){
+									if(resActiveSession.Data.startDateField == null){
+										
+									newObj.rag = 'grey'
+									}else if(resActiveSession.Data.lastInterimDateField == null){
+									  newObj.rag = 'green'
+									}else{
+									  const simActivityTime = moment(resActiveSession.Data.lastInterimDateField, 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
+									  //console.log(simActivityTime, halfDayAgo, oneDayAgo)
+									  
+									
+									if(simActivityTime >= halfDayAgo){
+										newObj.rag = 'green'
+									  }else if(simActivityTime >= oneDayAgo && simActivityTime < halfDayAgo){
+										newObj.rag = 'yellow'
+									  }else {
+										newObj.rag = 'red'
+									  }
+									}
+								}else{
+								
+								const responseHlr = await fetch(`https://m2mdata.co/jt/GetGetHlrInfo?imsi=${newObj.IMSI}`)
+								let resHlr = await responseHlr.json()
+																
+								if(resHlr.Data){
+									console.log('yes 2', resHlr.Data)
+									if(resHlr.Data?.hlrInfoFieldsField == undefined){		
+										console.log('hmsssss')	
+										newObj.rag = 'grey'
+									}else{
+										
+										let chooseHlrDate = ''
+										if(resHlr.Data.hlrInfoFieldsField.find(el=>el.nameField == 'Packet Switched Up Time').valueField != '00000000000000'){
+											let hlrDate1 = resHlr.Data.hlrInfoFieldsField.find(el=>el.nameField == 'Packet Switched Up Time').valueField
+											chooseHlrDate = hlrDate1.slice(0,4) + '-' + hlrDate1.slice(4,6) + '-' + hlrDate1.slice(6,8) + ' ' + hlrDate1.slice(8,10) + ':' + hlrDate1.slice(10,12)
+										}else if(resHlr.Data.hlrInfoFieldsField.find(el=>el.nameField == 'Circuit Switch Up Time').valueField != '00000000000000'){
+										
+											let hlrDate1 = resHlr.Data.hlrInfoFieldsField.find(el=>el.nameField == 'Circuit Switch Up Time').valueField
+											chooseHlrDate = hlrDate1.slice(0,4) + '-' + hlrDate1.slice(4,6) + '-' + hlrDate1.slice(6,8) + ' ' + hlrDate1.slice(8,10) + ':' + hlrDate1.slice(10,12)
+											
+										}
+										
+										if(chooseHlrDate.length){
+											const simActivityTime = moment(chooseHlrDate, 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
+											console.log('hlr 3', simActivityTime, halfDayAgo)
+										
+											if(simActivityTime >= halfDayAgo){
+												newObj.rag = 'green'
+											}else if(simActivityTime >= oneDayAgo && simActivityTime < halfDayAgo){
+												newObj.rag = 'yellow'
+											}else {
+												newObj.rag = 'red'
+											}											
+										}
+									}
+								}else{
+									if(value.SMSMOUpdateTime == null && value.DataUpdateTime == null){
+										newObj.rag = 'grey'
+									}else if(value.DataUpdateTime == null){
+										newObj.rag = 'grey'
+									}else{
+									  const simActivityTime = moment(value.DataUpdateTime, 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
+									  //console.log(simActivityTime, halfDayAgo, oneDayAgo)
+									  if(simActivityTime >= halfDayAgo){
+										newObj.rag = 'green'
+									  }else if(simActivityTime >= oneDayAgo && simActivityTime < halfDayAgo){
+										newObj.rag = 'yellow'
+									  }else {
+										newObj.rag = 'red'
+									  }
+									}
+								}
                                 
 								/*if(typeof activityTime == 'undefined'){					
                                         newObj.rag = 'rgb(204,204,204)';												
@@ -239,48 +320,39 @@
                                         newObj.rag = '#CD3333';	
                                     }													
                                 }*/
-								newObj.rag = 'color-status-grey'
 								
-								if(value.SMSMOUpdateTime == null && value.DataUpdateTime == null){
-									newObj.rag = 'color-status-grey'
-								}else if(value.DataUpdateTime == null){
-									newObj.rag = 'color-status-grey'
-								}else{
-								  const simActivityTime = moment(value.DataUpdateTime, 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
-								  //console.log(simActivityTime, halfDayAgo, oneDayAgo)
-								  if(simActivityTime >= halfDayAgo){
-									newObj.rag = 'color-status-green'
-								  }else if(simActivityTime >= oneDayAgo && simActivityTime < halfDayAgo){
-									newObj.rag = 'color-status-yellow'
-								  }else {
-									newObj.rag = 'color-status-red'
-								  }
-								}
+								
+								
+								
 								/*
-								newObj.rag = 'color-status-grey'
+								newObj.rag = 'grey'
 
 								if(value.State == 'Suspended'){
-								  newObj.rag = 'color-status-yellow'
+								  newObj.rag = 'yellow'
 								}else if(value.SMSMOUpdateTime == null && value.DataUpdateTime == null){
-								  newObj.rag = 'color-status-grey'
+								  newObj.rag = 'grey'
 								  if(value.State == 'Productive' || value.State == 'TestProductive'){
-									newObj.rag = 'color-status-blue'
+									newObj.rag = 'blue'
 								  }
 								}else if(value.DataUpdateTime == null){
-								  newObj.rag = 'color-status-grey'
+								  newObj.rag = 'grey'
 								  if(value.State == 'Productive' || value.State == 'TestProductive'){
-									newObj.rag = 'color-status-blue'
+									newObj.rag = 'blue'
 								  }
 								}else{
 								  const simActivityTime = moment(value.DataUpdateTime, 'YYYY-MM-DD').format('YYYY-MM-DD')
 								  
 								  if(simActivityTime >= oneDayAgo){
-									newObj.rag = 'color-status-green'
+									newObj.rag = 'green'
 								  }else {
-									newObj.rag = 'color-status-yellow'
+									newObj.rag = 'yellow'
 								  }
 								}*/
-                                newArr.push(newObj);
+                                
+								
+								}
+								
+								newArr.push(newObj);
 
                                 if(index === (result.rows.length-1)){
                                     if(result.indexPage == 1){
@@ -397,7 +469,7 @@
 					var simCSP = value.ServiceProfileCode;
 					
 					html += '<li>';
-                    html += '<a href="#" data-id="'+simID+'" data-owner="'+simOwner+'" data-csp="'+simCSP+'" data-state="'+simState+'" data-imsi="'+simIMSI+'" data-iccid="'+simICCID+'" class="ac-5 item-link item-content">';
+                    html += '<a href="#" data-id="'+simID+'" data-rag="'+simRAG+'" data-owner="'+simOwner+'" data-csp="'+simCSP+'" data-state="'+simState+'" data-imsi="'+simIMSI+'" data-iccid="'+simICCID+'" class="ac-5 item-link item-content">';
                     html += '  <div class="item-inner">';
                     html += '   <div class="item-title-row">';
                     html += '   <div class="item-title color-custom">';
@@ -428,7 +500,7 @@
                     html += '                         </div>';
                     html += '                   <div class="display-flex">';
                     html += '                      <div class="prop-name">State:</div>';
-					html += '						<div style="font-size: 14px;" class="'+simRAG+'">&#11044;</div>';//#CD3333
+					html += '						<div style="font-size: 14px;" class="color-status-'+simRAG+'">&#11044;</div>';//#CD3333
                     html += '          			</div>';
                     html += '            </div>';
                     html += '             </div>';
@@ -485,7 +557,6 @@
 			},
 			initHome: function(){
 				var self = this;
-				console.log('rfr');
 				if(self.$app.data.imsi != 'undefined'){
 					$$('.formSearchSim input[name="searchInput"').val(self.$app.data.imsi)
 					self.$setState({
@@ -508,6 +579,7 @@
 					var imsi = parrent.attr('data-imsi');
 					var iccid = parrent.attr('data-iccid');
 					var owner = parrent.attr('data-owner');
+					var rag = parrent.attr('data-rag');
 					var csp = parrent.attr('data-csp');
 					var state = parrent.attr('data-state');
 					
@@ -625,7 +697,7 @@
                                     onClick: function() {
                                         self.$app.actions.close();
                                         self.$app.sheet.close();
-                                        mainView.router.navigate('/sim-status/?imsi='+imsi.toString()+'&iccid='+iccid.toString()+'&owner='+encodeURIComponent(owner.toString())+'&csp='+encodeURIComponent(csp.toString())+'&state='+encodeURIComponent(state.toString()));
+                                        mainView.router.navigate('/sim-status/?imsi='+imsi.toString()+'&iccid='+iccid.toString()+'&rag='+rag+'&owner='+encodeURIComponent(owner.toString())+'&csp='+encodeURIComponent(csp.toString())+'&state='+encodeURIComponent(state.toString()));
                                     },
                                 },
                                 {

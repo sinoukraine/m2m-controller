@@ -21,7 +21,7 @@
 				<h3>{{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG02}}</h3>
                 <p>{{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG03}}</p>				
             </div>
-			
+			<!--
 			<div class="list no-margin no-hairlines">
 				<ul class="padding-left">
 					
@@ -48,47 +48,8 @@
 						</div>
 					</li>		
 					</ul>
-					</div>
-			<!--<div class="list">
-				<input type="hidden" name="IMSI" value="{{IMSI}}">
-				<input type="hidden" name="LastDay" value="1">
-			  <ul>
-            
-                <li class="item-content border_bottom">
-                    <div class="item-inner display-block">
-                        <div class="item-title label">{{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG06}}</div>
-                        <div class="item-input">
-                            <select name="LastDaySelect" data-set="{{LastDay}}">                 
-								<option value="1">1 day</option>
-								<option value="2">3 days</option>
-								<option value="7">1 week</option>
-								<option value="14">2 weeks</option>
-								<option value="30">1 month</option>
-								<option value="60">2 months</option>
-								<option value="3000">all time</option>
-                                <option value="1">1 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG04}}</option>
-                                <option value="2">2 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option>
-                                <option value="3">3 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option>
-                                <option value="4">4 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option>
-                                <option value="5">5 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option> 
-                                <option value="6">6 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option>                                
-                                <option value="7">7 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option> 
-                                <option value="8">8 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option> 
-                                <option value="9">9 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option> 
-                                <option value="10">10 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option> 
-                                <option value="11">11 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option> 
-                                <option value="12">12 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option> 
-                                <option value="13">13 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option> 
-                                <option value="14">14 {{@global.LANGUAGE.ASSET_COMMANDS_HISTORY_MSG05}}</option>
-                            </select>
-                            <i class="f7-icons icon-arrow-drop-down select_arrow"></i>
-                        </div>
-                    </div>
-                </li>
-            </ul>
-        </div>-->
-
-		
+					</div>-->
+					
         <div class="list virtual-list home-list commandsHistoryList" style="">
 						{{#if DashboardHasData }}						
 											
@@ -266,8 +227,8 @@
                              return height;
                     },
                     renderItem: function (item, index) {
-						let html = '';
-						var date = moment.utc(item.DateTime).toDate();
+						let html = ''; let state = "";
+						var date = moment.utc(item.CreateTime).toDate();
 						//var datetime = date.toISOString();
 						var time = date.getDate() + ' ' + self.month_names_short[date.getMonth()] + ' ' + date.getFullYear() + ' ' + ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2) + ':' + ('0' + date.getSeconds()).slice(-2);
 
@@ -275,11 +236,34 @@
 													item.Message = item.Message.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 												}
 												
-												if(item.Message == undefined && item.State == 'Delivered'){
+												/*if(item.Message == undefined && item.State == 'Delivered'){
 													item.Message = item.State;
+												}*/
+												
+												switch(item.State){
+													case 0:
+														state = 'Error'
+														stateColor = 'grey'
+													break;
+													case 1:
+														state = 'Sent'
+														stateColor = 'red'
+													break;
+													case 2:
+														state = 'Submitted'
+														stateColor = 'green'
+													break;
+													case 3:
+														state = 'Delivered'
+														stateColor = 'green'
+													break;
+													case 4:
+														state = 'Received'
+														stateColor = 'blue'
+													break;
 												}
 												
-													if (item.Dirct == 2) {
+													if (item.Direction == 1) {
 														html += '<li class="item-content with-divider-bottom" >';
 													} else {
 														html += '<li class="item-content" >';
@@ -287,12 +271,12 @@
 													html += '<div class="item-inner item-inner-commands-history">';
 													html += '<div class="item-title-row">';
 													html += '<div class="item-title">';
-													if (item.Dirct == 1) {
-														html += '<i class="material-icons md-36">send</i>';
+													if (item.Direction == 2) {
+														html += '<i class="material-icons md-36 history-status-' + stateColor + '">send</i>';
 													} else {
-														html += '<i class="material-icons md-36">email</i>';
+														html += '<i class="material-icons md-36 history-status-' + stateColor + '">email</i>';
 													}
-													html += '<div class="history-status">' + item.State + '</div></div>';
+													html += '<div class="history-status color-status-' + stateColor + '">' + state + '</div></div>';
 													html += '<div class="item-after">' + time + '</div>';
 													html += '</div>';
 													html += '<div class="item-text">' + item.Message + '</div>';
@@ -327,24 +311,8 @@
 				
 				let date1 = self.getFormattedDate(self.PeriodFrom)
 				let date2 = self.getFormattedDate(self.PeriodTo)
-				console.log(date1,date2)
-				//https://m2mdata.co/jt/GetSimHisList?imsi=234500023542590&direct=3&begin=02/15/2021&end=02/15/2021
-				/*var settings = {
-				  "url": "https://m2mdata.co/jt/GetSimHisList?imsi=" + self.IMSI + "&direct=3&begin="+date1+"&end="+date2,
-				  "method": "GET",
-				  "timeout": 0,
-				  "headers": {
-					"token": "00000000-0000-0000-0000-000000000000",
-					"Content-Type": "application/x-www-form-urlencoded"
-				  },
-				  //"data": query
-				};*/
 				
-				const responseH = await fetch("https://m2mdata.co/jt/GetSimHisList?imsi=" + self.IMSI + "&direct=3&begin="+date1+"&end="+date2)
-				
-				
-				
-				
+				/*const responseH = await fetch("https://m2mdata.co/jt/GetSimHisList?imsi=" + self.IMSI + "&direct=3&begin="+date1+"&end="+date2)
 				
 				try{
 					let result = await responseH.json()
@@ -376,7 +344,67 @@
 							});
 							self.requestCommandOldHistory([])
 							//self.$app.dialog.alert('There are no history for this SIM for this time period');
-					}
+					}*/
+					
+					
+					var settings = {
+					  "url": "//test4.m2mdata.co/JT/SMS/History",
+					  "method": "POST",
+					  "timeout": 0,
+					  "headers": {
+						"token": "00000000-0000-0000-0000-000000000000",
+						"Content-Type": "application/x-www-form-urlencoded"
+					  },
+					  "data": {
+						"IMSI": self.IMSI,
+						"PAGE": self.page,
+						"pagesize": "20",
+					  }
+					};
+
+					$.ajax(settings).done(function (response) {
+					  console.log('his',response);
+					  
+					  if (response.MajorCode == '000') {
+						if (response.Data.length) {
+							let historyArray = response.Data
+								if(self.page > 1){
+									self.oldHistoryArray= self.oldHistoryArray.concat(historyArray);
+								}else{
+									self.oldHistoryArray= historyArray;													
+								}
+									let incr = self.page + 1;
+									
+									self.$setState({
+										page: incr
+									});
+									
+									self.getOldHistory();		
+							}else{
+								if(self.oldHistoryArray.length > 0){
+									self.oldHistoryArray.sort(function(a,b){
+										var c = new Date(a.CreateTime);
+										var d = new Date(b.CreateTime);
+										return d-c;
+									});
+									self.requestCommandOldHistory(self.oldHistoryArray);
+								}else{
+									self.$setState({
+										DashboardNoData: true										
+									});
+									self.requestCommandOldHistory([])
+									self.$app.dialog.alert('There are no history for this SIM');
+								}
+							}
+						}else{
+
+							self.$setState({
+								DashboardNoData: true										
+							});
+							self.requestCommandOldHistory([])
+					
+						}						
+					});
 					
 				/*$.ajax(settings).done(function (result) {
 					console.log('his', result)
