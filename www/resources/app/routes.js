@@ -13,7 +13,7 @@ var routes = [
     },
     {
         path: '/commands/',
-        componentUrl: './resources/pages/commands.html?v=2.1',
+        componentUrl: './resources/pages/commands.html?v=2.2',
         name: 'commands'
     },
     {
@@ -38,7 +38,7 @@ var routes = [
     },
     {
         path: '/commands-history/',
-        componentUrl: './resources/pages/commands-history.html?v=1.7',
+        componentUrl: './resources/pages/commands-history.html?v=1.8',
         name: 'commands-history'
     },
     {
