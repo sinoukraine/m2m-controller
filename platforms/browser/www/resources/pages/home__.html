@@ -1,0 +1,812 @@
+<!--suppress JSAnnotator -->
+<template>
+    <div class="page" data-name="home"> <!-- page-with-subnavbar -->
+        <!-- Top Navbar -->
+        <div class="navbar">
+            <div class="navbar-bg"></div>
+            <div class="navbar-inner">
+                <div class="left">
+                    <a href="/panel-left/" class="link icon-only " >
+                        <i class="icon material-icons">menu</i>
+                    </a>
+                </div>
+                <div class="title sliding">
+                    {{@global.LANGUAGE.HOME_MSG00}}
+                </div>
+                <div class="right">
+                    <a href="#" class="link icon-only scanBarCode">
+                        <i class="f7-icons icon-other-barcode"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="toolbar tabbar toolbar-top">
+            <div class="toolbar-inner">
+                <!-- Links have "tab-link" class instead of just "link" to switch tabs -->
+                <a @click="FilterSimList" data-type="imsi" href="#tab1" class="tab-link tab-link-active">IMSI</a>
+                <a @click="FilterSimList" data-type="iccid" href="#tab2" class="tab-link" >ICCID</a>
+            </div>
+        </div>
+        <form class="searchbar custom-searchbar formSearchSim">
+            <div class="searchbar-inner">	
+                <div class="searchbar-input-wrap">
+                    <input type="search" name="searchInput" class="search-sims" placeholder="{{placeholderSearch}}" title="{{@global.LANGUAGE.COM_MSG002}}">
+                    <span class="input-clear-button"></span>
+                    <button type="submit" class="button search-sims-btn"><i class="material-icons">search</i></button>
+                </div>
+            </div>
+        </form>
+        <div class="page-content  ptr-content infinite-scroll-home-content infinite-scroll-bottom data-infinite-distance">			
+					<div class="ptr-preloader">
+						<div class="preloader"></div>
+						<div class="ptr-arrow"></div>
+					</div>
+	        <!--fake tabs for tabbar correct working working-->
+            <div class="tabs">
+                <div class="tab-active" id="tab1"></div>
+                <div id="tab2"></div>
+            </div>
+            <div class="searchbar-backdrop"></div>
+            <div class="block searchbar-not-found">
+                <div class="block-inner">{{@global.LANGUAGE.PROMPT_MSG000}}</div>
+            </div>
+            <div class="block searchbar-hide-on-search">
+                <p>In this screen, you can find the device by IMSI or ICCID. You can use the "scan" icon to determine the ICCID number.</p>
+            </div>			
+            <div class="list home-list virtual-list media-list no-hairlines no-chevron no-margin-top searchbar-found simList">
+                <!-- keep it empty -->
+			    <ul>
+			    </ul>
+            </div>
+			<div class="preloader infinite-scroll-preloader infinite-scroll-home-preloader"></div>
+        </div>
+		<p>
+            <a href="#" data-actions=".my-actions" class="actions-open">Open Actions</a>
+        </p>
+    </div>
+</template>
+
+<script>
+    // script must return component object
+	// var nowFull = moment(); 
+	//var today = nowFull.clone().startOf('day').format('YYYY-MM-DD');
+    return {
+        data: function () {
+            let ret = {
+				placeholderSearch: 'Search',
+				text: '',
+				type: 'imsi',
+				allowInfinite: true,
+				page: 1,
+				ac5: null,
+				lastItemIndex: 0,
+				maxItems: 0
+			};
+
+            return ret;
+        },
+        methods: {
+			submitSearchForm: function (type) { 
+                let self = this;
+				var input = $$('.formSearchSim input[name="searchInput"');
+
+				self.$app.data.imsi = ''
+				
+                input.blur();
+
+                var searchby = input.data('searchby');
+
+                var data = input.val().trim();
+				
+								self.$setState({
+									type: type,
+								});
+								self.$setState({
+									page: 1
+								});
+								
+					switch(type){
+						case 'iccid':
+							if(data.length!=19&&data.length>0){
+								self.$app.dialog.alert('Please fill in full ICCID number.');                   
+							}else{
+								$$('.simList ul').html('');
+								self.$setState({
+									text: data,
+								});
+														
+								if($('.infinite-scroll-home-preloader').hasClass('display-none')){
+									$('.infinite-scroll-home-preloader').removeClass('display-none')
+								}
+								
+								self.getSimList();
+								self.$app.infiniteScroll.create('.infinite-scroll-home-content');	
+							}
+						break;
+						default:
+							if (data.length!=15&&data.length>0){
+								self.$app.dialog.alert('Please fill in full IMSI number.');                   
+							}else{
+								$$('.simList ul').html('');
+								self.$setState({
+									text: data,
+								});
+														
+								if($('.infinite-scroll-home-preloader').hasClass('display-none')){
+									$('.infinite-scroll-home-preloader').removeClass('display-none')
+								}
+								
+								self.getSimList();
+								self.$app.infiniteScroll.create('.infinite-scroll-home-content');	
+							}		
+						}	
+			},														
+			getSimList: function () {
+                let self = this;
+				
+                if (!self.allowInfinite) return;					
+                
+                // Set loading flag
+                self.$setState({
+                    allowInfinite: false
+                });
+                
+                let userInfo = self.$app.methods.getFromStorage('userInfo');
+                let accessNewToken = userInfo.accessNewToken;
+            
+                
+                let url = 'http://test4.m2mdata.co/Jt/Sim/Query'
+                
+                let listQuery = {
+                    Page: self.page,
+                    rows: 20,
+                    Order: 'ASC',
+                    Sort: 'IMSI',
+                    token: '00000000-0000-0000-0000-000000000000'
+                }
+                            
+				switch(self.type){
+					case 'iccid': 
+						if (self.text.length == 19){
+							listQuery.fromICCID = self.text
+							listQuery.toICCID = self.text
+						}
+					break;
+					default:
+						if (self.text.length == 15){
+							listQuery.fromIMSI = self.text
+							listQuery.toIMSI = self.text
+						}					
+				}
+				
+                
+                /*let data =  self.$app.methods.getFormDataFromObject(listQuery) //Qs.stringify(listQuery) //
+        
+                self.$app.request.setup({
+                    headers: {
+                        "content-type": "application/json",
+                    }
+                })
+                
+                self.$app.request.post(url, data, function (result) {
+                    console.log(result);
+                })*/
+				
+				var settings = {
+				  "url": "https://test4.m2mdata.co/JT/Sim/Query",
+				  "method": "POST",
+				  "timeout": 0,
+				  "headers": {
+					"token": "00000000-0000-0000-0000-000000000000",
+					"Content-Type": "application/x-www-form-urlencoded"
+				  },
+				  "data": listQuery
+				};
+				console.log('iccid', settings)
+
+				/**/
+				$.ajax(settings).done(function (result) {
+                /*$.ajax({
+                    async: true,
+                    crossDomain: true,	        
+                    url: 'http://test4.m2mdata.co/Jt/Sim/Query',
+                    method: "POST",
+                    headers: {
+                        "content-type": 'application/x-www-form-urlencoded',//application/x-www-form-urlencoded; charset=utf-8
+                    },
+                    processData: false,
+                    data: listQuery,
+                    success: function (result) {*/						
+                        if (result.total) {			
+                            var newArr = [];
+                            
+                            $.each(result.rows, async function(index, value){
+                                var newObj = value;           
+                                
+								var currentTime = moment();
+								var halfDayAgo = moment(currentTime, 'YYYY-MM-DD HH').add(-12, 'hours').format('YYYY-MM-DD HH'); 
+                                var oneDayAgo = moment(currentTime, 'YYYY-MM-DD HH').add(-1, 'days').format('YYYY-MM-DD HH'); 
+                                var threeDayAgo = moment(currentTime, 'YYYY-MM-DD HH').add(-3, 'days').format('YYYY-MM-DD HH');
+                                    
+                                const activityTime = value.DataUpdateTime;
+								
+								newObj.rag = 'grey'
+								
+								//1
+								const responseActiveSession = await fetch(`https://m2mdata.co/jt/GetActiveSession?imsi=${newObj.IMSI}`)
+								let resActiveSession = await responseActiveSession.json()
+																
+								if(resActiveSession.Data){
+									if(resActiveSession.Data.startDateField == null){
+										
+									newObj.rag = 'grey'
+									}else if(resActiveSession.Data.lastInterimDateField == null){
+									  newObj.rag = 'green'
+									}else{
+									  const simActivityTime = moment(resActiveSession.Data.lastInterimDateField, 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
+									  //console.log(simActivityTime, halfDayAgo, oneDayAgo)
+									  
+									
+									if(simActivityTime >= halfDayAgo){
+										newObj.rag = 'green'
+									  }else if(simActivityTime >= oneDayAgo && simActivityTime < halfDayAgo){
+										newObj.rag = 'yellow'
+									  }else {
+										newObj.rag = 'red'
+									  }
+									}
+								}else{
+								
+								const responseHlr = await fetch(`https://m2mdata.co/jt/GetGetHlrInfo?imsi=${newObj.IMSI}`)
+								let resHlr = await responseHlr.json()
+																
+								if(resHlr.Data){
+									console.log('yes 2', resHlr.Data)
+									if(resHlr.Data?.hlrInfoFieldsField == undefined){		
+										console.log('hmsssss')	
+										newObj.rag = 'grey'
+									}else{
+										
+										let chooseHlrDate = ''
+										if(resHlr.Data.hlrInfoFieldsField.find(el=>el.nameField == 'Packet Switched Up Time').valueField != '00000000000000'){
+											let hlrDate1 = resHlr.Data.hlrInfoFieldsField.find(el=>el.nameField == 'Packet Switched Up Time').valueField
+											chooseHlrDate = hlrDate1.slice(0,4) + '-' + hlrDate1.slice(4,6) + '-' + hlrDate1.slice(6,8) + ' ' + hlrDate1.slice(8,10) + ':' + hlrDate1.slice(10,12)
+										}else if(resHlr.Data.hlrInfoFieldsField.find(el=>el.nameField == 'Circuit Switch Up Time').valueField != '00000000000000'){
+										
+											let hlrDate1 = resHlr.Data.hlrInfoFieldsField.find(el=>el.nameField == 'Circuit Switch Up Time').valueField
+											chooseHlrDate = hlrDate1.slice(0,4) + '-' + hlrDate1.slice(4,6) + '-' + hlrDate1.slice(6,8) + ' ' + hlrDate1.slice(8,10) + ':' + hlrDate1.slice(10,12)
+											
+										}
+										
+										if(chooseHlrDate.length){
+											const simActivityTime = moment(chooseHlrDate, 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
+											console.log('hlr 3', simActivityTime, halfDayAgo)
+										
+											if(simActivityTime >= halfDayAgo){
+												newObj.rag = 'green'
+											}else if(simActivityTime >= oneDayAgo && simActivityTime < halfDayAgo){
+												newObj.rag = 'yellow'
+											}else {
+												newObj.rag = 'red'
+											}											
+										}
+									}
+								}else{
+									if(value.SMSMOUpdateTime == null && value.DataUpdateTime == null){
+										newObj.rag = 'grey'
+									}else if(value.DataUpdateTime == null){
+										newObj.rag = 'grey'
+									}else{
+									  const simActivityTime = moment(value.DataUpdateTime, 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
+									  //console.log(simActivityTime, halfDayAgo, oneDayAgo)
+									  if(simActivityTime >= halfDayAgo){
+										newObj.rag = 'green'
+									  }else if(simActivityTime >= oneDayAgo && simActivityTime < halfDayAgo){
+										newObj.rag = 'yellow'
+									  }else {
+										newObj.rag = 'red'
+									  }
+									}
+								}
+                                
+								/*if(typeof activityTime == 'undefined'){					
+                                        newObj.rag = 'rgb(204,204,204)';												
+                                }else{														
+                                    var simActivityTime = moment(activityTime, 'YYYY-MM-DD').format('YYYY-MM-DD');									
+                                    if(simActivityTime >= oneDayAgo){														
+                                        newObj.rag = 'rgb(57,181,74)';
+                                    }else if(simActivityTime >= threeDayAgo){														
+                                        newObj.rag = '#ff8c00';															
+                                    }else{								
+                                        newObj.rag = '#CD3333';	
+                                    }													
+                                }*/
+								
+								
+								
+								
+								/*
+								newObj.rag = 'grey'
+
+								if(value.State == 'Suspended'){
+								  newObj.rag = 'yellow'
+								}else if(value.SMSMOUpdateTime == null && value.DataUpdateTime == null){
+								  newObj.rag = 'grey'
+								  if(value.State == 'Productive' || value.State == 'TestProductive'){
+									newObj.rag = 'blue'
+								  }
+								}else if(value.DataUpdateTime == null){
+								  newObj.rag = 'grey'
+								  if(value.State == 'Productive' || value.State == 'TestProductive'){
+									newObj.rag = 'blue'
+								  }
+								}else{
+								  const simActivityTime = moment(value.DataUpdateTime, 'YYYY-MM-DD').format('YYYY-MM-DD')
+								  
+								  if(simActivityTime >= oneDayAgo){
+									newObj.rag = 'green'
+								  }else {
+									newObj.rag = 'yellow'
+								  }
+								}*/
+                                
+								
+								}
+								
+								newArr.push(newObj);
+
+                                if(index === (result.rows.length-1)){
+                                    if(result.indexPage == 1){
+                    
+                                        self.$app.infiniteScroll.create('.infinite-scroll-home-content');
+                                        // Loading flag
+
+                                        self.$setState({
+                                            maxItems: result.total,
+                                            lastItemIndex: $$('.simList li').length,										
+                                        });
+                                    }
+                                
+                                    // Reset loading flag
+                                    self.$setState({
+                                        allowInfinite: true
+                                    });
+                                    
+                                    self.setSimList(newArr);
+                                    
+                                    if (result.indexPage === result.total) {
+                                        self.$app.infiniteScroll.destroy('.infinite-scroll-home-content');
+                                        
+                                        // Remove preloader
+                                    if(!$('.infinite-scroll-home-preloader').hasClass('display-none')){
+                                        $('.infinite-scroll-home-preloader').addClass('display-none')
+                                    }
+                                        return;
+                                    }
+                                    
+                                    let incrList = self.lastItemIndex + 10;
+                                    
+                                    self.$setState({
+                                        lastItemIndex: incrList
+                                    });
+                                    
+                                    let incr = self.page + 1;
+                                    
+                                    self.$setState({
+                                        page: incr
+                                    });
+                                        
+                                    $('.searchbar-hide-on-search').addClass('display-none');
+                                                                    
+                                    if(self.page == 2){
+                                        $$('.infinite-scroll-home-content').on('infinite', self.getSimList);
+                                    }
+                                }
+                            });
+                        }else{
+							self.$app.dialog.alert('No SIM was found');
+							self.$app.infiniteScroll.destroy('.infinite-scroll-home-content');
+							self.$setState({
+								allowInfinite: true
+							});
+							
+							self.$app.infiniteScroll.destroy('.infinite-scroll-home-content');
+								
+							// Remove preloader
+							if(!$('.infinite-scroll-home-preloader').hasClass('display-none')){
+								$('.infinite-scroll-home-preloader').addClass('display-none')
+							}
+							return;  
+						}						
+                    }).fail(function(XMLHttpRequest, textStatus, errorThrown){
+                        console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
+                        self.$app.dialog.alert('Something wrong..');
+                        self.$app.infiniteScroll.destroy('.infinite-scroll-home-content');
+                        self.$setState({
+                            allowInfinite: true
+                        });
+                        
+                        self.$app.infiniteScroll.destroy('.infinite-scroll-home-content');
+                            
+                        // Remove preloader
+                        if(!$('.infinite-scroll-home-preloader').hasClass('display-none')){
+                            $('.infinite-scroll-home-preloader').addClass('display-none')
+                        }
+                        return;                    
+					});
+			},
+			setSimList: function (simList) {
+                let self = this;
+				// Generate new items HTML
+				var html = '';
+				$.each(simList, function(index, value){	
+					var simID = value.IMSI;
+					
+					var simState = 'noname';
+					if(value.IMSI!==undefined){
+						simState = value.State;
+					}
+					
+					var simOwner = 'noname';
+					if(value.OrganizeName!==undefined){
+						simOwner = value.OrganizeName;
+					}
+					
+					var simIMSI = '';
+					if(value.IMSI!==undefined){
+						simIMSI = value.IMSI;
+					}
+					
+					var simICCID = '';
+					if(value.ICCID!==undefined){
+						simICCID = value.ICCID;
+					}
+					
+					var simMSISDN = '';
+					if(value.MSISDN!==undefined){
+						simMSISDN = value.MSISDN;
+					}
+					var simRAG = value.rag;
+					var simCSP = value.ServiceProfileCode;
+					
+					html += '<li>';
+                    html += '<a href="#" data-id="'+simID+'" data-rag="'+simRAG+'" data-owner="'+simOwner+'" data-csp="'+simCSP+'" data-state="'+simState+'" data-imsi="'+simIMSI+'" data-iccid="'+simICCID+'" class="ac-5 item-link item-content">';
+                    html += '  <div class="item-inner">';
+                    html += '   <div class="item-title-row">';
+                    html += '   <div class="item-title color-custom">';
+                    html += '     <div class="display-flex">';
+                    html += '       <div class="prop-name">IMSI:</div>';							
+                    html += '             <div class="imsi-value">'+simIMSI+'</div>';
+                    html += '              </div>';
+                    html += '              </div>';
+                    html += '               <div class="item-after color-custom"><i class="f7-icons icon-other-menu3 color-m2m-blue" style="font-size:20px;margin-top:5px;"></i></div>';
+                    html += '               </div>';
+                    html += '                 <div class="item-text">';
+					
+					html += '                         <div class="display-flex">';
+					html += '                                <div class="prop-name">ICCID:</div>';
+                    html += '                           <div class="iccid-value">'+simICCID+'</div>';
+                    html += '                    </div>';
+					html += '                         <div class="display-flex">';
+					html += '                                <div class="prop-name">MSISDN:</div>';
+                    html += '                           <div class="iccid-value">'+simMSISDN+'</div>';
+                    html += '                    </div>';
+					html += '                         <div class="display-flex">';
+					html += '                                <div class="prop-name">State:</div>';
+                    html += '                           <div class="iccid-value">'+simState+'</div>';
+                    html += '                    </div>';
+                    html += '               <div class="display-flex">';
+                    html += '              			<div class="prop-name">Owner:</div>';
+                    html += '                         <div class="uppercase">'+simOwner+'</div>';
+                    html += '                         </div>';
+                    html += '                   <div class="display-flex">';
+                    html += '                      <div class="prop-name">State:</div>';
+					html += '						<div style="font-size: 14px;" class="color-status-'+simRAG+'">&#11044;</div>';//#CD3333
+                    html += '          			</div>';
+                    html += '            </div>';
+                    html += '             </div>';
+					html += '               </a>';
+					html += '               </li>';
+				});
+								
+				// Append new items
+				$$('.simList ul').append(html);		
+			},	
+            FilterSimList: function (e) {
+                let self = this;
+                let filterType = $$(e.target).closest('.tab-link').data('type');				
+				self.submitSearchForm(filterType);
+            },
+			openBarCodeReader: function(input) {
+				let self = this;
+                
+				if (window.device && cordova.plugins && cordova.plugins.barcodeScanner) {
+					cordova.plugins.barcodeScanner.scan(
+						function(result) {
+							/*self.$app.dialog.alert("We got a barcode\n" +
+								  "Result: " + result.text + "\n" +
+								  "Format: " + result.format + "\n" +
+								  "Cancelled: " + result.cancelled);*/
+							if (result && result.text) {
+								input.val(result.text);
+								if(input.attr('name') == 'searchInput') {
+									self.submitSearchForm(self.type);
+								}
+								input.change(); // fix to trigger onchange / oninput event listener
+							}
+
+						},
+						function(error) {
+							self.$app.dialog.alert("Scanning failed: " + error);
+						}, {
+							//preferFrontCamera : true, // iOS and Android
+							showFlipCameraButton: true, // iOS and Android
+							showTorchButton: true, // iOS and Android
+							torchOn: true, // Android, launch with the torch switched on (if available)
+							//saveHistory: true, // Android, save scan history (default false)
+							prompt: "Place a barcode inside the scan area", // Android
+							resultDisplayDuration: 0, // Android, display scanned text for X ms. 0 suppresses it entirely, default 1500
+							//formats : "QR_CODE,PDF_417", // default: all but PDF_417 and RSS_EXPANDED
+							//orientation : "landscape", // Android only (portrait|landscape), default unset so it rotates with the device
+							//disableAnimations : true, // iOS
+							//disableSuccessBeep: false // iOS and Android
+						}
+					);
+				} else {
+					self.$app.dialog.alert('Your device does not support this function');
+				}
+			},
+			initHome: function(){
+				var self = this;
+				if(self.$app.data.imsi != 'undefined'){
+					$$('.formSearchSim input[name="searchInput"').val(self.$app.data.imsi)
+					self.$setState({
+						text: self.$app.data.imsi
+					})
+				}
+				
+				self.submitSearchForm(self.type);
+				$$('body').on('submit', '.formSearchSim', function(e) {
+					e.preventDefault();
+					self.submitSearchForm(self.type);
+					return false;
+				});
+				$$('body').on('click', '.searchSim', function() {
+					self.submitSearchForm(self.type);
+				});		
+								
+				$$('body').on('click', '.simList .item-inner', function() {
+					var parrent = $$(this).closest('.item-content');
+					var imsi = parrent.attr('data-imsi');
+					var iccid = parrent.attr('data-iccid');
+					var owner = parrent.attr('data-owner');
+					var rag = parrent.attr('data-rag');
+					var csp = parrent.attr('data-csp');
+					var state = parrent.attr('data-state');
+					
+					/*let userInfo = self.$app.methods.getFromStorage('userInfo');
+					let accessToken = userInfo.accessToken;
+					
+					$.ajax({
+                        type: "GET",		        
+                        url: 'https://m2mdata03.sinopacific.com.ua/api/v3/sims/' + imsi + '?simIdentifier=IMSI',
+                        dataType: "json",	
+                        async: true,
+                        headers: { 
+                            Authorization: "Bearer " + accessToken,
+                        },
+                        success: function (result1) {
+                            if(result1){
+                            var id = result1._id;*/
+                            
+                            var notificationsCheck = '';
+                            if (parrent.data('notifications') == 1) {
+                                notificationsCheck = 'checked="checked"';
+                            }
+
+
+                            var commands = '<div class="action_button_wrapper">' +
+                                '<div class="action_button_block action_button_media">' +
+                                '<i class="f7-icons icon-other-commands commands-icon color-m2m-blue"></i>' +
+                                '</div>' +
+                                '<div class="action_button_block action_button_text color-m2m-grey">' +
+                                'Commands' +
+                                '</div>' +
+                                '</div>';
+
+                            var commandsHistory = '<div class="action_button_wrapper">' +
+                                '<div class="action_button_block action_button_media">' +
+                                '<i class="material-icons md-36 color-m2m-blue">watch_later</i>' +
+                                '</div>' +
+                                '<div class="action_button_block action_button_text color-m2m-grey">' +
+                                'Commands History' +
+                                '</div>' +
+                                '</div>';
+
+
+                            var SIMStatus = '<div class="action_button_wrapper">' +
+                                '<div class="action_button_block action_button_media">' +
+                                '<i class="material-icons md-36 color-m2m-blue">info</i>' +
+                                '</div>' +
+                                '<div class="action_button_block action_button_text color-m2m-grey">' +
+                                'SIM Status' +
+                                '</div>' +
+                                '</div>';
+
+                            var SIMReport = '<div class="action_button_wrapper">' +
+                                '<div class="action_button_block action_button_media">' +
+                                '<i class="material-icons md-36 color-m2m-blue">assessment</i>' +
+                                '</div>' +
+                                '<div class="action_button_block action_button_text color-m2m-grey">' +
+                                'Data Usage ' +
+                                '</div>' +
+                                '</div>';
+                            
+								
+                            var SIMHlr = '<div class="action_button_wrapper">' +
+                                '<div class="action_button_block action_button_media">' +
+                                '<i class="material-icons md-36 color-m2m-blue">sim_card</i>' +
+                                '</div>' +
+                                '<div class="action_button_block action_button_text color-m2m-grey">' +
+                                'HLR Info ' +
+                                '</div>' +
+                                '</div>';
+                                
+                            var SIMCells = '<div class="action_button_wrapper">' +
+                                '<div class="action_button_block action_button_media">' +
+                                '<i class="material-icons md-36 color-m2m-blue">settings_input_antenna</i>' +
+                                '</div>' +
+                                '<div class="action_button_block action_button_text color-m2m-grey">' +
+                                'SIM Cells ' +
+                                '</div>' +
+                                '</div>';
+								
+								    
+                            var SIMSessions = '<div class="action_button_wrapper">' +
+                                '<div class="action_button_block action_button_media">' +
+                                '<i class="material-icons md-36 color-m2m-blue">swap_vert</i>' +
+                                '</div>' +
+                                '<div class="action_button_block action_button_text color-m2m-grey">' +
+                                'Current Session ' +
+                                '</div>' +
+                                '</div>';
+                                
+
+                            var buttons = [{
+                                    text: 'IMSI: '+ imsi,
+                                    label: true,
+                                    color: 'blue',
+                                },
+                                {
+                                    text: commands,
+                                    onClick: function() {
+                                        self.$app.actions.close();
+                                        self.$app.sheet.close();
+                                        mainView.router.navigate('/commands-list/?imsi='+imsi.toString());
+                                    },
+                                },
+                                {
+                                    text: commandsHistory,
+                                    onClick: function() {
+                                        self.$app.actions.close();
+                                        self.$app.sheet.close();
+                                        mainView.router.navigate('/commands-history/?imsi='+imsi.toString());;
+                                    },
+                                },
+                                {
+                                    text: SIMStatus,
+                                    onClick: function() {
+                                        self.$app.actions.close();
+                                        self.$app.sheet.close();
+                                        mainView.router.navigate('/sim-status/?imsi='+imsi.toString()+'&iccid='+iccid.toString()+'&rag='+rag+'&owner='+encodeURIComponent(owner.toString())+'&csp='+encodeURIComponent(csp.toString())+'&state='+encodeURIComponent(state.toString()));
+                                    },
+                                },
+                                {
+                                    text: SIMReport,
+                                    onClick: function() {
+                                        self.$app.actions.close();
+                                        self.$app.sheet.close();
+                                        mainView.router.navigate('/report/?imsi='+imsi.toString()+'&iccid='+iccid.toString());
+                                    },
+                                },
+                                {
+                                    text: SIMHlr,
+                                    onClick: function() {
+                                        self.$app.actions.close();
+                                        self.$app.sheet.close();
+                                        mainView.router.navigate('/hlr/?imsi='+imsi.toString()+'&iccid='+iccid.toString());
+                                    },
+                                },
+                                {
+                                    text: SIMSessions,
+                                    onClick: function() {
+                                        self.$app.actions.close();
+                                        self.$app.sheet.close();
+                                        mainView.router.navigate('/sessions/?imsi='+imsi.toString()+'&iccid='+iccid.toString());
+                                    },
+                                },
+                                {
+                                    text: SIMCells,
+                                    onClick: function() {
+                                        self.$app.actions.close();
+                                        self.$app.sheet.close();
+                                        mainView.router.navigate('/cells/?imsi='+imsi.toString()+'&iccid='+iccid.toString());
+                                    },
+                                },
+                            ];
+
+                            self.$app.actions.create({buttons}).open();
+
+                           /*}
+                        }
+                    })	*/
+				});
+				
+				$$('body').on('click', '.scanBarCode', function() {
+					var input = $$('.formSearchSim input[name="searchInput"');
+
+					let permissions = cordova.plugins.permissions;
+					if (!permissions) {
+						self.$app.dialog.alert('plugin not supported')
+					} else {
+						permissions.hasPermission(permissions.CAMERA, function(status) {
+							if (status.hasPermission) {
+								self.openBarCodeReader(input);
+							} else {
+								permissions.requestPermission(permissions.CAMERA, success, error);
+
+								function error() {
+									self.$app.dialog.alert('Camera permission is not turned on');
+								}
+
+								function success(status1) {
+									self.openBarCodeReader(input);
+									if (!status1.hasPermission) error();
+								}
+							}
+						});
+					}
+				});
+			}
+        },
+        on: {
+            pageInit: function (e, page) {
+                let self = this;				
+				
+				
+				myEvents.on('home', self.initHome);
+						
+				let userInfo = self.$app.methods.getFromStorage('userInfo');
+				//let isToken1 = userInfo.accessToken;
+				let isToken2 = userInfo.accessNewToken;
+				
+				if(!isToken2){
+					self.$app.methods.logout();
+				}else{
+					self.initHome();
+				}
+				
+				
+				// Pull to refresh content
+				var $ptrContent = $$('.ptr-content');
+				// Add 'refresh' listener on it
+				$ptrContent.on('ptr:refresh', function (e) {
+				
+				self.$app.actions.close();
+				self.$app.sheet.close();
+				
+					self.submitSearchForm(self.type);
+				  // Emulate 2s loading
+				  setTimeout(function () { // Prepend new list element
+						
+					//$ptrContent.find('ul').prepend(itemHTML);
+					// When loading done, we need to reset it
+					self.$app.ptr.done(); // or e.detail();
+				  }, 2000);
+				});
+				
+				
+            },
+        }
+    };
+</script>

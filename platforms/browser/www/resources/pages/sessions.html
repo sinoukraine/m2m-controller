@@ -11,13 +11,23 @@
                     </a>
                 </div>
                 <div class="title sliding">
-                    Current Session
+                    Session
                 </div>
+            </div>
+        </div>
+        <div class="toolbar tabbar toolbar-top">
+            <div class="toolbar-inner">
+                <a  href="#tab-1" class="tab-link tab-link-active">Current</a>
+                <a  href="#tab-2" class="tab-link" >Data</a>
             </div>
         </div>
 		
 		<div class="page-content ">
-			<div class="inner-content">
+			 <div class="tabs">
+                <div class="tab tab-1 tab-active list" id="tab-1">
+				
+				
+				<div class="inner-content">
 				<div key="KeyCOverview" class="col-50 tablet-20 pl-20 ">
 					{{#if sessionFieldName1}}
 						<div class="list no-margin" style="width:100%;">
@@ -79,6 +89,73 @@
 					{{/if}}  					  
 				</div>
 			</div>
+			
+			</div>
+                <div id="tab-2" class="tab tab-2 list">
+				
+				
+				
+				
+				
+				<div key="KeyCOverview" class="col-50 tablet-20  ">
+				<div class="card dashboard-card-type1 elevation-6 elevation-hover-9 elevation-transition overflow-scroll-hor  mt-5">
+					
+					<div class="card-header bg-color-darkgray overflow-hidden no-padding text-color-black">
+						<div class="progressbar-container"></div>
+						<!-- {{@global.LANGUAGE.DASHBOARD_PANEL_MSG43 }} -->						
+						<div class="list no-hairlines no-hairlines-between" style="width:100%;" >
+							<ul>
+								<li class="display-flex">
+									
+											<div class="item-media">	
+												<label for="date-to" class=" px-3" style="padding-left: 23px;">Session Data</label>
+												<!--<input type="text" placeholder="Date" class="pl-3" disabled id = "date-to" value="{{DateTo}}">-->
+											</div>
+											
+								</li> 
+							</ul>
+						</div>     
+					</div>
+					
+					
+					
+					{{#if DashboardDataLoadedEndUserOverview}}
+							
+						{{else}}
+						<div key="KeyChartGOverviewLoader" class="absolute-center" style="padding: 10px 0;">
+							<div class="preloader color-blue"></div>
+						</div>
+						{{/if}}   
+						<table id="table-dashboard-sim" class="mdl-data-table " style="width:100%">
+							<thead>
+								<tr>
+									<th> Start Date</th>	
+									<th> End Date </th> 	
+									<th> Total </th>			
+									<th> Operator </th>						
+								</tr>
+							</thead>
+							<tbody> 						
+								{{#DashboardDataTable}}
+									<tr data-item-index="{{@index}}" >
+										<td>{{start}}</td>	
+										<td>{{end}}</td>	
+										<td>{{total}}</td>	
+										<td>{{operator}}</td>									
+									</tr>
+								{{/DashboardDataTable}} 
+																
+							</tbody>
+						</table>
+					</div>                                                                                                
+			</div>
+				
+				
+				
+				
+				
+				
+				</div>
 			<!--
 		
 		<div key="KeyCOverview" class="col-50 tablet-20  ">
@@ -163,7 +240,8 @@
 				sessionFieldName6: 'IMEI',
 				sessionFieldValue6: '',
 				sessionFieldName7: 'Close status',
-				sessionFieldValue7: '',
+				sessionFieldValue7: '',				
+				month_names_short: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
 			};            
             
             if (self.$route.query.id) {
@@ -175,6 +253,7 @@
             }  			
 			
 			ret.DashboardDataTableEl = false; 
+			ret.DashboardNoData = false;
 			ret.DashboardDataTable = [];
 			//ret.DashboardDataTable = self.$app.methods.getDashboardDataTableArray();    
             ret.Charts = {
@@ -186,7 +265,293 @@
             return ret;
         },
 		methods: {
-			initSessions: async function(){
+			
+			initSessions: function(changed = false){
+			
+				var self = this;			
+				
+				
+						
+								var listQuery_1 = {
+									imsi: self.IMSI
+								}
+								
+								var settings_1 = {
+								  "url": "https://test4.m2mdata.co/JT/Sim/GETSESSIONS",
+								  "method": "POST",
+								  "timeout": 0,
+								  "headers": {
+									"token": "00000000-0000-0000-0000-000000000000",
+									"Content-Type": "application/x-www-form-urlencoded"
+								  },
+								  "data": listQuery_1
+								};
+								
+					   
+								$.ajax(settings_1).done(  function (response) {
+								
+									
+										console.log('datases ',response)
+						if(response.Data.length){
+						
+									const jsonDataArr = []
+						
+						let dataArr = response.Data.split('\r\n')
+						console.log('json',dataArr);
+						
+									const totalDataUsage = 0
+									const totalSMSUsage = 0
+
+									const arrTable = []
+									dataArr.pop()
+									
+									dataArr.forEach((element, index) => {
+										let dataJson = element.split(',')
+										let startDate = moment.utc(dataJson[4]).toDate()
+										let endDate = moment.utc(dataJson[5]).toDate()
+										
+										
+										let jsonDataObj = {
+											start: startDate.getDate() + ' ' + self.month_names_short[startDate.getMonth()] + ' ' + startDate.getFullYear() + ' ' + ('0' + startDate.getHours()).slice(-2) + ':' + ('0' + startDate.getMinutes()).slice(-2) + ':' + ('0' + startDate.getSeconds()).slice(-2),
+											end: endDate.getDate() + ' ' + self.month_names_short[endDate.getMonth()] + ' ' + endDate.getFullYear() + ' ' + ('0' + endDate.getHours()).slice(-2) + ':' + ('0' + endDate.getMinutes()).slice(-2) + ':' + ('0' + endDate.getSeconds()).slice(-2),
+											total: dataJson[3],
+											operator: dataJson[1]+dataJson[2]
+										}
+										jsonDataArr.push(jsonDataObj)
+									})
+									
+									
+									
+									let sortedArr = jsonDataArr.sort(function(a,b){
+										var c = new Date(a.start)
+										var d = new Date(b.start)
+										return d-c
+									  })
+									//sortedArr.reverse()
+									
+									sortedArr.forEach((element, index) => {
+									  /*const tableDataUsageTotal = (+element.totalDataUsage / 1000000)
+									  const tableSMSUsageTotal = element.totalSmsUsage == 'undefined' ? 0 : (+element.totalSmsUsage)
+									  const tableFlowUsageTotal = element.totalFlowUsage == 'undefined' ? 0 : (+element.totalFlowUsage)*/
+									  arrTable.push({
+										start: element.start,
+										end: element.end,
+										total: element.total,
+										operator: element.operator
+									  })
+									})
+									
+									
+									self.$setState({
+											DashboardDataTable: arrTable
+										}, ()=>{		
+											
+											if(changed && self.DashboardDataTableEl){					
+											
+												console.log(changed)
+												self.DashboardDataTableEl.destroy();
+												self.DashboardDataTableEl = false;
+									
+											}
+											self.DashboardDataTableEl = $('body').find('#table-dashboard-sim').DataTable({                    
+												columnDefs: [
+													{ // remove orederable arrows from column with pin
+														targets: [ 0 ], 
+														orderable: true,  
+													},
+													{ // hide group codes, which will be used for filtering
+														targets: [ 1 ],
+														visible: true
+													},
+													{ // hide group codes, which will be used for filtering
+														targets: [ 2 ],
+														visible: true
+													},
+													{ // hide group codes, which will be used for filtering
+														targets: [ 3 ],
+														visible: true
+													},
+													{ // hide group codes, which will be used for filtering
+														targets: [ 4 ],
+														visible: true
+													},
+													{ // hide group codes, which will be used for filtering
+														targets: [ 5 ],
+														visible: true
+													},
+													{ // hide group codes, which will be used for filtering
+														targets: [ 6 ],
+														visible: true
+													},
+													{ // hide group codes, which will be used for filtering
+														targets: [ 7 ],
+														visible: true
+													}
+												],
+												"order": [[ 0, "desc" ]],
+												lengthMenu: [5, 10, 25],
+												pageLength: 5   
+											});
+										
+										});
+										
+										self.$app.utils.nextFrame(()=>{
+												//let wasDataAlreadyLoaded = self.DashboardDataLoadedEndUserOverview;
+												self.$setState({
+													DashboardDataLoadedEndUserOverview: true,
+													//EndUser:{Overview: result}
+												});
+											});
+								
+								}else{
+									
+										self.$app.utils.nextFrame(()=>{
+												//let wasDataAlreadyLoaded = self.DashboardDataLoadedEndUserOverview;
+												self.$setState({
+													DashboardDataLoadedEndUserOverview: true
+												});
+											});
+									
+									
+								}
+								})
+				
+				/*let days = 0;
+				
+				const today = new Date()
+				  switch (this.topPeriod){
+					case 'lastday':
+						days = 1
+						break
+					case 'week':
+						days = 7
+						break
+				  }
+				
+				
+			  const current = moment()          
+
+			  const query = {
+				page: 1,
+				limit: 10,
+				date1: this.topPeriod === 'thismonth'?current.clone().startOf('month').format('YYYY-MM-DD'):moment(today, 'YYYY-MM-DD').add(-days, 'days').format('YYYY-MM-DD'),
+				date2: moment(today, 'YYYY-MM-DD').format('YYYY-MM-DD'),
+				sms: this.tableData === 'smsusage'?'sms':undefined
+			  }
+				
+				let addCustomer = '', addLimit = '', kind = 'data'
+				 if (query.sms !== undefined ) {
+					kind = 'sms'
+				  }
+				  if (query.limit !== undefined) {
+					addLimit = '&limit=' + query.limit
+				  }
+									
+				let userInfo = self.$app.methods.getFromStorage('userInfo');
+				let accessToken = userInfo.accessToken;		
+			
+				$.ajax({
+					type: "GET",	        
+					url: 'https://m2mdata03.sinopacific.com.ua/api/v3/cdrs?kindOfUsage=' + kind + '&startDate=' + query.date1 + 'T00:00:00.000Z&endDate=' + query.date2 + 'T00:00:00.000Z' + addLimit,
+					dataType: "json",	
+					async: true,
+					headers: { 
+						Authorization: "Bearer " + accessToken,
+					},
+					//cache: false,
+					success: function (response) {
+						
+						
+						const totalDataUsage = 0
+						const totalSMSUsage = 0
+
+						const arrTable = []
+
+						response.forEach((element, index) => {
+						  const tableDataUsageTotal = (+element.totalDataUsage / 1000000)
+						  const tableSMSUsageTotal = element.totalSmsUsage == 'undefined' ? 0 : (+element.totalSmsUsage)
+						  const tableFlowUsageTotal = element.totalFlowUsage == 'undefined' ? 0 : (+element.totalFlowUsage)
+						  arrTable.push({
+							num: index + 1,
+							imsi: element.imsi + ' ',
+							customer: element.customer,
+							total: tableDataUsageTotal,
+							flow: tableFlowUsageTotal,
+							sms: tableSMSUsageTotal,
+							days: element.days,
+							lastUpdate: element.lastUpdate.slice(0, 10)
+						  })
+						})
+						
+						
+						self.$setState({
+								DashboardDataTable: arrTable
+							}, ()=>{		
+								
+								if(changed && self.DashboardDataTableEl){					
+								
+									console.log(changed)
+									self.DashboardDataTableEl.destroy();
+									self.DashboardDataTableEl = false;
+						
+								}
+								self.DashboardDataTableEl = $('body').find('#table-dashboard-sim').DataTable({                    
+									columnDefs: [
+										{ // remove orederable arrows from column with pin
+											targets: [ 0 ], 
+											orderable: true,  
+										},
+										{ // hide group codes, which will be used for filtering
+											targets: [ 1 ],
+											visible: true
+										},
+										{ // hide group codes, which will be used for filtering
+											targets: [ 2 ],
+											visible: true
+										},
+										{ // hide group codes, which will be used for filtering
+											targets: [ 3 ],
+											visible: true
+										},
+										{ // hide group codes, which will be used for filtering
+											targets: [ 4 ],
+											visible: true
+										},
+										{ // hide group codes, which will be used for filtering
+											targets: [ 5 ],
+											visible: true
+										},
+										{ // hide group codes, which will be used for filtering
+											targets: [ 6 ],
+											visible: true
+										},
+										{ // hide group codes, which will be used for filtering
+											targets: [ 7 ],
+											visible: true
+										}
+									],
+									"order": [[ 0, "desc" ]],
+									lengthMenu: [5, 10, 25],
+									pageLength: 5   
+								});
+							
+							});
+							
+							self.$app.utils.nextFrame(()=>{
+									//let wasDataAlreadyLoaded = self.DashboardDataLoadedEndUserOverview;
+									self.$setState({
+										DashboardDataLoadedEndUserOverview: true,
+										//EndUser:{Overview: result}
+									});
+								});
+					},
+					error: function(XMLHttpRequest, textStatus, errorThrown){
+						console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
+					}
+				});*/
+	
+			},
+			initCurrentSession: async function(){
 				var self = this;			
 				
 				const token = "00000000-0000-0000-0000-000000000000"
@@ -197,17 +562,19 @@
 				const responseActiveSession = await fetch(`https://m2mdata.co/jt/GetActiveSession?imsi=${self.IMSI}`)
 				let resActiveSession = await responseActiveSession.json()
 				
-				console.log('333',resActiveSession)
 				if(resActiveSession.Data){
 				
+					let startDate = moment.utc(resActiveSession.Data.startDateField).toDate()
+					let utcStartDate = startDate.getDate() + ' ' + self.month_names_short[startDate.getMonth()] + ' ' + startDate.getFullYear() + ' ' + ('0' + startDate.getHours()).slice(-2) + ':' + ('0' + startDate.getMinutes()).slice(-2) + ':' + ('0' + startDate.getSeconds()).slice(-2)
+					
+					let endDate = moment.utc(resActiveSession.Data.lastInterimDateField).toDate()
+					let utcEndDate = endDate.getDate() + ' ' + self.month_names_short[endDate.getMonth()] + ' ' + endDate.getFullYear() + ' ' + ('0' + endDate.getHours()).slice(-2) + ':' + ('0' + endDate.getMinutes()).slice(-2) + ':' + ('0' + endDate.getSeconds()).slice(-2)
+										
 				self.$setState({
-					sessionFieldValue: resActiveSession.Data.startDateField.replace("T", " ").replace("Z", "")						
+					sessionFieldValue: utcStartDate						
 				});
 				self.$setState({
-					sessionFieldValue1: resActiveSession.Data.lastInterimDateField.replace("T", " ").replace("Z", "")
-				});
-				self.$setState({
-					sessionFieldValue2: resActiveSession.Data.lastInterimDateField.replace("T", " ").replace("Z", "")								
+					sessionFieldValue2: utcEndDate
 				});
 				self.$setState({
 					sessionFieldValue3: resActiveSession.Data.totalBytesField							
@@ -267,6 +634,7 @@
 				var thisPage = page.$el.find('.page-content'); 					
 				
 				self.initSessions();
+				self.initCurrentSession();
 				
 				
 				

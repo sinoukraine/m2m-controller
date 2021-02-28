@@ -29,6 +29,7 @@
 						<div class="text-content">{{SIMName}}</div>
 						<div class="text-content">IMSI: {{IMSI}}</div>
 						<div class="text-content">ICCID: {{ICCID}}</div>
+						<div class="text-content">MSISDN: {{msisdn}}</div>
 						<div class="text-content">Owner: {{owner}}</div>
 					</div>
 					<img class="sim-icon" src="./resources/images/sim.svg" alt="main">
@@ -46,7 +47,7 @@
 						</div>                
 						<div class="col-33">
 							<img src="resources/images/date.svg" alt="">
-							<p>{{dateInfo}}</p>
+							<p>{{lastUpdateTime}}</p>
 							
 						</div> 
 						<div class="col-33">
@@ -64,7 +65,7 @@
 						<li class="state-block display-none">
 						  <a class="item-link smart-select smart-select-0 smart-select-init ">
 							<select name="sim-state">
-							<option value="Current" id="state-3" selected>Select Action</option>
+							<option value="Current" id="state-3" selected>Select action</option>
 							
 							
 							
@@ -122,7 +123,8 @@
 						</li>
 						<li class="state-block display-none">
 						  <a class="item-link smart-select smart-select-1 smart-select-init ">
-							<select name="sim-csp" class="list  ">							  
+							<select name="sim-csp" class="list  ">						  
+							  <option value="null" id="state---0">Select CSP</option>			  
 							  <option value="M2M Data" id="state--0">M2M Data</option>
 							  <option value="M2M Data Normal CSP Z1 &2" id="state--1">M2M Data Normal CSP Z1 &2</option>
 							  <option value="M2M Data High CSP Z1-3" id="state--2">M2M Data High CSP Z1-3</option>
@@ -188,15 +190,17 @@
             var self = this;
             var ret = {
 				loading: true,
+				currentAction: 'Current',
 				sessionActivity: self.$route.query.state,
 				sessionActivityColor: 'color-status-'+self.$route.query.rag,
 				sessionActivityBg: 'bg-status-'+self.$route.query.rag,
-				lastUpdateTime: '',
+				lastUpdateTime: self.$route.query.update!=''?self.$route.query.update:0,
 				onstockTitle: 'OnStock',
 				productiveTitle: 'Productive',
 				suspendedTitle: 'Suspended',
 				terminatedTitle: 'Deleted',
 				modifiedTitle: 'Modified',
+				msisdn: '',
 				obj: {},
 				Description: '',
 				lat: '0',
@@ -218,6 +222,9 @@
             
 			if (self.$route.query.iccid) {
 				ret.ICCID = self.$route.query.iccid;
+            }  
+			if (self.$route.query.msisdn) {
+				ret.msisdn = self.$route.query.msisdn;
             }  					
             
 			if (self.$route.query.owner) {
@@ -243,7 +250,7 @@
 				}
 				
 				var settings = {
-				  "url": "https://test.m2mdata.co/JT/Sim/Reboot",
+				  "url": "https://test4.m2mdata.co/JT/Sim/Reboot",
 				  "method": "POST",
 				  "timeout": 0,
 				  "headers": {
@@ -257,9 +264,9 @@
 					self.resetOK.open();
 				})
 			},	
-			getSim: async function (payload) {			
+			getSim: function (payload) {			
 				var self = this;
-				
+				console.log('call before')
 				
 				self.$app.actions.close();
 				self.$app.sheet.close();
@@ -276,7 +283,7 @@
 				}
 				
 				var settings = {
-				  "url": "https://test.m2mdata.co/JT/Sim/Query",
+				  "url": "https://test4.m2mdata.co/JT/Sim/Query",
 				  "method": "POST",
 				  "timeout": 0,
 				  "headers": {
@@ -290,14 +297,22 @@
 				var halfDayAgo = moment(currentTime, 'YYYY-MM-DD HH').add(-12, 'hours').format('YYYY-MM-DD HH'); 
                   var oneDayAgo = moment(currentTime, 'YYYY-MM-DD HH').add(-1, 'days').format('YYYY-MM-DD HH'); 
                                 var threeDayAgo = moment(currentTime, 'YYYY-MM-DD HH').add(-3, 'days').format('YYYY-MM-DD HH');
-                                
+                       
+					   
 								$.ajax(settings).done(function (result) {
-					let objProfile = result.rows[0]
+				console.log('call after')
+								
+								self.$app.preloader.hide();
+					
 				
+				
+					let objProfile = result.rows[0]
+					
 				self.$setState({
 					state: objProfile.State
 				});	
-								
+							console.log('obj3',self.state)
+							
 				self.updateStates(objProfile.State)
 				
 				self.$setState({
@@ -306,11 +321,16 @@
 				
 				self.updateCSPs(objProfile.ServiceProfileCode)
 				
-				
+				self.$setState({
+					sessionActivity: objProfile.State
+				});	
+				/*self.$setState({
+					msisdn: objProfile.MSISDN
+				});	*/
 								
-					self.sessionActivity = objProfile.State
-					self.state = objProfile.State
-					self.csp = objProfile.ServiceProfileCode
+					//self.state = objProfile.State
+					//self.csp = objProfile.ServiceProfileCode
+					//self.msisdn = objProfile.MSISDN
 					
 					console.log('objProfile',objProfile)
 					/*if(objProfile.State == 'Suspended'){
@@ -322,7 +342,7 @@
 					  if(objProfile.State == 'Productive' || objProfile.State == 'TestProductive'){
 						/*self.sessionActivityBg = 'bg-status-blue'
 						self.sessionActivityColor = 'color-status-blue'*/
-						self.sessionActivity = objProfile.State + ', but no current data session'
+						//self.sessionActivity = objProfile.State + ', but no current data session'
 					  }
 					}else if(objProfile.DataUpdateTime == null){
 					  //~~~self.sessionActivityBg = 'bg-status-grey'
@@ -330,14 +350,15 @@
 					  if(objProfile.State == 'Productive' || objProfile.State == 'TestProductive'){
 						/*self.sessionActivityBg = 'bg-status-blue'
 					self.sessionActivityColor = 'color-status-blue'*/
-						self.sessionActivity = objProfile.State + ', but no current data session'
+						//self.sessionActivity = objProfile.State + ', but no current data session'
 					  }
 					}else{
 					 // const simActivityTime = moment(objProfile.DataUpdateTime, 'YYYY-MM-DD').format('YYYY-MM-DD')
 					  
+					  //self.dateInfo = objProfile.DataUpdateTime
 					  
 					  const simActivityTime = moment(objProfile.DataUpdateTime, 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
-						self.lastUpdateTime = objProfile.DataUpdateTime.replace("T", " ").replace("Z", "")
+						//self.lastUpdateTime = objProfile.DataUpdateTime.replace("T", " ").replace("Z", "")
 					  
 					  if(simActivityTime >= halfDayAgo){
 									//~~~self.sessionActivityBg = 'bg-status-green'
@@ -358,7 +379,19 @@
 					self.sessionActivityColor = 'color-status-yellow'
 					  }*/
 					}
-				});
+					
+					if(objProfile.State == 'Productive' || objProfile.State == 'TestProductive')
+					{
+					
+					let newState = objProfile.State + (self.lastUpdateTime?'':', but no current data session')
+					self.$setState({
+						sessionActivity: newState
+					});	
+
+				
+					}
+					
+				}).fail(e=>self.$app.preloader.hide());
 				
 				/*const token = "00000000-0000-0000-0000-000000000000"
 				const oneDayAgo = moment(curday, 'YYYY-MM-DD').add(-1, 'days').format('YYYY-MM-DD')
@@ -422,7 +455,7 @@
 				}
 				
 				var settingsLBS = {
-				  "url": "https://test.m2mdata.co/JT/Sim/QueryLBSInfo",
+				  "url": "https://test4.m2mdata.co/JT/Sim/QueryLBSInfo",
 				  "method": "POST",
 				  "timeout": 0,
 				  "headers": {
@@ -446,7 +479,9 @@
 									lng
 								});		
 								
-								$('.location-div').removeClass('display-none');
+								if(self.state == 'Productive' && lng > 0 && lat > 0){
+									$('.location-div').removeClass('display-none');
+								}
 					})
 				
 					
@@ -455,7 +490,32 @@
 			initSimInfo: function () {
                 let self = this;
 									
-									
+							
+				const DEMO_OWERVIEW = 'https://api.m2mglobaltech.com/QuikData/V1/SMS/Overview'
+				const login = 'root'
+				const requestOptions = {
+					method: 'GET',
+					redirect: 'follow',        
+				}
+				
+				fetch(DEMO_OWERVIEW + '?login=root&imsi=' + self.IMSI, requestOptions)
+				.then(response => 
+				  response.json()
+				)
+				.then(result => {
+				  const response = JSON.parse(result);
+					self.$setState({
+								dataInfo: response.Table3.length ? (response.Table3[0].JTOV_DATA_MONTH/1048576).toFixed(0) : 0,
+								messagesInfo: response.Table3.length ? response.Table3[0].JTOV_SMS_MO_MONTH : 0,
+								//totalDuration: response.Table3.length ? response.Table3[0].JTOV_DATA_NUMS_YEAR : 0,//(3600*response.Table3[0].JTOV_DATA_YEAR)/(response.Table3[0].JTOV_DURATION_YEAR*1024),
+								//totalDataSessions: response.Table3.length ? response.Table3[0].JTOV_SESSION_YEAR : 0,
+								
+							});
+				}
+				  
+				).catch(error => {}
+				  //self.$app.dialog.alert('Incorrect IMSI number.')
+				)
 								
 			
 					
@@ -541,7 +601,7 @@
 				
 				
 				var settings = {
-				  "url": "https://test.m2mdata.co/JT/Sim/SetSimServiceProfile",
+				  "url": "https://test4.m2mdata.co/JT/Sim/SetSimServiceProfile",
 				  "method": "POST",
 				  "timeout": 0,
 				  "headers": {
@@ -554,10 +614,17 @@
 		
 				$.ajax(settings).done(function (result) {
 		
-							console.log('ok',result);
-							self.notificationFull1.open();
-							
-						})
+							if(result.MajorCode == '000'){
+										//setTimeout(self.notificationFull1.open(), 16000)
+										console.log('ok',result);
+										setTimeout(() => self.notificationFull1.open(), 15000);
+									}else{
+										self.$app.dialog.alert('CSP was not submitted');
+										self.smartSelect1.setValue('null');
+									}
+									
+								}).fail(e=>{self.$app.dialog.alert('CSP was not submitted');
+										self.smartSelect1.setValue('null');return})
 				
 				
 			
@@ -565,17 +632,18 @@
 			},
 			setNewState: function (state) {
                 let self = this;
+					 
 				
 				var query = {
 				  IMSIs: [self.IMSI]
 				}
-						
-				console.log('test state',state)
+				//
+				
 				switch(state){
 						case 'Suspend':	
 							
 							var settingsSuspend = {
-								  "url": "https://test.m2mdata.co/JT/Sim/Suspend",
+								  "url": "https://test4.m2mdata.co/JT/Sim/Suspend",
 								  "method": "POST",
 								  "timeout": 0,
 								  "headers": {
@@ -587,17 +655,22 @@
 
 				
 								$.ajax(settingsSuspend).done(function (result) {
-						
-									console.log('ok',result);
-									self.notificationFull.open();
+									if(result.MajorCode == '000'){
+										//setTimeout(self.notificationFull.open(), 180000)
+										setTimeout(() => self.notificationFull.open(), 15000);
+									}else{
+										self.$app.dialog.alert('State was not submitted');
+										self.smartSelect.setValue('Current');
+									}
 									
-								})
+								}).fail(e=>{self.$app.dialog.alert('State was not submitted');
+										self.smartSelect.setValue('Current');return})
 					
 						break;
 						case 'Resume':							
 							
 							var settingsResume = {
-								  "url": "https://test.m2mdata.co/JT/Sim/Resume",
+								  "url": "https://test4.m2mdata.co/JT/Sim/Resume",
 								  "method": "POST",
 								  "timeout": 0,
 								  "headers": {
@@ -609,17 +682,22 @@
 
 						
 								$.ajax(settingsResume).done(function (result) {
-							
-									console.log('okk00',result);
-									self.notificationFull.open();
+									if(result.MajorCode == '000'){
+										//setTimeout(self.notificationFull.open(), 180000)
+										setTimeout(() => self.notificationFull.open(), 15000);
+									}else{
+										self.$app.dialog.alert('State was not submitted');
+										self.smartSelect.setValue('Current');
+									}
 									
-								})
+								}).fail(e=>{self.$app.dialog.alert('State was not submitted');
+										self.smartSelect.setValue('Current');return})
 							
 						break;
 						case 'Terminate':	
 						
 							var settingsTerminate = {
-								  "url": "https://test.m2mdata.co/JT/Sim/Terminate",
+								  "url": "https://test4.m2mdata.co/JT/Sim/Terminate",
 								  "method": "POST",
 								  "timeout": 0,
 								  "headers": {
@@ -631,37 +709,59 @@
 
 							
 								$.ajax(settingsTerminate).done(function (result) {
-							
-									console.log('ok',result);
-									self.notificationFull.open();
+									if(result.MajorCode == '000'){
+										setTimeout(() => self.notificationFull.open(), 15000);
+										console.log('ok',result);
+										self.smartSelect1.setValue('null');
+									}else{
+										self.$app.dialog.alert('State was not submitted');
+										self.smartSelect.setValue('Current');
+									}
 									
-								})
+								}).fail(e=>{self.$app.dialog.alert('State was not submitted');
+										self.smartSelect.setValue('Current');return})
 						
 						break;
 						case 'Activate':
 
-							var queryActivate = {								
-								ServiceProfileCode: state,
-								IMSIs: [self.IMSI]
-							}
-							
-							var settingsActivate = {
-								  "url": "https://test.m2mdata.co/JT/Sim/Activate",
-								  "method": "POST",
-								  "timeout": 0,
-								  "headers": {
-									"token": "00000000-0000-0000-0000-000000000000",
-									"Content-Type": "application/x-www-form-urlencoded"
+							self.$app.dialog.create({
+								title: 'CSP',
+								text: 'Please select CSP to activate',
+								buttons: [
+								  {
+									text: 'M2M Data',
+									onClick: function() {
+										self.activateSim('M2M Data');
+									},
 								  },
-								  "data": queryActivate
-								};
-
-								$.ajax(settingsActivate).done(function (result) {
-						
-									console.log('ok',result);
-									self.notificationFull.open();
-									
-								})
+								  {
+									text: 'M2M Data Normal CSP Z1 &2',
+									onClick: function() {
+										self.activateSim('M2M Data Normal CSP Z1 &2');
+									},
+								  },
+								  {
+									text: 'M2M Data High CSP Z1-3',
+									onClick: function() {
+										self.activateSim('M2M Data High CSP Z1-3');
+									},
+								  },
+								  {
+									text: 'M2M Data Emergency CSP Z1- 9',
+									onClick: function() {
+										self.activateSim('M2M Data Emergency CSP Z1- 9');
+									},
+								  },
+								  {
+									text: 'M2M Data Custom Network Profile Australia',
+									onClick: function() {
+										self.activateSim('M2M Data Custom Network Profile Australia');
+									},
+								  }
+								],
+								verticalButtons: true,
+							  }).open();
+							  						  
 						
 						break;
 						default:
@@ -672,6 +772,40 @@
 					
 				
 			},
+			
+			activateSim: function(state){
+				let self = this
+					
+					self.$app.preloader.show();
+					setTimeout(() => self.getSim(), 14000);
+							var queryActivate = {								
+								ServiceProfileCode: state,
+								IMSIs: [self.IMSI]
+							}
+							
+							var settingsActivate = {
+								  "url": "https://test4.m2mdata.co/JT/Sim/Activate",
+								  "method": "POST",
+								  "timeout": 0,
+								  "headers": {
+									"token": "00000000-0000-0000-0000-000000000000",
+									"Content-Type": "application/x-www-form-urlencoded"
+								  },
+								  "data": queryActivate
+								};
+
+								$.ajax(settingsActivate).done(function (result) {
+									if(result.MajorCode == '000'){
+										setTimeout(() => self.notificationFull.open(), 15000);
+										console.log('ok',result);
+									}else{
+										self.$app.dialog.alert('State was not submitted');
+										self.smartSelect.setValue('Current');
+									}
+									
+								}).fail(e=>{self.$app.dialog.alert('State was not submitted');
+										self.smartSelect.setValue('Current');return})
+			},			
 			updateStates: function(state){
 				var self = this
 				
@@ -753,8 +887,9 @@
 			updateCSPs: function(csp){
 				var self = this
 				
-				
-				self.smartSelect1.setValue(csp);
+				if(csp){
+					self.smartSelect1.setValue(csp);
+				}
 			}
 		},
         on: {
@@ -764,6 +899,7 @@
 				self.$app.sheet.close();
 				
 				self.$app.preloader.show();
+				
 				self.getSim();
 				
 				
@@ -772,7 +908,7 @@
 								  title: 'M2M Data Controller',
 								  //titleRightText: 'now',
 								  subtitle: 'SIM State Notification',
-								  text: 'State was changed successfully. ',
+								  text: 'New state submitted.',
 								  closeTimeout: 3000,
 								});
 								
@@ -781,7 +917,7 @@
 								  title: 'M2M Data Controller',
 								  //titleRightText: 'now',
 								  subtitle: 'Modify CSP Notification',
-								  text: 'CSP was changed successfully. ',
+								  text: 'New CSP submitted.',
 								  closeTimeout: 3000,
 								});
 								
@@ -891,6 +1027,10 @@
 							},
 							closed: function () {
 							  self.setNewState(self.smartSelect.getValue());
+								if(self.smartSelect.getValue() != 'Activate' && self.smartSelect.getValue() != 'Current' ){	
+								  self.$app.preloader.show();
+								  setTimeout(() => self.getSim(), 14000);
+								 }
 							}
 						  }
 						});	
@@ -902,7 +1042,11 @@
 							opened: function () {
 							},
 							closed: function () {
-							  self.setNewCSP(self.smartSelect1.getValue());
+								if(self.smartSelect1.getValue() && self.smartSelect1.getValue() != 'null'){
+								  self.setNewCSP(self.smartSelect1.getValue());
+								  self.$app.preloader.show();
+								  setTimeout(() => self.getSim(), 14000);
+								 }
 							}
 						  }
 						});	

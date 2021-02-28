@@ -1,7 +1,7 @@
 var routes = [
     {
         path: '/',
-        componentUrl: './resources/pages/home.html?v=3.5',
+        componentUrl: './resources/pages/home.html?v=4.0',
         name: 'home',
     },
     {
@@ -13,7 +13,7 @@ var routes = [
     },
     {
         path: '/commands/',
-        componentUrl: './resources/pages/commands.html?v=2.2',
+        componentUrl: './resources/pages/commands.html?v=2.3',
         name: 'commands'
     },
     {
@@ -43,7 +43,7 @@ var routes = [
     },
     {
         path: '/sim-status/',
-        componentUrl: './resources/pages/sim-status.html?v=2.7',
+        componentUrl: './resources/pages/sim-status.html?v=3.4',
         name: 'sim-status'
     },
     {
@@ -95,7 +95,7 @@ var routes = [
     },
 	{
         path: '/sessions/',
-        componentUrl: './resources/pages/sessions.html?v=2.2',
+        componentUrl: './resources/pages/sessions.html?v=2.5',
         name: 'sessions'
     },
 	{

@@ -348,7 +348,7 @@
 					
 					
 					var settings = {
-					  "url": "//test4.m2mdata.co/JT/SMS/History",
+					  "url": "https://test4.m2mdata.co/JT/SMS/History",
 					  "method": "POST",
 					  "timeout": 0,
 					  "headers": {
@@ -388,9 +388,22 @@
 										return d-c;
 									});
 									self.requestCommandOldHistory(self.oldHistoryArray);
+								}else{
+									self.$setState({
+										DashboardNoData: true										
+									});
+									self.requestCommandOldHistory([])
+									self.$app.dialog.alert('There are no history for this SIM');
 								}
 							}
-						}		
+						}else{
+
+							self.$setState({
+								DashboardNoData: true										
+							});
+							self.requestCommandOldHistory([])
+					
+						}						
 					});
 					
 				/*$.ajax(settings).done(function (result) {

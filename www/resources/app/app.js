@@ -200,6 +200,7 @@ var app = new Framework7({
 			
 			var settings = {
 				  "url": "https://test.m2mdata.co/service/User/Auth",
+
 				  "method": "POST",
 				  "timeout": 0,
 				  "headers": {
@@ -217,9 +218,6 @@ var app = new Framework7({
 							let account = $$("input[name='username']");
 							let password = $$("input[name='password']");
 							
-							//localStorage.ACCOUNT = account.val();
-							//localStorage.PASSWORD = password.val();
-								
 							if(account.val()) {
 								localStorage.ACCOUNT = account.val().trim().toLowerCase();
 								localStorage.PASSWORD = password.val();
@@ -232,7 +230,6 @@ var app = new Framework7({
 									accessNewToken: result.Data.Token
 								}
 							});
-							//self.data.CustomerType = result.Data.UserInfo.CustomerType;
 							app.preloader.hide();
 							app.panel.close();
 							app.loginScreen.close();
@@ -240,17 +237,14 @@ var app = new Framework7({
 							myEvents.emit('home');
 							
 							
-									}else {
-										self.utils.nextFrame(()=>{
-											app.preloader.hide();
-										app.dialog.alert('Something wrong. Please try later.');
-											app.loginScreen.open('.login-screen');
-										});
-									}
-			})
-			
-			
-            
+					}else {
+						self.utils.nextFrame(()=>{
+						app.preloader.hide();
+						app.dialog.alert('Something wrong. Please try later.');
+						app.loginScreen.open('.login-screen');
+					});
+				}
+			})            
         },
         login: function(token, access){
             let self = this;
