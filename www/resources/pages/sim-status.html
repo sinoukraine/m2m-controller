@@ -203,8 +203,8 @@
 				msisdn: '',
 				obj: {},
 				Description: '',
-				lat: '0',
-				lng: '0',
+				lat: '',
+				lng: '',
 				towerArr: [],
 				dataInfo: 0,
 				dateInfo: 0,
@@ -466,22 +466,23 @@
 				};
 
 				$.ajax(settingsLBS).done(function (result) {
-				  const query_1 = {
+				  /*const query_1 = {
 					lat: result.Data.LbsLat,
 					lon: result.Data.LbsLng
-				  }
-				  var  lng = result.Data.LbsLng, lat= result.Data.LbsLat;
-								
+				  }*/
+				  //var  lng = result.Data.LbsLng, lat= result.Data.LbsLat;
+						if(result.Data && result.Data.LbsLat){
 								self.$setState({
-									lat
+									lat: result.Data.LbsLat
 								});		
 								self.$setState({
-									lng
+									lng: result.Data.LbsLng
 								});		
 								
-								if(self.state == 'Productive' && lng > 0 && lat > 0){
+								//if(self.state == 'Productive'){
 									$('.location-div').removeClass('display-none');
-								}
+								//}
+							}
 					})
 				
 					

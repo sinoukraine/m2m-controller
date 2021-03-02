@@ -1,7 +1,7 @@
 var routes = [
     {
         path: '/',
-        componentUrl: './resources/pages/home.html?v=4.0',
+        componentUrl: './resources/pages/home.html?v=4.1',
         name: 'home',
     },
     {
@@ -43,7 +43,7 @@ var routes = [
     },
     {
         path: '/sim-status/',
-        componentUrl: './resources/pages/sim-status.html?v=3.4',
+        componentUrl: './resources/pages/sim-status.html?v=3.5',
         name: 'sim-status'
     },
     {
