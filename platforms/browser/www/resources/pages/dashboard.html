@@ -30,10 +30,10 @@
 						<li class="state-block">
 						  <a class="item-link smart-select smart-select-0 smart-select-init ">
 							<select name="time-period">
-							  <option value="yearly" id="timePeriodYear">Yearly</option>
-							  <option value="monthly" id="timePeriodMonth" selected>Monthly</option>
-							  <option value="weekly" id="timePeriodWeek">Weekly</option>
 							  <option value="daily" id="timePeriodDay">Daily</option>
+							  <option value="weekly" id="timePeriodWeek">Weekly</option>
+							  <option value="monthly" id="timePeriodMonth" >Monthly</option>
+							  <option value="yearly" id="timePeriodYear">Yearly</option>
 							</select>
 							<div class="item-content">
 							  <div class="item-inner">
@@ -270,7 +270,7 @@
     return {
         data: function () {
             let ret = {
-				timePeriod: 'monthly',
+				timePeriod: 'daily',
 				totalDataUsage: 0,
 				totalDataSessions: 0,
 				totalDuration: 0,
@@ -426,6 +426,64 @@
 			},			
 			showPanels: function () {
                 let self = this;
+			  var settings = {
+						  "url": 'https://test4.m2mdata.co/JT/Report/Bashboard',
+						  "method": "POST",
+						  "timeout": 0,
+						  "headers": {
+							"token": "00000000-0000-0000-0000-000000000000",
+							"Content-Type": "application/x-www-form-urlencoded"
+						  },
+						  "data": {
+							//"IMSI":  this.listHistoryQuery.imsi,
+							}
+						};
+
+			$.ajax(settings).done(function (response) { 
+				console.log('rrr', response)
+				if(response.MajorCode == '000'){
+				  let total = response.Data              
+				  switch (self.timePeriod){
+					case 'daily':
+						self.$setState({
+							totalDataUsage: total.DataDay ? (total.DataDay/1048576).toFixed(0) : 0,
+							totalSMSUsage: total.SMSMODay + total.SMSMTDay,
+							totalDuration: total.DurationDay,//(3600*response.Table3[0].JTOV_DATA_DAY)/(response.Table3[0].JTOV_DURATION_DAY*1048576),
+							totalDataSessions: total.SessionDay,
+						})
+					break
+					case 'weekly':
+						self.$setState({
+							totalDataUsage: total.DataWeek ? (total.DataWeek/1048576).toFixed(0) : 0,
+							totalSMSUsage: total.SMSMOWeek + total.SMSMTWeek,
+							totalDuration: total.DurationWeek,//(3600*response.Table3[0].JTOV_DATA_DAY)/(response.Table3[0].JTOV_DURATION_DAY*1048576),
+							totalDataSessions: total.SessionWeek,
+						})
+					break
+					case 'monthly':
+						self.$setState({
+						
+							totalDataUsage: total.DataMonth ? (total.DataMonth/1048576).toFixed(0) : 0,
+							totalSMSUsage: total.SMSMOMonth + total.SMSMTMonth,
+							totalDuration: total.DurationMonth,//(3600*response.Table3[0].JTOV_DATA_DAY)/(response.Table3[0].JTOV_DURATION_DAY*1048576),
+							totalDataSessions: total.SessionMonth,
+						})
+					break
+					case 'yearly':
+						self.$setState({
+						
+							totalDataUsage: total.DataYear ? (total.DataYear/1048576).toFixed(0) : 0,
+							totalSMSUsage: total.SMSMOYear + total.SMSMTYear,
+							totalDuration: total.DurationYear,//(3600*response.Table3[0].JTOV_DATA_DAY)/(response.Table3[0].JTOV_DURATION_DAY*1048576),
+							totalDataSessions: total.SessionYear,
+						})
+					break
+				}
+				}
+				});
+
+				
+				/*
 				const DEMO_OWERVIEW = 'https://api.m2mglobaltech.com/QuikData/V1/SMS/Overview'
 				const login = 'root'
 				const requestOptions = {
@@ -483,7 +541,9 @@
 				  
 				).catch(error => 
 				  self.$app.dialog.alert('Incorrect IMSI number.')
-				)
+				)*/
+				
+				
 			},		
 			initHome: function(){
 				var self = this;
