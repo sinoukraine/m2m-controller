@@ -140,10 +140,10 @@
 								<li class="display-flex">
 									
 											<div class="item-media">	
-												<label for="date-to" class=" px-3">Till</label>
-												<input type="text" placeholder="Date" class="pl-3" disabled id = "date-to" value="{{DateTo}}">
+												<label for="date-to" class=" px-3">Since</label>
+												<input type="text" placeholder="Date" class="pl-3"  id = "date-to" value="{{DateTo}}">
 											</div>
-											<a class="item-link smart-select smart-select-init  w-100 text-color-black" data-open-in="popover" data-close-on-select="true">
+											<!--<a class="item-link smart-select smart-select-init  w-100 text-color-black" data-open-in="popover" data-close-on-select="true">
 										<select name="dashboard-overview-filter" >
 											<option value="1" selected>this month</option>     
 											<option value="2" >7 days</option>   
@@ -156,7 +156,7 @@
 												<div class="item-after  text-color-black"></div>
 											</div>
 										</div>
-									</a>
+									</a>-->
 								</li> 
 							</ul>
 						</div>     
@@ -176,7 +176,7 @@
 									<th> Date </th>	
 									<th> Data(MB) </th> 
 									<th> SMS </th> 		
-									<th> Flow </th>							
+									<th> Session </th>							
 								</tr>
 							</thead>
 							<tbody> 
@@ -234,11 +234,141 @@
             return ret;
         },
 		methods: {
-			initReport: function(){
+			initReport: function(changed = false){
 				var self = this;			
 				
 				var nowFull = moment(); 
-				var now = nowFull.clone().startOf('day');
+				var now = nowFull.clone().startOf('day');		
+				var threDaysBeforeFull = nowFull.clone().startOf('month');	
+				var timeFormat = 'YYYY-MM-DD';
+				var start = ''
+				
+				if(changed){
+					var newDateTo = $('.report-page').find('#date-to').val();
+					var startTime = moment(newDateTo); 	
+					
+					var start = moment(startTime,timeFormat).format('YYYY-MM-DD');
+					
+				}else{				
+                    var currentTime = moment();
+					start = moment(currentTime, 'YYYY-MM-DD').add(-10, 'days').format('YYYY-MM-DD'); 
+					self.$setState({
+						DateTo: start
+					});
+				}
+				
+				var settings = {
+				  "url": 'https://test4.m2mdata.co/JT/Report/DailyUsage?IMSI='+self.IMSI,
+				  "method": "POST",
+				  "timeout": 0,
+				  "headers": {
+				  "token": "00000000-0000-0000-0000-000000000000",
+				  "Content-Type": "application/x-www-form-urlencoded"
+				  },
+				  "data": {
+					"Since": start,
+					"page": "1",
+					"rows": "100"
+				  }
+				};
+
+				$.ajax(settings).done(function (response) { 
+				  console.log(response)
+				  if(response.Data.length){
+					let arr = [];
+						let chartArr = [];
+						let totalData = 0;
+						let totalSMS = 0;
+						let averageData = 0;
+						
+						$.each(response.Data, function(index, value1){
+							let totalField = value1.Usage/1048576
+							let smsField = value1.SMSMOUsage + value1.SMSMTUsage
+							
+							objTemp={'date':value1.Date.slice(0, 10),'totalfield':totalField.toFixed(3), 'flowfield':value1.Session, 'smsfield':smsField};
+							chartArr.push([value1.Date.slice(0, 10), totalField.toFixed(3)]);
+							
+							totalData+=+totalField;
+							totalSMS+=smsField;
+																	
+							arr.push(objTemp);
+						});	
+				  
+				  
+						self.$setState({
+								DashboardDataTable: arr,
+								totalMB: chartArr,
+							})
+							
+							self.$setState({														
+								totalData: totalData.toFixed(3)
+							})
+							self.$setState({														
+								totalSMS: totalSMS
+							})
+							self.$setState({														
+								averageData: (totalData/response.Data.length).toFixed(3)
+							})
+								
+								if(changed && self.DashboardDataTableEl){					
+								
+									console.log(changed)
+									self.DashboardDataTableEl.destroy();
+									self.DashboardDataTableEl = false;
+						
+								}
+								
+							self.DashboardDataTableEl = $('body').find('#table-report-sim').DataTable({                    
+								columnDefs: [
+									{ // remove orederable arrows from column with pin
+										targets: [ 0 ], 
+										orderable: true,  
+									},
+									{ // hide group codes, which will be used for filtering
+										targets: [ 1 ],
+										visible: true
+									},
+									{ // hide group codes, which will be used for filtering
+										targets: [ 2 ],
+										visible: true
+									},
+									{ // hide group codes, which will be used for filtering
+										targets: [ 3 ],
+										visible: true
+									}
+								],
+								"order": [[ 0, "desc" ]],
+								lengthMenu: [5, 10, 25],
+								pageLength: 5   
+							});
+							
+							
+							
+								self.$app.utils.nextFrame(()=>{
+									let wasDataAlreadyLoaded = self.DashboardDataLoadedEndUserOverview;
+									self.$setState({
+										DashboardDataLoadedEndUserOverview: true,
+										//EndUser:{Overview: result}
+									});
+									
+									/*if (wasDataAlreadyLoaded){
+										self.updateGraphicsOverviewAndRealTime();
+									}else{*/
+										self.initGraphics();
+									//}
+								});
+								
+				  }else{
+					self.$app.utils.nextFrame(()=>{
+									let wasDataAlreadyLoaded = self.DashboardDataLoadedEndUserOverview;
+									self.$setState({
+										DashboardDataLoadedEndUserOverview: true,
+										//EndUser:{Overview: result}
+									});
+									})
+				  }
+				})
+				/*var now = nowFull.clone().startOf('day');
 				//var threDaysBeforeFull = nowFull.add(-10, 'days');		
 				var threDaysBeforeFull = nowFull.clone().startOf('month');	
 				var timeFormat = 'YYYY-MM-DD';
@@ -362,7 +492,7 @@
 					error: function(XMLHttpRequest, textStatus, errorThrown){
 						console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
 					}
-				});
+				});*/
 	
 			},			
 			updateGraphicsOverviewAndRealTime: function(){
@@ -525,7 +655,7 @@
 				var timeFormat = 'YYYY-MM-DD';
 				var startTime, endTime;
 				
-				switch(days){
+				/*switch(days){
 	                case '1':	 		
 						startTime = nowFull.clone().startOf('month');
 						endTime = now;
@@ -544,7 +674,9 @@
 						startTime = moment(newDateTo).add(-30, 'days');	
 						endTime = newFull;					
 						console.log(startTime, endTime);
-				}
+				}*/
+				var newDateTo = $('.report-page').find('#date-to').val();
+				var startTime = moment(newDateTo); 	
 				
 				var start = moment(startTime,timeFormat).format('YYYY-MM-DD');
 				var end = moment(endTime,timeFormat).format('YYYY-MM-DD');
@@ -553,74 +685,45 @@
 					DateTo: end
 				});
 				
+				var settings = {
+				  "url": 'https://test4.m2mdata.co/JT/Report/DailyUsage?IMSI='+self.IMSI,
+				  "method": "POST",
+				  "timeout": 0,
+				  "headers": {
+				  "token": "00000000-0000-0000-0000-000000000000",
+				  "Content-Type": "application/x-www-form-urlencoded"
+				  },
+				  "data": {
+					"Since": start,
+					"page": "1",
+					"rows": "100"
+				  }
+				};
+
+				$.ajax(settings).done(function (response) { 
+				  console.log(response)
+				  if(response.Data.length){
 				
-				var params = {		
-					startDate: start,//+'T00:00:00.000Z',
-					endDate: end,//+'T00:00:00.000Z',
-					Iccid: self.IMSI,
-				};	
-				urlparams = 'startDate='+ params.startDate + 'T00:00:00.000Z&endDate='+ params.endDate + 'T00:00:00.000Z';	
-				
-				let userInfo = self.$app.methods.getFromStorage('userInfo');
-				let accessToken = userInfo.accessToken;		
-			
-				
-						
-						
-				$.ajax({
-					type: "GET",	        
-					url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/cdrs/'+ params.Iccid +'?' + urlparams,
-					dataType: "json",	
-					async: true,
-					headers: { 
-						Authorization: "Bearer " + accessToken,
-					},
-					//cache: false,
-					success: function (result) {
-						//hidePreloader(fromClass);	  
-						if(result){		
-						let arr = [];
+				let arr = [];
 						let chartArr = [];
 						let totalData = 0;
 						let totalSMS = 0;
 						let averageData = 0;
 						
-						$.each(result, function(index, value1){
-							var flowField = 0;
-							var smsField = 0;
-							var totalField = 0;
+						$.each(response.Data, function(index, value1){
+							let totalField = (value1.Usage/1048576)
+							let smsField = value1.SMSMOUsage + value1.SMSMTUsage
 							
-							if(value1.totals != null  && value1.totals.flow != null){
-								var flowField = typeof value1.totals.flow.originalUnits == 'undefined'?0:+value1.totals.flow.originalUnits;
-							}
-							if(value1.totals != null && value1.totals.sms != null){					
-								var smsField = typeof value1.totals.sms.originalUnits == 'undefined'?0:+value1.totals.sms.originalUnits;
-							}
-							if(value1.totals != null && value1.totals.data != null && value1.totals.data.originalUnits != null){
-								var totalField = +(value1.totals.data.originalUnits/1000000).toFixed(3);
-							}
-							objTemp={'date':value1.date.slice(0, 10),'totalfield':totalField, 'flowfield':flowField, 'smsfield':smsField};
-							chartArr.push([value1.date.slice(0, 10), totalField]);
+							objTemp={'date':value1.Date.slice(0, 10),'totalfield':totalField.toFixed(3), 'flowfield':value1.Session, 'smsfield':smsField};
+							chartArr.push([value1.Date.slice(0, 10), totalField.toFixed(3)]);
 							
-							totalData+=totalField;
+							totalData+=+totalField;
 							totalSMS+=smsField;
 																	
 							arr.push(objTemp);
 						});	
-							
-						
-			/*let fomattedValues = self.formatGOverviewValues(data);
-
-							self.Charts.Overview.load({
-						        columns: [
-									[LANGUAGE.DASHBOARD_PANEL_MSG54, fomattedValues.move],
-									[LANGUAGE.DASHBOARD_PANEL_MSG52, fomattedValues.stop],
-									[LANGUAGE.DASHBOARD_PANEL_MSG53, fomattedValues.idle],
-								]
-						    });*/
-							
-							
-							self.$setState({
+		   
+						self.$setState({
 								DashboardDataTable: arr,
 								totalMB: chartArr
 							});
@@ -633,7 +736,7 @@
 								totalSMS: totalSMS
 							})
 							self.$setState({														
-								averageData: (totalData/result.length).toFixed(3)
+								averageData: (totalData/response.Data.length).toFixed(3)
 							})
 								
 								
@@ -703,6 +806,131 @@
 						        }*/
 						    }							
 						});
+						
+						
+						
+						self.$app.utils.nextFrame(()=>{
+								self.Charts.Overview.load({
+									columns:  self.totalMB
+								});
+							});
+							self.DashboardDataTableEl = $('body').find('#table-report-sim').DataTable({                    
+								columnDefs: [
+									{ // remove orederable arrows from column with pin
+										targets: [ 0 ], 
+										orderable: false,  
+									},
+									{ // hide group codes, which will be used for filtering
+										targets: [ 1 ],
+										visible: true
+									},
+									{ // hide group codes, which will be used for filtering
+										targets: [ 2 ],
+										visible: true
+									},
+									{ // hide group codes, which will be used for filtering
+										targets: [ 3 ],
+										visible: true
+									}
+								],
+								lengthMenu: [5, 10, 25],
+								pageLength: 5   
+							});
+							
+							
+								self.$app.utils.nextFrame(()=>{
+									let wasDataAlreadyLoaded = self.DashboardDataLoadedEndUserOverview;
+									self.$setState({
+										DashboardDataLoadedEndUserOverview: true,
+										//EndUser:{Overview: result}
+									});
+									
+									if (wasDataAlreadyLoaded){
+										console.log('111');
+										//self.updateGraphicsOverviewAndRealTime();
+									}else{
+										console.log('222');
+										//self.initGraphics();
+									}
+								});
+				  }else{
+					self.$app.utils.nextFrame(()=>{
+									let wasDataAlreadyLoaded = self.DashboardDataLoadedEndUserOverview;
+									self.$setState({
+										DashboardDataLoadedEndUserOverview: true,
+										//EndUser:{Overview: result}
+									});
+									})
+				  }
+				})
+				
+				/*var params = {		
+					startDate: start,//+'T00:00:00.000Z',
+					endDate: end,//+'T00:00:00.000Z',
+					Iccid: self.IMSI,
+				};	
+				urlparams = 'startDate='+ params.startDate + 'T00:00:00.000Z&endDate='+ params.endDate + 'T00:00:00.000Z';	
+				
+				let userInfo = self.$app.methods.getFromStorage('userInfo');
+				let accessToken = userInfo.accessToken;		
+			
+				
+						
+						
+				$.ajax({
+					type: "GET",	        
+					url: 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/cdrs/'+ params.Iccid +'?' + urlparams,
+					dataType: "json",	
+					async: true,
+					headers: { 
+						Authorization: "Bearer " + accessToken,
+					},
+					//cache: false,
+					success: function (result) {
+						//hidePreloader(fromClass);	  
+						if(result){		
+						let arr = [];
+						let chartArr = [];
+						let totalData = 0;
+						let totalSMS = 0;
+						let averageData = 0;
+						
+						$.each(result, function(index, value1){
+							var flowField = 0;
+							var smsField = 0;
+							var totalField = 0;
+							
+							if(value1.totals != null  && value1.totals.flow != null){
+								var flowField = typeof value1.totals.flow.originalUnits == 'undefined'?0:+value1.totals.flow.originalUnits;
+							}
+							if(value1.totals != null && value1.totals.sms != null){					
+								var smsField = typeof value1.totals.sms.originalUnits == 'undefined'?0:+value1.totals.sms.originalUnits;
+							}
+							if(value1.totals != null && value1.totals.data != null && value1.totals.data.originalUnits != null){
+								var totalField = +(value1.totals.data.originalUnits/1000000).toFixed(3);
+							}
+							objTemp={'date':value1.date.slice(0, 10),'totalfield':totalField, 'flowfield':flowField, 'smsfield':smsField};
+							chartArr.push([value1.date.slice(0, 10), totalField]);
+							
+							totalData+=totalField;
+							totalSMS+=smsField;
+																	
+							arr.push(objTemp);
+						});	
+							*/
+						
+			/*let fomattedValues = self.formatGOverviewValues(data);
+
+							self.Charts.Overview.load({
+						        columns: [
+									[LANGUAGE.DASHBOARD_PANEL_MSG54, fomattedValues.move],
+									[LANGUAGE.DASHBOARD_PANEL_MSG52, fomattedValues.stop],
+									[LANGUAGE.DASHBOARD_PANEL_MSG53, fomattedValues.idle],
+								]
+						    });*/
+							
+							
+							
 /*						
 							self.$app.utils.nextFrame(()=>{
 								self.Charts.Overview.load({
@@ -750,14 +978,12 @@
 									}
 								});
 								*/
-						}else{
-							console.log('something wrong');
-						}
+						/*
 					},
 					error: function(XMLHttpRequest, textStatus, errorThrown){
 						console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
 					}
-				});
+				});*/
 				
 				//self.changeGraphicData('', selectName);
 				/*let userInfo = self.$app.methods.getFromStorage('userInfo'); 
@@ -844,16 +1070,17 @@
 					DateTo: currentDay
 				});
 				
-				/*self.initReport();
+				self.initReport();
 				
 				self.myCalendar = self.$app.calendar.create({
 					inputEl: '#date-to',
 					on: {
 						closed: function () {
-							self.getOverviewDetails('4');
+							//self.getOverviewDetails('4');
+							self.initReport(true);
 						}
 					  }
-				});				
+				});	/*			
 				
 				overviewFiletrEl.on('change', function(e){ console.log(e)
 					if(e.target.value == '4'){

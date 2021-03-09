@@ -1,7 +1,7 @@
 var routes = [
     {
         path: '/',
-        componentUrl: './resources/pages/home.html?v=4.1',
+        componentUrl: './resources/pages/home.html?v=4.3',
         name: 'home',
     },
     {
@@ -18,7 +18,7 @@ var routes = [
     },
     {
         path: '/dashboard/',
-        componentUrl: './resources/pages/dashboard.html?v=1.7',
+        componentUrl: './resources/pages/dashboard.html?v=1.9',
         name: 'dashboard'
     },
     {
@@ -85,7 +85,7 @@ var routes = [
 
     {
         path: '/report/',
-        componentUrl: './resources/pages/report.html?v=2.3',
+        componentUrl: './resources/pages/report.html?v=2.5',
         name: 'report'
     },
 	{

@@ -42,7 +42,7 @@
 								<div class="list command-list-icons commandsList " id="cmd">
 								  <ul style="padding-left: 10px;">
 						
-							<li class="li-cmd" data-cmd-name="1111" data-command-content="1111">
+							<li class="li-cmd-tmpl" data-cmd-name="1111" data-command-content="1111">
 								  <div class="item-content">
 									<div class="item-inner">
 									  <div class="item-title cmd-code" data-cmd-name="1111">cmd</div>			
@@ -156,10 +156,11 @@
 						
 						$.each(value.CommandList, function(index_1, value_1){ 
 						let paramText = value_1.Params;
-							html += '<li class="li-cmd" data-cmd-name="' + value_1.Code + '" data-cmd-format="' + value_1.Format + '" data-cmd-params="'+escape(paramText)+'" data-command-content="'+value_1.Code+'">';
+						
+							html += '<li class="li-cmd-tmpl" data-cmd-name="' + value_1.Code + '" data-cmd-format="' + value_1.Format + '" data-cmd-params="'+ escape(paramText) +'"  data-command-content="'+value_1.Code+'">';
 							html += '	  <div class="item-content">';
 							html += '		<div class="item-inner">';
-							html += '		  <div class="item-title cmd-code" data-cmd-name="' + value_1.Code + '">' + value_1.Name + '</div>';			
+							html += '		  <div class="item-title cmd-code" data-cmd-name="' + value_1.Code + '" >' + value_1.Name + '</div>';			
 							html += '		</div>';
 							html += '	  </div>';			
 							html += '</li>';
@@ -201,11 +202,12 @@
 					mainView.router.navigate('/commands/?imsi='+self.imsi.toString());
 				});
 				
-				page.$el.on('click', '.li-cmd', function () {					
+				page.$el.on('click', '.li-cmd-tmpl', function () {	
+console.log($$(this).data('cmd-format'))				
 					//let command = $$(this).closest('.cmd-code').data('cmd-name');
 					let commandFormat = $$(this).data('cmd-format');
 					let commandParams = $$(this).data('cmd-params');
-					commandParams = unescape(commandParams);
+					commandParams = commandParams!=undefined?unescape(commandParams):[];
 					
 					/*self.$app.request.promise.post(URL_GET_COMMAND_PARAMS, {
 						MajorToken:self.imnsToken,

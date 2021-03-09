@@ -199,8 +199,8 @@ var app = new Framework7({
 			this.preloader.show();
 			
 			var settings = {
-				  "url": "https://test.m2mdata.co/service/User/Auth",
-
+				  //"url": "https://test.m2mdata.co/service/User/Auth",
+					"url": "https://test4.m2mdata.co/service/User/Auth",
 				  "method": "POST",
 				  "timeout": 0,
 				  "headers": {

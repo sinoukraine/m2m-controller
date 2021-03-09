@@ -229,10 +229,20 @@
 									<th> № </th>	
 									<th> IMSI </th> 
 									<th> Customer </th> 		
-									<th> Total </th>			
-									<th> Flow </th>			
-									<th> SMS </th>			
-									<th> Days </th>			
+									<th> Total</th>	<!--		
+									<th> Total Week</th>			
+									<th> Total Month</th>			
+									<th> Total Year</th>	-->	
+									<th> SMS</th>				
+									<!--<th> SMS Week</th>			
+									<th> SMS Month</th>			
+									<th> SMS Year</th>	-->	
+									<th> Session</th>		
+									<!--<th> Session Week</th>	
+									<th> Session Month</th>	
+									<th> Session Year</th>	-->	
+									<th> State </th> 	
+										
 									<th> Last Update </th>						
 								</tr>
 							</thead>
@@ -242,10 +252,21 @@
 										<td>{{num}}</td>	  
 										<td>{{imsi}}</td>	
 										<td>{{customer}}</td>	
-										<td>{{total}}</td>	
-										<td>{{flow}}</td>	
-										<td>{{sms}}</td>	
-										<td>{{days}}</td>	
+										<td>{{totald}}</td>	
+										<!--<td>{{totalw}}</td>	
+										<td>{{totalm}}</td>	
+										<td>{{totaly}}</td>	-->
+										<td>{{smsd}}</td>	
+										<!--<td>{{smsw}}</td>	
+										<td>{{smsm}}</td>	
+										<td>{{smsy}}</td>	-->
+										<td>{{sessionsd}}</td>
+										<!--<td>{{sessionsw}}</td>
+										<td>{{sessionsm}}</td>
+										<td>{{sessionsy}}</td>	-->
+										<td>{{state}}</td>
+										<!--<td>{{LbsNetwork}}</td>	
+										<td>{{Threshold}}</td>		-->	
 										<td>{{lastUpdate}}</td>									
 									</tr>
 								{{/DashboardDataTable}}  
@@ -290,21 +311,148 @@
 			
 				var self = this;			
 				let days = 0;
+				let pref_2 = 'D'
 				
 				const today = new Date()
 				  switch (this.topPeriod){
 					case 'lastday':
-						days = 1
+						pref_2 = 'D'
 						break
 					case 'week':
-						days = 7
+						pref_2 = 'W'
 						break
 				  }
 				
 				
+			  //const current = moment()          
+
+			  
+			  
+			  this.list = []
+			  let pref_1 = this.tableData === 'smsusage'?'S':'D'
+			  let sort = this.tableData === 'smsusage'?'SMSMODay':'DataDay'
+			  //let pref_2 = this.selectedPeriod    
+			  
 			  const current = moment()          
 
-			  const query = {
+			  var settings = {
+				"url": 'https://test4.m2mdata.co/JT/Sim/Query',
+				"method": "POST",
+				"timeout": 0,
+				"headers": {
+				"token": "00000000-0000-0000-0000-000000000000",
+				"Content-Type": "application/x-www-form-urlencoded"
+				},
+				"data": {
+				  'UsageReportType': pref_1 + pref_2,
+				  'sort': sort,
+				  'order': 'desc' 
+				}
+			  };
+
+			  $.ajax(settings).done(function (response) { 
+				  let rows = response.rows   
+				  console.log('response',response)
+				  const arrTable = []
+
+				  rows.forEach((element, index) => {
+					//const tableDataUsageTotal = (+element.totalDataUsage / 1000000)
+					//const tableSMSUsageTotal = element.totalSmsUsage == 'undefined' ? 0 : (+element.totalSmsUsage)
+					//const tableFlowUsageTotal = element.totalFlowUsage == 'undefined' ? 0 : (+element.totalFlowUsage)
+					arrTable.push({
+							num: index + 1,
+					  imsi: element.IMSI.toString() + ' ',
+					  iccid: element.ICCID.toString(),
+					  msisdn: element.MSISDN.toString(),
+					  customer: element.OrganizeName,
+					  csp: element.ServiceProfileName,              
+					  totald: (element.DataDay/1048576).toFixed(3),
+					  /*totalw: (element.DataWeek/1048576).toFixed(3),
+					  totalm: (element.DataMonth/1048576).toFixed(3),
+					  totaly: (element.DataYear/1048576).toFixed(3),*/
+					  smsd: element.SMSMODay + element.SMSMTDay,
+					  /*smsw: element.SMSMOWeek + element.SMSMTWeek,
+					  smsm: element.SMSMOMonth + element.SMSMTMonth,
+					  smsy: element.SMSMOYear + element.SMSMTYear,*/
+					  sessionsd: element.SessionDay,
+					  /*sessionsw: element.SessionWeek,
+					  sessionsm: element.SessionMonth,
+					  sessionsy: element.SessionYear,*/
+					  state: element.State,
+					  //LbsNetwork: element.LbsNetwork,              
+					  //Threshold: element.ThresholdName,      
+					  lastUpdate: element.DataUpdateTime!==null?element.DataUpdateTime.slice(0, 10):''
+				  })
+				  
+				  
+						self.$setState({
+								DashboardDataTable: arrTable
+							}, ()=>{		
+								
+								if(changed && self.DashboardDataTableEl){					
+								
+									console.log(changed)
+									self.DashboardDataTableEl.destroy();
+									self.DashboardDataTableEl = false;
+						
+								}
+								self.DashboardDataTableEl = $('body').find('#table-dashboard-sim').DataTable({                    
+									columnDefs: [
+										{ // remove orederable arrows from column with pin
+											targets: [ 0 ], 
+											orderable: true,  
+										},
+										{ // hide group codes, which will be used for filtering
+											targets: [ 1 ],
+											visible: true
+										},
+										{ // hide group codes, which will be used for filtering
+											targets: [ 2 ],
+											visible: true
+										},
+										{ // hide group codes, which will be used for filtering
+											targets: [ 3 ],
+											visible: true
+										},
+										{ // hide group codes, which will be used for filtering
+											targets: [ 4 ],
+											visible: true
+										},
+										{ // hide group codes, which will be used for filtering
+											targets: [ 5 ],
+											visible: true
+										},
+										{ // hide group codes, which will be used for filtering
+											targets: [ 6 ],
+											visible: true
+										},
+										{ // hide group codes, which will be used for filtering
+											targets: [ 7 ],
+											visible: true
+										},
+									],
+									"order": [[ 0, "desc" ]],
+									lengthMenu: [5, 10, 25],
+									pageLength: 5   
+								});
+							
+							});
+							
+							self.$app.utils.nextFrame(()=>{
+									//let wasDataAlreadyLoaded = self.DashboardDataLoadedEndUserOverview;
+									self.$setState({
+										DashboardDataLoadedEndUserOverview: true,
+										//EndUser:{Overview: result}
+									});
+								});
+				  
+				})
+
+				self.list = arrTable
+				self.listLoading = false
+			  })
+	  
+			  /*const query = {
 				page: 1,
 				limit: 10,
 				date1: this.topPeriod === 'thismonth'?current.clone().startOf('month').format('YYYY-MM-DD'):moment(today, 'YYYY-MM-DD').add(-days, 'days').format('YYYY-MM-DD'),
@@ -421,7 +569,7 @@
 					error: function(XMLHttpRequest, textStatus, errorThrown){
 						console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
 					}
-				});
+				});*/
 	
 			},			
 			showPanels: function () {
@@ -448,7 +596,7 @@
 						self.$setState({
 							totalDataUsage: total.DataDay ? (total.DataDay/1048576).toFixed(0) : 0,
 							totalSMSUsage: total.SMSMODay + total.SMSMTDay,
-							totalDuration: total.DurationDay,//(3600*response.Table3[0].JTOV_DATA_DAY)/(response.Table3[0].JTOV_DURATION_DAY*1048576),
+							totalDuration: total.OnlineNumbersDay,//(3600*response.Table3[0].JTOV_DATA_DAY)/(response.Table3[0].JTOV_DURATION_DAY*1048576),
 							totalDataSessions: total.SessionDay,
 						})
 					break
@@ -456,7 +604,7 @@
 						self.$setState({
 							totalDataUsage: total.DataWeek ? (total.DataWeek/1048576).toFixed(0) : 0,
 							totalSMSUsage: total.SMSMOWeek + total.SMSMTWeek,
-							totalDuration: total.DurationWeek,//(3600*response.Table3[0].JTOV_DATA_DAY)/(response.Table3[0].JTOV_DURATION_DAY*1048576),
+							totalDuration: total.OnlineNumbersWeek,//(3600*response.Table3[0].JTOV_DATA_DAY)/(response.Table3[0].JTOV_DURATION_DAY*1048576),
 							totalDataSessions: total.SessionWeek,
 						})
 					break
@@ -465,7 +613,7 @@
 						
 							totalDataUsage: total.DataMonth ? (total.DataMonth/1048576).toFixed(0) : 0,
 							totalSMSUsage: total.SMSMOMonth + total.SMSMTMonth,
-							totalDuration: total.DurationMonth,//(3600*response.Table3[0].JTOV_DATA_DAY)/(response.Table3[0].JTOV_DURATION_DAY*1048576),
+							totalDuration: total.OnlineNumbersMonth,//(3600*response.Table3[0].JTOV_DATA_DAY)/(response.Table3[0].JTOV_DURATION_DAY*1048576),
 							totalDataSessions: total.SessionMonth,
 						})
 					break
@@ -474,7 +622,7 @@
 						
 							totalDataUsage: total.DataYear ? (total.DataYear/1048576).toFixed(0) : 0,
 							totalSMSUsage: total.SMSMOYear + total.SMSMTYear,
-							totalDuration: total.DurationYear,//(3600*response.Table3[0].JTOV_DATA_DAY)/(response.Table3[0].JTOV_DURATION_DAY*1048576),
+							totalDuration: total.OnlineNumbersYear,//(3600*response.Table3[0].JTOV_DATA_DAY)/(response.Table3[0].JTOV_DURATION_DAY*1048576),
 							totalDataSessions: total.SessionYear,
 						})
 					break
@@ -567,7 +715,7 @@
                 let self = this;				
 				
 				self.showPanels();
-				//self.initTopSIM();
+				self.initTopSIM();
 				
 				var listEl = self.$el.find('.smart-select-0');
 				var listEl1 = self.$el.find('.smart-select-1');
@@ -609,7 +757,7 @@
 										DashboardDataLoadedEndUserOverview: false,
 										DashboardDataTable: []
 									});
-								//self.initTopSIM(true);
+								self.initTopSIM(true);
 							}
 						  }
 						});		
@@ -628,7 +776,7 @@
 										DashboardDataLoadedEndUserOverview: false,
 										DashboardDataTable: []
 									});
-					//self.initTopSIM(true);
+					self.initTopSIM(true);
 					
 				});
 				

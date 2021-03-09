@@ -186,11 +186,24 @@
                             
                         $.each(result.rows, async function(index, value){                        
                             var newObj = value                            
-                            newObj.rag = 'grey'                            
-                            newObj.update = ''
+                            newObj.rag = 'grey'      
                             let jsonDataArr = []
+							
+							const activityTime = value.DataUpdateTime;
+							let simActivityTime = moment(activityTime, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm:ss')
+							newObj.update = simActivityTime!='Invalid date'?simActivityTime:''
+							
+							if(activityTime){
+							  if(simActivityTime >= halfDayAgo){
+								newObj.rag = 'green'
+							  }else if(simActivityTime >= oneDayAgo && simActivityTime < halfDayAgo){
+								newObj.rag = 'yellow'
+							  }else {
+								newObj.rag = 'red'
+							  }
+							}
 
-							const responseActiveSession = await fetch(`https://m2mdata.co/jt/GetActiveSession?imsi=${newObj.IMSI}`)
+							/*const responseActiveSession = await fetch(`https://m2mdata.co/jt/GetActiveSession?imsi=${newObj.IMSI}`)
 								let resActiveSession = await responseActiveSession.json()
 																
 								if(resActiveSession.Data){
@@ -234,11 +247,11 @@
                                 "Content-Type": "application/x-www-form-urlencoded"
                                 },
                                 "data": listQuery_1
-                            };
+                            };*/
                                                 
-                            if(newObj.update.length==0){
+                            //if(newObj.update.length==0){
 							
-								$.ajax(settings_1).done(  function (result_1) {
+								/*$.ajax(settings_1).done(  function (result_1) {
 									
 									if(result_1.Data != null && result_1.Data.length){
 										let dataArr = result_1.Data.split('\r\n')
@@ -263,11 +276,12 @@
 											return d-c
 										})
 										
-										const simActivityTime = moment(result_1.Data.split(',')[5], 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
+										//~~const simActivityTime = moment(result_1.Data.split(',')[5], 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
 										newObj.update = sortedArr[0].end
 										//const simActivityTime = moment(result_1.Data.split(',')[5], 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
 										//newObj.update = result_1.Data.split(',')[5]
-									
+										const simActivityTime = moment(newObj.update, 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
+										
 										if(simActivityTime >= halfDayAgo){
 											newObj.rag = 'green'
 											}else if(simActivityTime >= oneDayAgo && simActivityTime < halfDayAgo){
@@ -275,11 +289,12 @@
 											}else {
 											newObj.rag = 'red'
 											}
-									}
+									}*/
 
 																	
 									
 									newArr.push(newObj);
+									
 
 									if(index === (result.rows.length-1)){
 										if(result.indexPage == 1){
@@ -329,60 +344,8 @@
 										}
 									}
 									
-									})
-								}else{
-								//<need optimized
-									newArr.push(newObj);
-
-									if(index === (result.rows.length-1)){
-										if(result.indexPage == 1){
-						
-											self.$app.infiniteScroll.create('.infinite-scroll-home-content');
-											// Loading flag
-
-											self.$setState({
-												maxItems: result.total,
-												lastItemIndex: $$('.simList li').length,										
-											});
-										}
-									
-										// Reset loading flag
-										self.$setState({
-											allowInfinite: true
-										});
-										
-										self.setSimList(newArr);
-										
-										if (result.indexPage === result.total) {
-											self.$app.infiniteScroll.destroy('.infinite-scroll-home-content');
-											
-											// Remove preloader
-										if(!$('.infinite-scroll-home-preloader').hasClass('display-none')){
-											$('.infinite-scroll-home-preloader').addClass('display-none')
-										}
-											return;
-										}
-										
-										let incrList = self.lastItemIndex + 20;
-										
-										self.$setState({
-											lastItemIndex: incrList
-										});
-										
-										let incr = self.page + 1;
-										
-										self.$setState({
-											page: incr
-										});
-											
-										$('.searchbar-hide-on-search').addClass('display-none');
-																		
-										if(self.page == 2){
-											$$('.infinite-scroll-home-content').on('infinite', self.getSimList);
-										}
-									}
-								//need optimized>
-								}
+									//})
+								//}
 							});
 						
 						
