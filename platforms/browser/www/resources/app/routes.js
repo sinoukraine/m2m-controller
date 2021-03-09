@@ -28,7 +28,7 @@ var routes = [
     },
     {
         path: '/commands-list/',
-        componentUrl: './resources/pages/commands-list.html?v=1.4',
+        componentUrl: './resources/pages/commands-list.html?v=1.5',
         name: 'commands-list'
     },
     {
