@@ -156,7 +156,7 @@
                     rows: 20,
                     Order: 'ASC',
                     Sort: 'IMSI',
-                    token: '00000000-0000-0000-0000-000000000000'
+                    token: accessNewToken//'00000000-0000-0000-0000-000000000000'
                 }
                 
 				if (self.text.length>4){				
@@ -168,7 +168,7 @@
 				  "method": "POST",
 				  "timeout": 0,
 				  "headers": {
-					"token": "00000000-0000-0000-0000-000000000000",
+					"token": accessNewToken,
 					"Content-Type": "application/x-www-form-urlencoded"
 				  },
 				  "data": listQuery
@@ -595,7 +595,7 @@
                         '</div>' +
                         '</div>';
                         
-                    var SIMCells = '<div class="action_button_wrapper">' +
+                    /*var SIMCells = '<div class="action_button_wrapper">' +
                         '<div class="action_button_block action_button_media">' +
                         '<i class="material-icons md-36 color-m2m-blue">settings_input_antenna</i>' +
                         '</div>' +
@@ -603,7 +603,7 @@
                         'SIM Cells ' +
                         '</div>' +
                         '</div>';
-                        
+                        */
                             
                     var SIMSessions = '<div class="action_button_wrapper">' +
                         '<div class="action_button_block action_button_media">' +
@@ -668,14 +668,14 @@
                                 mainView.router.navigate('/sessions/?imsi='+imsi.toString()+'&iccid='+iccid.toString());
                             },
                         },
-                        {
+                        /*{
                             text: SIMCells,
                             onClick: function() {
                                 self.$app.actions.close();
                                 self.$app.sheet.close();
                                 mainView.router.navigate('/cells/?imsi='+imsi.toString()+'&iccid='+iccid.toString());
                             },
-                        },
+                        },*/
                     ];
 
                     self.$app.actions.create({buttons}).open();

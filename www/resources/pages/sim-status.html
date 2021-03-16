@@ -248,13 +248,15 @@
 				var query = {
 				  IMSIs: [self.IMSI]
 				}
+				 let userInfo = self.$app.methods.getFromStorage('userInfo');
+                let accessNewToken = userInfo.accessNewToken;
 				
 				var settings = {
 				  "url": "https://test4.m2mdata.co/JT/Sim/Reboot",
 				  "method": "POST",
 				  "timeout": 0,
 				  "headers": {
-					"token": "00000000-0000-0000-0000-000000000000",
+					"token": accessNewToken,
 					"Content-Type": "application/x-www-form-urlencoded"
 				  },
 				  "data": query
@@ -282,12 +284,15 @@
 					IMSIs: [self.IMSI]
 				}
 				
+				let userInfo = self.$app.methods.getFromStorage('userInfo');
+                let accessNewToken = userInfo.accessNewToken;
+				
 				var settings = {
 				  "url": "https://test4.m2mdata.co/JT/Sim/Query",
 				  "method": "POST",
 				  "timeout": 0,
 				  "headers": {
-					"token": "00000000-0000-0000-0000-000000000000",
+					"token": accessNewToken,
 					"Content-Type": "application/x-www-form-urlencoded"
 				  },
 				  "data": listQuery
@@ -454,12 +459,15 @@
 				  imsi: [self.IMSI]
 				}
 				
+				let userInfo = self.$app.methods.getFromStorage('userInfo');
+                let accessNewToken = userInfo.accessNewToken;
+				
 				var settingsLBS = {
 				  "url": "https://test4.m2mdata.co/JT/Sim/QueryLBSInfo",
 				  "method": "POST",
 				  "timeout": 0,
 				  "headers": {
-					"token": "00000000-0000-0000-0000-000000000000",
+					"token": accessNewToken,
 					"Content-Type": "application/x-www-form-urlencoded"
 				  },
 				  "data": queryLBS
@@ -600,13 +608,15 @@
 				  IMSIs: [self.IMSI]
 				}
 				
+				let userInfo = self.$app.methods.getFromStorage('userInfo');
+                let accessNewToken = userInfo.accessNewToken;
 				
 				var settings = {
 				  "url": "https://test4.m2mdata.co/JT/Sim/SetSimServiceProfile",
 				  "method": "POST",
 				  "timeout": 0,
 				  "headers": {
-					"token": "00000000-0000-0000-0000-000000000000",
+					"token": accessNewToken,
 					"Content-Type": "application/x-www-form-urlencoded"
 				  },
 				  "data": query
@@ -639,6 +649,8 @@
 				  IMSIs: [self.IMSI]
 				}
 				//
+				let userInfo = self.$app.methods.getFromStorage('userInfo');
+                let accessNewToken = userInfo.accessNewToken;
 				
 				switch(state){
 						case 'Suspend':	
@@ -648,7 +660,7 @@
 								  "method": "POST",
 								  "timeout": 0,
 								  "headers": {
-									"token": "00000000-0000-0000-0000-000000000000",
+									"token": accessNewToken,
 									"Content-Type": "application/x-www-form-urlencoded"
 								  },
 								  "data": query
@@ -675,7 +687,7 @@
 								  "method": "POST",
 								  "timeout": 0,
 								  "headers": {
-									"token": "00000000-0000-0000-0000-000000000000",
+									"token": accessNewToken,
 									"Content-Type": "application/x-www-form-urlencoded"
 								  },
 								  "data": query
@@ -702,7 +714,7 @@
 								  "method": "POST",
 								  "timeout": 0,
 								  "headers": {
-									"token": "00000000-0000-0000-0000-000000000000",
+									"token": accessNewToken,
 									"Content-Type": "application/x-www-form-urlencoded"
 								  },
 								  "data": query
@@ -789,7 +801,7 @@
 								  "method": "POST",
 								  "timeout": 0,
 								  "headers": {
-									"token": "00000000-0000-0000-0000-000000000000",
+									"token": accessNewToken,
 									"Content-Type": "application/x-www-form-urlencoded"
 								  },
 								  "data": queryActivate

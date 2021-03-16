@@ -330,17 +330,42 @@
 			  
 			  this.list = []
 			  let pref_1 = this.tableData === 'smsusage'?'S':'D'
-			  let sort = this.tableData === 'smsusage'?'SMSMODay':'DataDay'
+			  let sort = 'DataDay'
 			  //let pref_2 = this.selectedPeriod    
+			  
+			  
+			  switch (pref_1 + pref_2){
+				case 'DD':
+					sort = 'DataDay'
+					break
+				case 'DW':
+					sort = 'DataWeek'
+					break
+				case 'DM':
+					sort = 'DataMonth'
+					break
+				case 'SD':
+					sort = 'SMSMODay'
+					break
+				case 'SW':
+					sort = 'SMSMOWeek'
+					break
+				case 'SM':
+					sort = 'SMSMOMonth'
+					break
+			  }
 			  
 			  const current = moment()          
 
+			   let userInfo = self.$app.methods.getFromStorage('userInfo');
+                let accessNewToken = userInfo.accessNewToken;
+				
 			  var settings = {
 				"url": 'https://test4.m2mdata.co/JT/Sim/Query',
 				"method": "POST",
 				"timeout": 0,
 				"headers": {
-				"token": "00000000-0000-0000-0000-000000000000",
+				"token": accessNewToken,
 				"Content-Type": "application/x-www-form-urlencoded"
 				},
 				"data": {
@@ -574,12 +599,15 @@
 			},			
 			showPanels: function () {
                 let self = this;
+				 let userInfo = self.$app.methods.getFromStorage('userInfo');
+                let accessNewToken = userInfo.accessNewToken;
+				
 			  var settings = {
 						  "url": 'https://test4.m2mdata.co/JT/Report/Bashboard',
 						  "method": "POST",
 						  "timeout": 0,
 						  "headers": {
-							"token": "00000000-0000-0000-0000-000000000000",
+							"token": accessNewToken,
 							"Content-Type": "application/x-www-form-urlencoded"
 						  },
 						  "data": {

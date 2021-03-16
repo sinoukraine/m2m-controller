@@ -1,7 +1,7 @@
 var routes = [
     {
         path: '/',
-        componentUrl: './resources/pages/home.html?v=4.3',
+        componentUrl: './resources/pages/home.html?v=4.4',
         name: 'home',
     },
     {
@@ -13,12 +13,12 @@ var routes = [
     },
     {
         path: '/commands/',
-        componentUrl: './resources/pages/commands.html?v=2.3',
+        componentUrl: './resources/pages/commands.html?v=2.4',
         name: 'commands'
     },
     {
         path: '/dashboard/',
-        componentUrl: './resources/pages/dashboard.html?v=1.9',
+        componentUrl: './resources/pages/dashboard.html?v=2.0',
         name: 'dashboard'
     },
     {
@@ -28,7 +28,7 @@ var routes = [
     },
     {
         path: '/commands-list/',
-        componentUrl: './resources/pages/commands-list.html?v=1.5',
+        componentUrl: './resources/pages/commands-list.html?v=1.6',
         name: 'commands-list'
     },
     {
@@ -38,12 +38,12 @@ var routes = [
     },
     {
         path: '/commands-history/',
-        componentUrl: './resources/pages/commands-history.html?v=1.8',
+        componentUrl: './resources/pages/commands-history.html?v=1.9',
         name: 'commands-history'
     },
     {
         path: '/sim-status/',
-        componentUrl: './resources/pages/sim-status.html?v=3.5',
+        componentUrl: './resources/pages/sim-status.html?v=3.6',
         name: 'sim-status'
     },
     {
@@ -85,7 +85,7 @@ var routes = [
 
     {
         path: '/report/',
-        componentUrl: './resources/pages/report.html?v=2.5',
+        componentUrl: './resources/pages/report.html?v=2.6',
         name: 'report'
     },
 	{
@@ -95,14 +95,14 @@ var routes = [
     },
 	{
         path: '/sessions/',
-        componentUrl: './resources/pages/sessions.html?v=2.5',
+        componentUrl: './resources/pages/sessions.html?v=2.6',
         name: 'sessions'
-    },
+    },/*
 	{
         path: '/cells/',
         componentUrl: './resources/pages/cells.html?v=2.0',
         name: 'cells'
-    },
+    },*/
 	{
         path: '/hlr/',
         componentUrl: './resources/pages/hlr.html?v=2.2',

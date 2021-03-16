@@ -189,10 +189,21 @@ var app = new Framework7({
             				
 			let accessToken = '';
 			
-			const obj = {
+			/*const obj = {
 			  account: 'root',
 			  password: '888888'
-			}    
+			}*/
+			
+			let account = $$("input[name='username']");
+            let password = $$("input[name='password']");
+
+            let obj = {
+                account: account.val() ? account.val() : localStorage.ACCOUNT,
+                password: password.val() ? password.val() : localStorage.PASSWORD,
+            };
+
+			//localStorage.ACCOUNT = account.val();
+            //localStorage.PASSWORD = password.val();
 			
 			/*let data =  Qs.stringify(obj)*/
 
